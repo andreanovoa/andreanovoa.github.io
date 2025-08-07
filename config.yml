@@ -72,22 +72,12 @@ params:
               url: archive/
 
     socialIcons:
-        # - name: CV
-          # url: cv.pdf
         - name: Email
           url: mailto:a[dot]novoa[at]imperial.ac.uk
         - name: Google Scholar
           url: https://scholar.google.com/citations?user=X0TjtAgAAAAJ&hl=en
         - name: GitHub
           url: https://github.com/andreanovoa
-        # - name: Substack
-        #   url: https://pmichaillat.substack.com
-        # - name: YouTube
-        #   url: https://www.youtube.com/@pmichaillat
-        # - name: Twitter
-        #   url: https://x.com/pmichaillat
-        # - name: Bluesky
-        #   url: https://bsky.app/profile/pmichaillat.bsky.social
 
     assets:
         disableScrollBarStyle: true
@@ -96,8 +86,6 @@ params:
         hiddenInSingle: true
     label:
       text: "Andrea Nóvoa"
-      icon: favicon.ico
-      iconHeight: 18
 
 markup:
     goldmark:

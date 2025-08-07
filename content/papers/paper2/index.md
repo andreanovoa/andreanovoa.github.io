@@ -15,10 +15,15 @@ editPost:
 
 ---
 
+
+---
 ##### Download
 
 + [Published paper](https://doi.org/10.1016/j.cma.2023.116502)  
 + [Preprint](https://arxiv.org/abs/2306.04315)
+
+
+---
 
 ##### Abstract
 
@@ -26,7 +31,10 @@ This paper addresses the challenge of inferring unknown unknowns—unmodelled er
 
 ##### Figure 1: Conceptual illustration of unknown unknowns inference
 
-![inferring_unknowns_cover.gif]
+!()[inferring_unknowns_cover.gif]
+
+
+---
 
 ##### Citation
 
@@ -34,8 +42,8 @@ Nóvoa, Andrea, Racca, and Magri. 2023. "Inferring unknown unknowns." *Computer 
 
 
 ```BibTeX 
-@article{NoRaMa23,
-author = {Andrea Nóvoa and Racca and Magri},
+@article{Novoa_inferring_2023,
+author = {Andrea Nóvoa and Alberto Racca and Luca Magri},
 title = {Inferring unknown unknowns},
 year = {2023},
 journal = {Computer Methods in Applied Mechanics and Engineering},
@@ -43,8 +51,10 @@ url = {https://doi.org/10.1016/j.cma.2023.116502}
 }
 ```
 
+---
 
 
 ##### Related material
 
 + [Legacy code and data repository](https://github.com/MagriLab/rBA-EnKF)
++ [Erratum](https://github.com/andreanovoa/real-time-bias-aware-DA/blob/main/docs/2023_CMAME_Erratum.pdf)
