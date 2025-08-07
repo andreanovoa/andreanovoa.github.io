@@ -1,4 +1,4 @@
 ---
 title: "Courses"
-description: "Courses on philology by Professor Dr von Igelfeld and esteemed colleagues. For undergraduate and graduate students."
+description: "Courses and lectures given by Andrea Nóvoa for undergraduate and graduate students."
 ---

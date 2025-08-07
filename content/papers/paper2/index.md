@@ -1,61 +1,97 @@
----
-title: "The Finer Points of Sausage Dogs" 
-date: 2004-12-28
-tags: ["zoology","sausage dogs","canine pulmonary efficiency","canine science","experimental zoology"]
-author: ["Florianus Prinzel", "Moritz-Maria von Igelfeld"]
-description: "This paper studies the pulmonary efficiency of sausage dogs. Published in the Journal of Canine Science, 2004." 
-summary: "This paper studies the pulmonary efficiency of sausage dogs through several experiments." 
+
+# ---
+
+title: "Inferring unknown unknowns"
+date: 2023
+tags: ["machine learning", "data assimilation", "unknown unknowns", "model bias"]
+author: ["Andrea Nóvoa", "Alberto Racca", "Luca Magri"]
+description: "This paper develops novel methods to infer unknown unknowns in complex dynamical systems using data assimilation techniques."
+summary: "We propose an innovative approach for detecting and quantifying unknown unknown errors in computational models, enhancing prediction reliability and robustness."
 cover:
-    image: "paper2.png"
-    alt: "Dimensions of a sausage dog"
-    relative: true
+image: "inferring_unknowns_cover.gif"
+alt: "Inferring unknown unknowns concept illustration"
+relative: true
 editPost:
-    URL: "https://github.com/pmichaillat/hugo-website"
-    Text: "Journal of Canine Science"
-
----
-
----
+URL: "https://github.com/MagriLab/rBA-EnKF"
+Text: "Legacy repository"
 
 ##### Download
 
-+ [Paper](paper2.pdf)
-+ [Online appendix](appendix2.pdf)
-+ [Code and data](https://github.com/pmichaillat/wunk-model)
++ [Published paper](https://doi.org/10.1016/j.cma.2023.116502)
++ [Preprint](https://arxiv.org/abs/2306.04315)
 
----
 
 ##### Abstract
 
-This paper studies the pulmonary efficiency of sausage dogs. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur: $\sin(\theta) = x^2 - \exp(1+\chi)$. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor $\zeta$ incididunt ut labore et dolore magna aliqua: $p(x) = \int \cos(\zeta) d\zeta - \theta$. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+This paper addresses the challenge of inferring unknown unknowns—unmodelled errors and biases—in computational simulations through advanced data assimilation methods. The approach improves the accuracy of model predictions by estimating and correcting for hidden systematic errors. The methodology is demonstrated on relevant nonlinear dynamical systems relevant to engineering applications.
 
----
 
-##### Figure 2: Dimensions of a sausage dog
-
-![](paper2.png)
-
----
+!()[inferring_unknowns_cover.gif]
 
 ##### Citation
 
-Prinzel, Florianus, and Moritz-Maria von Igelfeld. 2004. "The Finer Points of Sausage Dogs." *Journal of Canine Science* 43 (2): 89–109. http://www.alexandermccallsmith.com/book/the-finer-points-of-sausage-dogs.
+Nóvoa, Andrea, Racca, and Magri. 2023. "Inferring unknown unknowns." *Computer Methods in Applied Mechanics and Engineering.* https://doi.org/10.1016/j.cma.2023.116502.
 
-```BibTeX
-@article{PI04,
-author = {Florianus Prinzel and Moritz-Maria von Igelfeld},
-year = {2004},
-title ={The Finer Points of Sausage Dogs},
-journal = {Journal of Canine Science},
-volume = {43},
-number = {2},
-pages = {89--109},
-url = {http://www.alexandermccallsmith.com/book/the-finer-points-of-sausage-dogs}}
+```BibTeX 
+@article{NoRaMa23,
+author = {Andrea Nóvoa and Racca and Magri},
+title = {Inferring unknown unknowns},
+year = {2023},
+journal = {Computer Methods in Applied Mechanics and Engineering},
+url = {https://doi.org/10.1016/j.cma.2023.116502}
+}
 ```
 
----
 
 ##### Related material
 
-+ [Presentation slides](presentation2.pdf)
-+ [Wikipedia entry](https://en.wikipedia.org/wiki/The_Finer_Points_of_Sausage_Dogs)
++ [Legacy code and data repository](https://github.com/MagriLab/rBA-EnKF)
+
+Here is the formatted paper information for your website, based on your latest input:
+
+---
+title: "Inferring unknown unknowns"
+date: 2023
+tags: ["machine learning", "data assimilation", "unknown unknowns", "model bias"]
+author: ["Andrea Nóvoa", "Alberto Racca", "Luca Magri"]
+description: "This paper develops novel methods to infer unknown unknowns in complex dynamical systems using data assimilation techniques."
+summary: "We propose an innovative approach for detecting and quantifying unknown unknown errors in computational models, enhancing prediction reliability and robustness."
+cover:
+image: "inferring_unknowns_cover.gif"
+alt: "Inferring unknown unknowns concept illustration"
+relative: true
+editPost:
+URL: "https://github.com/MagriLab/rBA-EnKF"
+Text: "Legacy repository"
+
+##### Download
+
++ [Published paper](https://doi.org/10.1016/j.cma.2023.116502)
++ [Preprint](https://arxiv.org/abs/2306.04315)
+
+
+##### Abstract
+
+This paper addresses the challenge of inferring unknown unknowns—unmodelled errors and biases—in computational simulations through advanced data assimilation methods. The approach improves the accuracy of model predictions by estimating and correcting for hidden systematic errors. The methodology is demonstrated on relevant nonlinear dynamical systems relevant to engineering applications.
+
+##### Figure 1: Conceptual illustration of unknown unknowns inference
+
+##### Citation
+
+Nóvoa, Andrea, Racca, and Magri. 2023. "Inferring unknown unknowns." *Computer Methods in Applied Mechanics and Engineering.* https://doi.org/10.1016/j.cma.2023.116502.
+
+```BibTeX 
+@article{NoRaMa23,
+author = {Andrea Nóvoa and Racca and Magri},
+title = {Inferring unknown unknowns},
+year = {2023},
+journal = {Computer Methods in Applied Mechanics and Engineering},
+url = {https://doi.org/10.1016/j.cma.2023.116502}
+}
+```
+
+
+##### Related material
+
++ [Legacy code and data repository](https://github.com/MagriLab/rBA-EnKF)
+
