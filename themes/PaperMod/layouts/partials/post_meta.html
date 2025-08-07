@@ -1,7 +1,10 @@
 {{- $scratch := newScratch }}
 
 {{- if not .Date.IsZero -}}
-{{- $scratch.Add "meta" (slice (printf "<span title='%s'>%s</span>" (.Date) (.Date | time.Format (default "January 2, 2006" site.Params.DateFormat)))) }}
+<!-- {{- $scratch.Add "meta" (slice (printf "<span title='%s'>%s</span>" (.Date) (.Date | time.Format (default "January 2, 2006" site.Params.DateFormat)))) }} -->
+{{- $formattedDate := .Date.Format (default "January 2, 2006" site.Params.DateFormat) }}
+{{- $dateTitle := .Date.Format "2006-01-02" }}
+{{- $scratch.Add "meta" (slice (printf "<span title='%s'>%s</span>" $dateTitle $formattedDate)) }}
 {{- end }}
 
 {{- if (.Param "ShowReadingTime") -}}

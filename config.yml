@@ -32,7 +32,7 @@ params:
     description: "This website hosts Andrea Nóvoa's research papers, course materials, data, curriculum vitae, and contact information."
     author: Andrea Nóvoa
     # googleAnalyticsID: "G-XXXXX"
-    DateFormat: "August 2025"
+    # DateFormat: "1 June 2025"
     defaultTheme: dark
     hideFooter: false
     disableThemeToggle: true
@@ -55,7 +55,7 @@ params:
     profileMode:
           enabled: true
           title: Andrea Nóvoa
-          subtitle: "I am a Research Fellow at Imperial College London"
+          subtitle: "Research Fellow in Scientific Machine Learning at Imperial College London"
           imageUrl: "picture.jpeg"
           imageWidth: 160
           imageHeight: 160
@@ -64,10 +64,10 @@ params:
               url: papers/
             - name: Data
               url: data/
-            - name: Courses
-              url: courses/
-            - name: Tags
-              url: tags/
+            # - name: Courses
+            #   url: courses/
+            # - name: Tags
+            #   url: tags/
             - name: Archive
               url: archive/
 
@@ -80,12 +80,14 @@ params:
           url: https://github.com/andreanovoa
 
     assets:
-        disableScrollBarStyle: true
+        disableScrollBarStyle: false
     cover:
         hiddenInList: false
         hiddenInSingle: true
     label:
       text: "Andrea Nóvoa"
+      icon: "favicon.ico"
+      size:  18
 
 markup:
     goldmark:
