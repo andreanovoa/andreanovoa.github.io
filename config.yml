@@ -1,5 +1,5 @@
 baseURL: "https://andreanovoa.github.io/andreanovoa-website/" 
-title: Andrea Nóvoa's website
+title: Andrea Nóvoa
 theme: PaperMod
 
 enableInlineShortcodes: true
@@ -15,15 +15,18 @@ menu:
         # - name: Books
         #   url: books/
         #   weight: 5 
+        - name: CV
+          url: cv/
+          weight: 1
         - name: Papers
           url: papers/
           weight: 2
-        - name: Courses
-          url: courses/
-          weight: 3
-        - name: Data
-          url: data/
-          weight: 4 
+        # - name: Courses
+        #   url: courses/
+        #   weight: 3
+        # - name: Data
+        #   url: data/
+        #   weight: 4 
         # - name: Blog
         #   url: https://en.wikipedia.org/wiki/Moritz-Maria_von_Igelfeld_(character)
         #   weight: 6
@@ -60,16 +63,18 @@ params:
           imageWidth: 160
           imageHeight: 160
           buttons:
-            - name: Papers
+            - name: CV
+              url: cv/
+            - name: Publications
               url: papers/
-            - name: Data
-              url: data/
+            # - name: Data
+            #   url: data/
             # - name: Courses
             #   url: courses/
             # - name: Tags
             #   url: tags/
-            - name: Archive
-              url: archive/
+            # - name: Archive
+            #   url: archive/
 
     socialIcons:
         - name: Email
@@ -78,6 +83,9 @@ params:
           url: https://scholar.google.com/citations?user=X0TjtAgAAAAJ&hl=en
         - name: GitHub
           url: https://github.com/andreanovoa
+        - name: Linkedin
+          url: https://www.linkedin.com/in/andreanovoamartinez/
+    
 
     assets:
         disableScrollBarStyle: false
@@ -87,7 +95,7 @@ params:
     label:
       text: "Andrea Nóvoa"
       icon: "favicon.ico"
-      size:  18
+      size:  16
 
 markup:
     goldmark:
@@ -95,7 +103,7 @@ markup:
             unsafe: true
     highlight:
         guessSyntax: true
-        style: autumn 
+        style: monokai 
     tableOfContents:
         endLevel: 2
         ordered: false

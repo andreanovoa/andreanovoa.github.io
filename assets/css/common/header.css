@@ -28,6 +28,8 @@
 }
 
 .logo a img, .logo a svg {
+    max-width: 16px;
+    max-height: 16px;
     display: inline;
     vertical-align: middle;
     pointer-events: none;

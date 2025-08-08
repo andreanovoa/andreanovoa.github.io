@@ -1,7 +1,7 @@
 .footer,
 .top-link {
     font-size: var(--footersize);
-    color: var(--secondary);
+    color: var(--content);
 }
 
 .footer {
@@ -22,11 +22,11 @@
 }
 
 .footer a {
-    color: var(--secondary);
+    color: var(--content);
 }
 
 .footer a:hover {
-    border-bottom: 2px solid var(--darkcolor);
+    border-bottom: 2px solid var(--secondary);
 }
 
 .top-link {
@@ -55,5 +55,5 @@
 
 .top-link:focus,
 #theme-toggle:focus {
-    outline: 0;
+    outline: 1;
 }
