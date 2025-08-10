@@ -131,7 +131,9 @@
 
 .post-content table {
     margin-bottom: var(--content-gap);
+    text-align: center;
 }
+
 
 .post-content table th,
 .post-content table:not(.highlighttable, .highlight table, .gist .highlight) td {

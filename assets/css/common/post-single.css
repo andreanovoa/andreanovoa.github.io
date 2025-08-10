@@ -138,13 +138,18 @@
 }
 
 .post-content table {
-    margin-bottom: var(--content-gap);
+    width: 100%;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 80px;
+    box-sizing: border-box;
+    
 }
 
 .post-content table th,
 .post-content table:not(.highlighttable, .highlight table, .gist .highlight) td {
     min-width: 80px;
-    padding: 8px 5px;
+    padding: 10px 5px;
     line-height: var(--lineheight);
     border-bottom: 1px solid var(--border-light);
 }
@@ -152,14 +157,22 @@
 .post-content table th {
     text-align: start;
     font-size: 14px;
-    font-weight: var(--semibold);
+    font-weight: bolder;
     text-transform: uppercase;
-    color: var(--primary);
+    color: var(--secondary);
     border-bottom: 2px solid var(--tertiary);
 }
 
 .post-content table:not(.highlighttable) td code:only-child {
     margin: auto 0;
+}
+
+.post-content table tbody tr:hover {
+  background-color: var(--code-bg);
+  transition: background 0.2s;
+}
+.post-content table:not(.highlighttable) tr:last-child td {
+    border-bottom: 2px solid var(--tertiary);
 }
 
 .post-content .highlight table {
@@ -229,9 +242,9 @@
 }
 
 .post-content hr {
-    margin: 30px 0;
-    height: 2px;
-    background: var(--tertiary);
+    margin: 0;
+    height: 1px;
+    background: var(--linebreak);
     border: 0;
 }
 
@@ -439,33 +452,7 @@ a[href^="#fn:"], a[href^="#fnref:"] {
 a[href^="#fn:"]:hover, a[href^="#fnref:"]:hover {
     color: var(--darkcolor);
 }
-
-
 /* 
-.cv-notes-row {
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: inherit;
-}
-
-.cv-label {
-  display: inline-block;
-  width: 9ch; 
-  color: var(--tertiary);
-  font-weight: 350;
-  text-transform: uppercase;
-  text-align: right;
-  font-size: 0.7em;
-  margin-right: 0.5em;
-  margin-top: 0.25em;
-  flex-shrink: 0;   
-}
-
-.cv-notes-row span:not(.cv-label) {
-  flex: 1;           
-  min-width: 0;     
-} */
-
 
 .cv-notes {
   margin: 0;
@@ -491,4 +478,21 @@ a[href^="#fn:"]:hover, a[href^="#fnref:"]:hover {
   display: inline-block;
   margin: 0 0 0 0;
   padding: 0;
+} */
+
+.cv-note-label {
+  display: inline-block;
+  min-width: 9ch;
+  color: var(--tertiary);
+  text-align: right;
+  font-weight: 500;
+  text-transform: uppercase;
+  font-style: italic;
+  font-size: 0.6em;
+}
+
+.cv_highlight {
+  color: var(--tertiary);
+  font-weight: 600;
+  padding: 0 0.1em;
 }

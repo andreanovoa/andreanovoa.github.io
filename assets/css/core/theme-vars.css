@@ -46,13 +46,14 @@
     --theme: rgb(40, 42, 54);       /* #282A36 - Background base: Dark grayish purple */
     --entry: rgba(76, 68, 90, 0.28);       /* #44475A - Secondary background: Slightly lighter */
     --primary: rgb(248, 248, 242);  /* #F8F8F2 - Primary text: Off-white */
-    --secondary: rgb(162, 139, 253); /* #6272A4 - Secondary text: Muted blue */
+    --secondary: rgba(164, 150, 220, 0.89); /* #6272A4 - Secondary text: Muted blue */
     --tertiary: rgba(162, 139, 253, 0.463); /* #8BE9FD - Accent color: Light cyan */
     --content: rgb(191, 191, 191);   /* #50FA7B - Accent: Bright green */
     --hljs-bg: rgb(40, 42, 54);     /* #282A36 - Syntax highlight background */
     --code-bg: rgba(162, 139, 253, 0.118);     /* #44475A - Code block background */
     --border: rgba(162, 139, 253, 0.055);    /* #6272A4 - Borders */
     --border-light: rgba(162, 139, 253, 0.445);
+    --linebreak: rgb(161, 161, 161);
 }
 
 
@@ -62,4 +63,8 @@
 
 .dark.list {
     background: var(--theme);
+}
+
+strong, b {
+  font-weight: 600;
 }
