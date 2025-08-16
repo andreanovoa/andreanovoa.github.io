@@ -58,8 +58,9 @@ params:
     profileMode:
           enabled: true
           title: Andrea Nóvoa
-          subtitle: "Research Fellow in Scientific Machine Learning at Imperial College London"
-          imageUrl: "picture.jpeg"
+          subtitle: "Research Fellow in Scientific Machine Learning"
+          subsubtitle: "Aeronautics depatment, Imperial College London"
+          imageUrl: "headshot_wb.jpg"
           imageWidth: 160
           imageHeight: 160
           buttons:

@@ -23,9 +23,16 @@
 }
 
 .profile img {
-    border-radius: 50%;
-    border: 1px solid var(--tertiary);
+    border-radius: 30%;
+    border: 3px solid var(--tertiary);
+    width: 150px;
+    max-width: 100%;
+    aspect-ratio: 1 / 1;   /* modern way to keep square shape */
+    height: auto;
+    object-fit: cover;
+    display: block;
 }
+
 
 .buttons {
     flex-wrap: wrap;
@@ -40,8 +47,14 @@
 
 .button-inner {
     padding: 0 8px;
+    font-weight: 500;                                   /* semi-bold */
+    font-size: 1.1rem;                                  /* slightly larger */
+    letter-spacing: 0.04em;                             /* gentle spacing */
+    color: var(--primary);
+    text-transform: uppercase;
 }
 
 .button:hover {
     background: var(--secondary);
+    border-color: var(--primary);
 }
