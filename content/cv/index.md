@@ -9,11 +9,11 @@ disableAnchoredHeadings: true
 
 ## Education
 
-| Years | Degree & Institution | <span class="cv-note-label"></span> Notes & Achievements |
+| Years | Degree & Institution | <span class="cv-note">Notes & Achievements</span> |
 |-------------|------------------|----------------------|
-| 2020–24 | **PhD in Engineering**<br>Cambridge University, UK | <span class="cv-note-label">Awards</span> Amelia Earhart Fellowship <br> <span class="cv-note-label">Thesis</span> Real-time data assimilation in nonlinear dynamical systems <br> <span class="cv-note-label">Examiners</span> Prof. Girolami &amp; Prof. Parente <br> <span class="cv-note-label">Funding</span> Cambridge Trust <span class="cv_highlight">&#124;</span> EPSRC <span class="cv_highlight">&#124;</span> Rolls Royce|
-| 2018–19 | **MPhil in Energy Technologies**<br>Cambridge University, UK | <span class="cv-note-label">Awards</span> Examiners' Prize <span class="cv_highlight">&#124;</span> Hawk's Trust award<br><span class="cv-note-label">Funding</span> Barrié Foundation Fellowship |
-| 2014–18 | **BSc in Energy Engineering**<br>University of Vigo, Spain | <span class="cv-note-label">Awards</span> End-of-degree 2nd national prize |
+| 2020–24 | **PhD in Engineering**<br>Cambridge University, UK | <span class="cv-note"><span class="cv-note-label">Awards</span> Amelia Earhart Fellowship <br> <span class="cv-note-label">Thesis</span> Real-time data assimilation in nonlinear dynamical systems<br> <span class="cv-note-label">Examiners</span> Prof. Girolami &amp; Prof. Parente <br> <span class="cv-note-label">Funding</span> Cambridge Trust <span class="cv-highlight">&#124;</span> EPSRC <span class="cv-highlight">&#124;</span> Rolls Royce</span>|
+| 2018–19 | **MPhil in Energy Technologies**<br>Cambridge University, UK | <span class="cv-note"><span class="cv-note-label">Awards</span> Examiners' Prize <span class="cv-highlight">&#124;</span> Hawk's Trust award<br><span class="cv-note-label">Funding</span> Barrié Foundation Fellowship </span>|
+| 2014–18 | **BSc in Energy Engineering**<br>University of Vigo, Spain | <span class="cv-note"><span class="cv-note-label">Awards</span> End-of-degree 2nd national prize</span> |
 
 <!-- <hr> -->
 

@@ -149,7 +149,7 @@
 .post-content table th,
 .post-content table:not(.highlighttable, .highlight table, .gist .highlight) td {
     min-width: 80px;
-    padding: 10px 5px;
+    padding: 10px 10px;
     line-height: var(--lineheight);
     border-bottom: 1px solid var(--border-light);
 }
@@ -452,47 +452,35 @@ a[href^="#fn:"], a[href^="#fnref:"] {
 a[href^="#fn:"]:hover, a[href^="#fnref:"]:hover {
     color: var(--darkcolor);
 }
-/* 
 
-.cv-notes {
-  margin: 0;
-  padding: 0;
-  margin-bottom: 0.1em;
+
+.cv-note {
+  display: block;
+  position: relative;
+  margin-left: -4ch;
+  padding-left: 11ch;
 }
 
-.cv-notes dt {
-  display: inline-block;
-  width: 10ch; 
-  color: var(--tertiary);
-  text-align: right;
-  font-weight: 350;
-  text-transform: uppercase;
-  font-style: italic;
-  font-size: 0.7em;
-  vertical-align: top;
-  margin-right: 0.5em;
-  flex-shrink: 0;   
-}
-
-.cv-notes dd {
-  display: inline-block;
-  margin: 0 0 0 0;
-  padding: 0;
-} */
 
 .cv-note-label {
+  /* Ensure label are aligned to the "column" and right-justified */
   display: inline-block;
-  min-width: 9ch;
-  color: var(--tertiary);
+  width: 9ch;
   text-align: right;
+  color: var(--tertiary);
   font-weight: 500;
   text-transform: uppercase;
   font-style: italic;
-  font-size: 0.6em;
+  font-size: 0.7em;
+  margin-left: -10ch;
+  position: relative;
+  z-index: 1;
+  padding-right: 0.5ch;
 }
 
-.cv_highlight {
+.cv-highlight {
   color: var(--tertiary);
   font-weight: 600;
   padding: 0 0.1em;
 }
+
