@@ -63,6 +63,7 @@ params:
           imageUrl: "headshot_wb.jpg"
           imageWidth: 160
           imageHeight: 160
+          icon: "favicon.ico"
           buttons:
             - name: CV
               url: cv/
@@ -82,10 +83,13 @@ params:
           url: mailto:a[dot]novoa[at]imperial.ac.uk
         - name: Google Scholar
           url: https://scholar.google.com/citations?user=X0TjtAgAAAAJ&hl=en
+        - name: OrcID
+          url: https://orcid.org/my-orcid?orcid=0000-0003-0597-8326
         - name: GitHub
           url: https://github.com/andreanovoa
         - name: Linkedin
           url: https://www.linkedin.com/in/andreanovoamartinez/
+        
     
 
     assets:
@@ -96,7 +100,7 @@ params:
     label:
       text: "Andrea Nóvoa"
       icon: "favicon.ico"
-      size:  16
+      size:  32
 
 markup:
     goldmark:
