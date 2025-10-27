@@ -1,68 +1,137 @@
-:root {
-    --gap: 24px;
-    --content-gap: 20px;
-    --nav-width: 1024px;
-    --main-width: 60%;
-    --header-height: 44px;
-    --footer-height: 70px;
-    --radius: 8px;
-    --theme: rgb(255, 255, 255);
-    --entry: rgb(255, 255, 255);
-    --primary: rgb(30, 30, 30);
-    --secondary: rgb(108, 108, 108);
-    --tertiary: rgb(214, 214, 214);
-    --gray: rgb(165, 165, 165);
-    --content: rgb(30, 30, 30);
-    --code-block-bg: rgb(28, 29, 33);
-    --code-bg: rgb(245, 245, 245);
-    --border: rgb(238, 238, 238);
-    --darkcolor: rgba(162, 139, 253, 0.641);
-    --lightcolor: #cbd1de;
-    --semibold: 500;
-    --homesize: 16px;
-    --textsize: 18px;
-    --h1size: 25px;
-    --entrysize: 15px;
-    --headersize: 16px;
-    --footersize: 13px;
-    --lineheight: 1.45;
-    --lineclamp: 8;
-    --marginleft: 26px;
+/* --- Color Schemes --- */
+
+/* Purple Scheme Definition */
+.purple {
+  --main-color-0: #ffffff;
+  
+  /* Purple main-color-1 example, define or replace var(--main-color-primary) accordingly */
+  --main-color-1: rgb(112, 66, 255); /* Example purple main color */
+
+  --main-color-1-r: 112;
+  --main-color-1-g: 66;
+  --main-color-1-b: 255;
+
+  --main-color-2: rgb(67, 57, 96); /* Mid-dark shade for dark elements */
+  --main-color-2-r: 67;
+  --main-color-2-g: 57;
+  --main-color-2-b: 96;
+
+  --main-color-3: rgb(66, 56, 95); /* Darkest shade for dark background */
+
+  --main-color-3-r: 66;
+  --main-color-3-g: 56;
+  --main-color-3-b: 95;
+
+  --main-color-b: rgb(0, 0, 0);
+
 }
 
-/* .dark {
-    --theme: rgb(29, 30, 32);
-    --entry: rgb(46, 46, 51);
-    --primary: rgb(218, 218, 219);
-    --secondary: rgb(155, 156, 157);
-    --tertiary: rgb(65, 66, 68);
-    --content: rgb(196, 196, 197);
-    --code-block-bg: rgb(46, 46, 51);
-    --code-bg: rgb(55, 56, 62);
-    --border: rgb(51, 51, 51);
-} */
+/* Teal Scheme Definition - Default */
+.teal {
+  --main-color-0: #ffffff;
+
+  --main-color-1: rgb(98, 148, 163);
+  --main-color-1-r: 98;
+  --main-color-1-g: 148;
+  --main-color-1-b: 163;
+
+  --main-color-2: rgb(57, 89, 99); /* Mid-dark shade for dark elements */
+  --main-color-2-r: 57;
+  --main-color-2-g: 89;
+  --main-color-2-b: 99;
+
+  --main-color-3: rgb(39, 49, 52); /* Darkest shade for dark background */
+  --main-color-3-r: 39;
+  --main-color-3-g: 49;
+  --main-color-3-b: 52;
+
+  --main-color-b: rgb(0, 0, 0);
+}
+
+/* --- Global Variables and Default (Teal) Settings --- */
+
+:root {
+  /* Set Teal as the Default Main Color Scheme */
+  --main-color-0: #f3f3f362;
+
+  --main-color-1: rgb(98, 148, 163);
+  --main-color-1-r: 98;
+  --main-color-1-g: 148;
+  --main-color-1-b: 163;
+
+  --main-color-2: rgb(57, 89, 99);
+  --main-color-2-r: 57;
+  --main-color-2-g: 89;
+  --main-color-2-b: 99;
+
+  --main-color-3: rgb(39, 49, 52);
+  --main-color-3-r: 39;
+  --main-color-3-g: 49;
+  --main-color-3-b: 52;
+
+  --main-color-b: rgb(0, 0, 0);
+
+  /* Existing Papermod/Theme Variables */
+  --gap: 24px;
+  --content-gap: 20px;
+  --nav-width: 1024px;
+  --main-width: 60%;
+  --header-height: 44px;
+  --footer-height: 70px;
+  --radius: 8px;
+  --entry-transparency: .3;
+
+  /* LIGHT MODE COLORS - Using Papermod Defaults/Overrides */
+  --theme: var(--main-color-0); 
+  --entry: rgba(var(--main-color-1-r), var(--main-color-1-g), var(--main-color-1-b), 
+                var(--entry-transparency));
+
+  --primary: var(--main-color-1); /* Main text color */
+  --secondary: var(--main-color-2); /* Secondary text/muted */
+  --tertiary: var(--main-color-3); /* Tertiary/placeholder */
+
+
+  --text-color-1: var(--theme);
+  --text-color-2: var(--primary);
+  --text-color-3: var(--secondary);  
+
+  --content: rgb(30, 30, 30);
+
+  --border: rgba(var(--main-color-2-r), var(--main-color-2-g), var(--main-color-2-b), 0.55);
+  --border-light: rgba(var(--main-color-1-r), var(--main-color-1-g), var(--main-color-1-b), 0.445);
+
+  /* Code/Borders */
+  --hljs-bg: var(--main-color-4, #282c34); /* Fallback color if main-color-4 undefined */
+  --code-bg: rgba(var(--main-color-4-r, 40), var(--main-color-4-g, 44), var(--main-color-4-b, 52), 0.8);
+  --code-block-bg: rgb(28, 29, 33);
+
+  /* Font/Size Variables */
+  --semibold: 500;
+  --homesize: 16px;
+  --textsize: 18px;
+  --h1size: 25px;
+  --entrysize: 15px;
+  --headersize: 16px;
+  --footersize: 13px;
+  --lineheight: 1.45;
+  --lineclamp: 8;
+  --marginleft: 26px;
+}
+
+/* --- Dark Mode Overrides --- */
 
 .dark {
-    --theme: rgb(40, 42, 54);       /* #282A36 - Background base: Dark grayish purple */
-    --entry: rgba(76, 68, 90, 0.28);       /* #44475A - Secondary background: Slightly lighter */
-    --primary: rgb(248, 248, 242);  /* #F8F8F2 - Primary text: Off-white */
-    --secondary: rgba(164, 150, 220, 0.89); /* #6272A4 - Secondary text: Muted blue */
-    --tertiary: rgba(162, 139, 253, 0.463); /* #8BE9FD - Accent color: Light cyan */
-    --content: rgb(191, 191, 191);   /* #50FA7B - Accent: Bright green */
-    --hljs-bg: rgb(40, 42, 54);     /* #282A36 - Syntax highlight background */
-    --code-bg: rgba(162, 139, 253, 0.118);     /* #44475A - Code block background */
-    --border: rgba(162, 139, 253, 0.055);    /* #6272A4 - Borders */
-    --border-light: rgba(162, 139, 253, 0.445);
-    --linebreak: rgb(161, 161, 161);
-}
+  /* Use the flexible main colors for Dark Mode Elements */
+  --theme: var(--main-color-b); /* Darkest background */
+  
+  --code-bg: rgba(var(--main-color-4-r, 40), var(--main-color-4-g, 44), var(--main-color-4-b, 52), 0.8);
 
+  /* Text/Secondary Colors */
+  --primary: var(--main-color-3);
+  --secondary: var(--main-color-2);
+  --tertiary: var(--main-color-1);
+  --content: rgb(149, 149, 149);
 
-.list {
-    background: var(--code-bg);
-}
-
-.dark.list {
-    background: var(--theme);
 }
 
 strong, b {

@@ -6,6 +6,7 @@
 .post-title {
     margin-bottom: 20px;
     font-size: 36px;
+    color: var(--text-color-2)
 }
 
 .post-description {
@@ -159,7 +160,7 @@
     font-size: 14px;
     font-weight: bolder;
     text-transform: uppercase;
-    color: var(--secondary);
+    color: var(--text-color-3);
     border-bottom: 2px solid var(--tertiary);
 }
 
@@ -168,7 +169,7 @@
 }
 
 .post-content table tbody tr:hover {
-  background-color: var(--code-bg);
+  background-color: var(--entry);
   transition: background 0.2s;
 }
 .post-content table:not(.highlighttable) tr:last-child td {
@@ -280,8 +281,8 @@
 
 .toc {
     margin: 0 2px 20px 2px;
-    border: 1px solid var(--border);
-    background: var(--code-bg);
+    border: 1px solid var(--border-light);
+    background: var(--entry);
     border-radius: var(--radius);
     padding: 0.4em;
 }
@@ -467,7 +468,7 @@ a[href^="#fn:"]:hover, a[href^="#fnref:"]:hover {
   display: inline-block;
   width: 9ch;
   text-align: right;
-  color: var(--tertiary);
+  color: var(--secondary);
   font-weight: 500;
   text-transform: uppercase;
   font-style: italic;

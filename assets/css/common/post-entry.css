@@ -14,11 +14,6 @@
     -webkit-line-clamp: 8;
 }
 
-.first-entry .entry-header h1 {
-    font-size: 34px;
-    line-height: 1.3;
-}
-
 .first-entry .entry-content {
     margin: 14px 0;
     font-size: 16px;
@@ -44,21 +39,20 @@
 }
 
 .post-entry:hover {
-     border: 2px solid var(--darkcolor);
+     /* border: 2px solid var(--darkcolor); */
+     border: 2px solid var(--border-light);
 }
 
 .tag-entry .entry-cover {
     display: none;
 }
 
-.entry-header h2 {
-    font-size: 20px;
-    line-height: var(--lineheight);
-}
+
+
 
 .entry-content {
     margin: 20px 10px;
-    color: var(--secondary);
+    color: var(--content);
     font-size: var(--entrysize);
     line-height: var(--lineheight);
     overflow: hidden;
@@ -67,8 +61,9 @@
     -webkit-line-clamp: 8;
 }
 
+
 .entry-footer {
-    color: var(--content);
+    color: var(--text-color-3);
     font-size: var(--entrysize);
 }
 
@@ -82,17 +77,20 @@
 
 .entry-hint {
     color: var(--secondary);
+    /* color: red */
 }
 
 .entry-hint-parent {
     display: flex;
     justify-content: space-between;
+    color: var(--text-color-2);
 }
 
 .entry-cover {
     font-size: var(--entrysize);
     margin-bottom: var(--gap);
     text-align: center;
+
 }
 
 .entry-cover img {
@@ -102,6 +100,14 @@
 }
 
 .entry-cover a {
-    color: var(--secondary);
-    box-shadow: 0 1px 0 var(--primary);
+    color: var(--main-color-0);
+    box-shadow: 0 1px 0 var(--main-color-2);
+}
+
+
+
+.entry-header .entry-content .tag-entry h2 h1 h3 {
+    font-size: 12px;
+    line-height: var(--lineheight);
+    color: red;
 }

@@ -5,12 +5,12 @@
     margin-inline-start: auto;
     margin-inline-end: auto;
     line-height: var(--header-height);
-    background: var(--code-bg);
+    background: var(--primary);
 }
-
+/* 
 .nav a {
     display: block;
-}
+} */
 
 .logo,
 #menu {
@@ -18,11 +18,13 @@
     margin: auto var(--gap);
 }
 
+
 .logo {
     flex-wrap: inherit;
 }
 
 .logo a {
+    color: var(--tertiary); 
     font-size: var(--headersize);
     font-weight: var(--semibold);
 }
@@ -41,6 +43,7 @@
 button#theme-toggle {
     font-size: 20px;
     margin: auto 4px;
+    color: white;
 }
 
 body.dark #moon {
@@ -64,12 +67,14 @@ body:not(.dark) #sun {
 }
 
 #menu a {
+    color: var(--tertiary); 
     font-size: var(--headersize);
-    font-weight: 400;
+    font-weight: 600;
+    font-variant: all-small-caps;
 }
 
 #menu .active {
-    border-bottom: 2px solid var(--darkcolor);
+    border-bottom: 2px solid var(--tertiary);
 }
 
 .lang-switch li,
@@ -93,3 +98,7 @@ body:not(.dark) #sun {
 .logo-switches {
     flex-wrap: inherit;
 }
+/* 
+.logo a, #menu a {
+    
+} */

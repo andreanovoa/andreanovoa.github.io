@@ -1,7 +1,7 @@
-<div class="profile">
+<div class="profile" style="margin-top: 10rem; flex-direction: column; align-items: center;">
   {{- with site.Params.profileMode}}
   
-  <div class="profile_inner">
+  <div class="profile_inner" style="border: 2px solid var(--primary); padding: 1rem; border-radius: 8px; background-color: var(--entry);">
 
     <!-- FLEX COLUMN: stack row, then buttons -->
     <div style="display: flex; flex-direction: column; align-items: center;">
@@ -35,15 +35,20 @@
             {{ .subtitle | markdownify }}<br>{{ .subsubtitle | markdownify }}
           </span>
            
-          
-            </span>
+          <!-- Social Icons -->
           {{- partial "social_icons.html" -}}
         </div>
       </div> <!-- end row -->
 
       <!-- Division line -->
-      <hr style="width: 80%; margin: 2rem auto 1.5rem auto; border: 0; border-top: 1.5px solid var(--tertiary)">
+      <hr style="width: 85%; margin: 2rem auto 1.5rem auto; border: 0; border-top: 1.5px solid var(--tertiary)">
+
       <!-- BUTTONS: centered below both columns -->
+      <div style="display: flex; justify-content: flex-end; width: 100%; margin-top: 1rem;">
+        <!-- Dark Mode Toggle Button -->        
+          <!-- Dark Mode Toggle Button -->
+      </div>
+
       {{- with .buttons }}
       <div class="buttons" style="margin-top: 2rem; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
         {{- range . }}
@@ -53,7 +58,7 @@
             {{- if (findRE "://" .url) }}&nbsp;
             <svg fill="none" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round"
               stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="14" width="4">
-              <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path>
+              <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 01-2-2h6"></path>
               <path d="M15 3h6v6"></path>
               <path d="M10 14L21 3"></path>
             </svg>
@@ -61,6 +66,27 @@
           </span>
         </a>
         {{- end }}
+
+          <button id="theme-toggle" style="align-items: right; flw">
+                  <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="black" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="white" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+          </button>
       </div>
       {{- end }}
 

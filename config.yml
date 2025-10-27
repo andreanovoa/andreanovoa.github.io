@@ -1,4 +1,4 @@
-baseURL: "https://andreanovoa.github.io/andreanovoa-website/" 
+baseURL: "https://andreanovoa.github.io/" 
 title: Andrea Nóvoa
 theme: PaperMod
 
@@ -37,8 +37,9 @@ params:
     # googleAnalyticsID: "G-XXXXX"
     # DateFormat: "1 June 2025"
     defaultTheme: dark
+    defaultColor: teal
     hideFooter: false
-    disableThemeToggle: true
+    disableThemeToggle: false
     ShowShareButtons: false
     ShowReadingTime: false
     disableSpecial1stPost: true
@@ -63,20 +64,12 @@ params:
           imageUrl: "headshot_wb.jpg"
           imageWidth: 160
           imageHeight: 160
-          icon: "favicon.ico"
+          icon: "favicon-32x32.png"
           buttons:
             - name: CV
               url: cv/
             - name: Publications
               url: papers/
-            # - name: Data
-            #   url: data/
-            # - name: Courses
-            #   url: courses/
-            # - name: Tags
-            #   url: tags/
-            # - name: Archive
-            #   url: archive/
 
     socialIcons:
         - name: Email
@@ -91,7 +84,6 @@ params:
           url: https://www.linkedin.com/in/andreanovoamartinez/
         
     
-
     assets:
         disableScrollBarStyle: false
     cover:
@@ -99,8 +91,8 @@ params:
         hiddenInSingle: true
     label:
       text: "Andrea Nóvoa"
-      icon: "favicon.ico"
-      size:  32
+      icon: "favicon-32x32.png"
+      size:  16
 
 markup:
     goldmark:

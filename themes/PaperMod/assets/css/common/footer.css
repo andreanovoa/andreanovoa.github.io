@@ -56,5 +56,5 @@
 
 .top-link:focus,
 #theme-toggle:focus {
-    outline: 0;
+    outline: 1;
 }

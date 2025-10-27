@@ -2,6 +2,9 @@
 {{- errorf "=> hugo v0.147.2 or greater is required for hugo-PaperMod to build " }}
 {{- end -}}
 
+{{- $colorClass := .Site.Params.defaultColor | default "teal" -}}
+{{- $themeClass := .Site.Params.defaultTheme | default "gay" -}}
+
 <!DOCTYPE html>
 <html lang="{{ site.Language }}" dir="{{ .Language.LanguageDirection | default "auto" }}">
 
@@ -13,9 +16,8 @@
 {{- if (or (ne .Kind `page` ) (eq .Layout `archives`) (eq .Layout `search`)) -}}
 {{- print "list" -}}
 {{- end -}}
-{{- if eq site.Params.defaultTheme `dark` -}}
-{{- print " dark" }}
-{{- end -}}
+{{- print " " $themeClass -}}
+{{- print " " $colorClass -}}
 " id="top">
     {{- if not .IsHome  }}
     {{- partialCached "header.html" . .Page -}}
