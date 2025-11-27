@@ -1,112 +1,103 @@
 /* --- Color Schemes --- */
 
-/* Purple Scheme Definition */
-.purple {
-  --main-color-0: #ffffff;
-  
-  /* Purple main-color-1 example, define or replace var(--main-color-primary) accordingly */
-  --main-color-1: rgb(112, 66, 255); /* Example purple main color */
 
-  --main-color-1-r: 112;
-  --main-color-1-g: 66;
-  --main-color-1-b: 255;
-
-  --main-color-2: rgb(67, 57, 96); /* Mid-dark shade for dark elements */
-  --main-color-2-r: 67;
-  --main-color-2-g: 57;
-  --main-color-2-b: 96;
-
-  --main-color-3: rgb(66, 56, 95); /* Darkest shade for dark background */
-
-  --main-color-3-r: 66;
-  --main-color-3-g: 56;
-  --main-color-3-b: 95;
-
-  --main-color-b: rgb(0, 0, 0);
-
-}
-
-/* Teal Scheme Definition - Default */
-.teal {
-  --main-color-0: #ffffff;
-
-  --main-color-1: rgb(98, 148, 163);
-  --main-color-1-r: 98;
-  --main-color-1-g: 148;
-  --main-color-1-b: 163;
-
-  --main-color-2: rgb(57, 89, 99); /* Mid-dark shade for dark elements */
-  --main-color-2-r: 57;
-  --main-color-2-g: 89;
-  --main-color-2-b: 99;
-
-  --main-color-3: rgb(39, 49, 52); /* Darkest shade for dark background */
-  --main-color-3-r: 39;
-  --main-color-3-g: 49;
-  --main-color-3-b: 52;
-
-  --main-color-b: rgb(0, 0, 0);
-}
 
 /* --- Global Variables and Default (Teal) Settings --- */
 
 :root {
-  /* Set Teal as the Default Main Color Scheme */
-  --main-color-0: #f3f3f362;
+  /* ========================================================================= */
+  /* 🌈 BASE COLOR DEFINITIONS - HSL COMPONENTS */
+  /* ========================================================================= */
+  
+  /* --- MAIN COLOR 1: #ddffe7 (H: 146, S: 75%, L: 93%) --- */
+  --main-color-1-h: 146; 
+  --main-color-1-s: 75%;
+  --main-color-1-l: 93%;  /* Lightness component */
 
-  --main-color-1: rgb(98, 148, 163);
-  --main-color-1-r: 98;
-  --main-color-1-g: 148;
-  --main-color-1-b: 163;
+  /* --- MAIN COLOR 2: #98d7c2 (H: 164, S: 47%, L: 72%) --- *//* #8DB3AF */
+  --main-color-2-h: 164;
+  --main-color-2-s: 47%;
+  --main-color-2-l: 70%;
 
-  --main-color-2: rgb(57, 89, 99);
-  --main-color-2-r: 57;
-  --main-color-2-g: 89;
-  --main-color-2-b: 99;
+  /* --- MAIN COLOR 3: #167d7f (H: 181, S: 70%, L: 29%) --- */
+  --main-color-3-h: 181;
+  --main-color-3-s: 70%;
+  --main-color-3-l: 29%;
 
-  --main-color-3: rgb(39, 49, 52);
-  --main-color-3-r: 39;
-  --main-color-3-g: 49;
-  --main-color-3-b: 52;
+  /* --- MAIN COLOR 4: #29a0b1 (H: 188, S: 63%, L: 43%) --- */
+  --main-color-4-h: 188;
+  --main-color-4-s: 63%;
+  --main-color-4-l: 43%;
+  
+  /* --- HSL TRIPLET VARIABLES (Convenience) --- */
+  --main-color-1-hsl: var(--main-color-1-h), var(--main-color-1-s), var(--main-color-1-l);
+  --main-color-2-hsl: var(--main-color-2-h), var(--main-color-2-s), var(--main-color-2-l);
+  --main-color-3-hsl: var(--main-color-3-h), var(--main-color-3-s), var(--main-color-3-l);
+  --main-color-4-hsl: var(--main-color-4-h), var(--main-color-4-s), var(--main-color-4-l);
+  --main-color-1-hs: var(--main-color-1-h), var(--main-color-1-s);
+  --main-color-2-hs: var(--main-color-2-h), var(--main-color-2-s);
+  --main-color-3-hs: var(--main-color-3-h), var(--main-color-3-s);
+  --main-color-4-hs: var(--main-color-4-h), var(--main-color-4-s);
 
-  --main-color-b: rgb(0, 0, 0);
+  /* --- SHADE MODIFIER VARIABLES (For creating darker/lighter versions) --- */
+  --lightness-low: 20%;   /* Use for dark backgrounds or text */
+  --lightness-mid: 40%;   /* Use for highlights or lighter backgrounds */
+  --lightness-high: 90%;  /* Use for very light backgrounds (like a theme background) */
+  /* --lightness-base: var(--main-color-1-l); 93% */
 
+  /* ========================================================================= */
+  /* 🧪 FUNCTIONAL COLORS & THEME VARIABLES */
+  /* ========================================================================= */
+
+  --main-color-0: hsla(0, 0%, 95%, 0.384); /* Converted #f3f3f362 to HSLA */
+  --main-color-b: 0, 0%, 0%; /* Black HSL components for convenience */
+  --linkcolor: #FF4A3B; /* Link color derived from main color 4 */
+  
   /* Existing Papermod/Theme Variables */
   --gap: 24px;
   --content-gap: 20px;
   --nav-width: 1024px;
-  --main-width: 60%;
+  --main-width: 80%;
   --header-height: 44px;
   --footer-height: 70px;
   --radius: 8px;
-  --entry-transparency: .3;
 
   /* LIGHT MODE COLORS - Using Papermod Defaults/Overrides */
-  --theme: var(--main-color-0); 
-  --entry: rgba(var(--main-color-1-r), var(--main-color-1-g), var(--main-color-1-b), 
-                var(--entry-transparency));
+  --theme: hsl(var(--main-color-3-hsl), 5%); /* Lightest/darkest background */
 
-  --primary: var(--main-color-1); /* Main text color */
-  --secondary: var(--main-color-2); /* Secondary text/muted */
-  --tertiary: var(--main-color-3); /* Tertiary/placeholder */
+  --primary: hsl(var(--main-color-3-hs), 70%); 
+  --secondary: hsl(var(--main-color-3-hs), 45%); 
+  --tertiary: hsl(var(--main-color-3-hs), 20%); 
+
+  --primary-hover: hsla(var(--main-color-3-hsl), .5); 
+  --secondary-hover: hsla(var(--main-color-3-hsl), .5); 
+  --tertiary-hover: hsla(var(--main-color-3-hsl), .5); 
+
+  /* FIXED: Must use HSL components (H, S, L) to create HSLA */
+  --entry: hsla(var(--main-color-3-hs), 70%, 0.2); 
+  --profile-inner: hsla(var(--main-color-3-hs), 40%, .2);
 
 
-  --text-color-1: var(--theme);
-  --text-color-2: var(--primary);
-  --text-color-3: var(--secondary);  
+  /* FIXED: Table backgrounds must now use HSLA format */
+  --table-header-bg: hsla(var(--main-color-3-hsl), 0.2);
+  --table-bg-1: hsla(var(--main-color-3-hsl), 0.1);
+  --table-bg-2: hsla(var(--main-color-3-hsl), 0.12);
 
-  --content: rgb(30, 30, 30);
+  --content: hsl(0, 0%, 26%); 
+  --content-mid: hsl(0, 0%, 67%); 
+  --content-low: hsl(0, 0%, 100%); 
 
-  --border: rgba(var(--main-color-2-r), var(--main-color-2-g), var(--main-color-2-b), 0.55);
-  --border-light: rgba(var(--main-color-1-r), var(--main-color-1-g), var(--main-color-1-b), 0.445);
+  /* FIXED: Borders must now use HSLA format */
+  --border: hsla(var(--main-color-3-hsl), 0.5);
+  --border-light: hsla(var(--main-color-3-hsl), 0.2);
 
   /* Code/Borders */
-  --hljs-bg: var(--main-color-4, #282c34); /* Fallback color if main-color-4 undefined */
-  --code-bg: rgba(var(--main-color-4-r, 40), var(--main-color-4-g, 44), var(--main-color-4-b, 52), 0.8);
-  --code-block-bg: rgb(28, 29, 33);
+  --hljs-bg: var(--main-color-1, #0757f8); 
+  --code-bg: hsla(var(--main-color-3-hsl), 0.9);
+  --code-block-bg: hsl(230, 8%, 11%); /* Converted rgb(28, 29, 33) to HSL */
 
   /* Font/Size Variables */
-  --semibold: 500;
+  --semibold: 300;
   --homesize: 16px;
   --textsize: 18px;
   --h1size: 25px;
@@ -122,15 +113,42 @@
 
 .dark {
   /* Use the flexible main colors for Dark Mode Elements */
-  --theme: var(--main-color-b); /* Darkest background */
-  
-  --code-bg: rgba(var(--main-color-4-r, 40), var(--main-color-4-g, 44), var(--main-color-4-b, 52), 0.8);
+  /* --lightness-low: 90%;   /* Use for dark backgrounds or text */
+  /* --lightness-mid: 40%;   Use for highlights or lighter backgrounds */
+  /* --lightness-high: 8%;  Use for very light backgrounds (like a theme background) */
 
+  --theme: hsl(var(--main-color-3-hs), 8%); /* Lightest/darkest background */
+  
   /* Text/Secondary Colors */
-  --primary: var(--main-color-3);
-  --secondary: var(--main-color-2);
-  --tertiary: var(--main-color-1);
-  --content: rgb(149, 149, 149);
+  --table-header-bg: hsla(var(--main-color-3-hsl), .75);
+  --table-bg-1: hsla(var(--main-color-3-hsl), .1);
+  --table-bg-2: hsla(var(--main-color-3-hsl), .3);
+
+
+  --content-low: hsl(0, 0%, 0%); 
+  --content-mid: hsl(0, 0%, 35%); 
+  --content: hsl(0, 0%, 77%); 
+
+ 
+  --code-bg: hsla(var(--main-color-3-hsl), 0.1);
+  --code-block-bg: hsl(230, 8%, 11%); /* Converted rgb(28, 29, 33) to HSL */
+
+
+  --primary: hsl(var(--main-color-3-hs), 20%); 
+  --secondary: hsl(var(--main-color-3-hs), 40%); 
+  --tertiary: hsl(var(--main-color-3-hs), 70%); 
+
+
+  --entry: hsla(var(--main-color-3-hs), 20%, 0.2); 
+  --profile-inner: hsla(var(--main-color-3-hs), 20%, 0.2); 
+
+  /* --tertiary:  hsl(var(--main-color-1-hsl));  */
+
+  --primary-hover: hsla(var(--main-color-3-hsl), .5); 
+  --secondary-hover: hsla(var(--main-color-3-hsl), .5); 
+  --tertiary-hover: hsla(var(--main-color-3-hsl), .5); 
+
+
 
 }
 

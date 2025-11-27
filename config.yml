@@ -34,9 +34,7 @@ menu:
 params:
     description: "This website hosts Andrea Nóvoa's research papers, course materials, data, curriculum vitae, and contact information."
     author: Andrea Nóvoa
-    # googleAnalyticsID: "G-XXXXX"
-    # DateFormat: "1 June 2025"
-    defaultTheme: dark
+    defaultTheme: light
     defaultColor: teal
     hideFooter: false
     disableThemeToggle: false
@@ -59,8 +57,10 @@ params:
     profileMode:
           enabled: true
           title: Andrea Nóvoa
-          subtitle: "Research Fellow in Scientific Machine Learning"
-          subsubtitle: "Aeronautics depatment, Imperial College London"
+          subtitle: "Assistant Professor in Data Assimilation"
+          subtitleInst: "Aeronautics Department | Imperial College London"
+          subsubtitle: "Eric & Wendy Schmidt AI in Science Fellow"
+          subsubtitleInst: "I-X Institute | Imperial College London"
           imageUrl: "headshot_wb.jpg"
           imageWidth: 160
           imageHeight: 160

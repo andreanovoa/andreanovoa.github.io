@@ -1,23 +1,27 @@
 .page-header,
 .post-header {
     margin: 24px auto var(--content-gap) auto;
+    /* background: var(--entry); */
+    color: var(--primary);
 }
 
 .post-title {
     margin-bottom: 20px;
     font-size: 36px;
-    color: var(--text-color-2)
+    color: var(--secondary);
 }
 
 .post-description {
     margin-top: 10px;
     margin-bottom: 5px;
+    color: var(--text-color-3);
 }
 
 .post-meta,
 .breadcrumbs {
     color: var(--secondary);
-    font-size: 15px;
+    font-size: 14px;
+    font-style: italic;
 }
 
 .post-meta .i18n_list li {
@@ -38,6 +42,13 @@
 .post-content h5,
 .post-content h6 {
     margin: 24px 0 16px;
+    color: var(--secondary);
+}
+
+.post-content h2{
+    margin: 32px auto 24px;
+    color: var(--tertiary);
+    text-transform: uppercase;
 }
 
 .post-content h1 {
@@ -56,34 +67,37 @@
 
 .post-content h4 {
     font-size: 15px;    
-    font-weight: var(--semibold);
+    font-weight: var(--bold);
     text-transform: uppercase;
-    color: var(--gray);
 }
 
 .post-content h5 {
     font-size: 14px;
-    font-weight: var(--semibold);
+    font-weight: var(--bold);
     text-transform: uppercase;
-    color: var(--gray);
 }
 
-.post-content h6 {
-    font-size: var(--footersize);
-    color: var(--secondary);
+
+
+.post-meta a:hover ,
+.toc a:hover {
+    text-decoration: underline;
 }
 
 .post-content a,
-.post-meta a,
-.toc a:hover {
-    box-shadow: 0 2px 0 var(--darkcolor);
-    color: currentColor; 
+.post-meta a {
+    color: var(--main-color-1);
+}
+.post-content a:hover {
+    color: var(--linkcolor);
+    text-decoration: underline;
 }
 
 .post-content a code {
     margin: auto 0;
     border-radius: 0;
     box-shadow: 0 -1px 0 var(--primary) inset;
+    background-color: var(--code-bg);
 }
 
 .post-content del {
@@ -139,20 +153,26 @@
 }
 
 .post-content table {
+    /* 1. Force the table to span the full viewport width */
     width: 100%;
-    margin-left: 20px;
-    margin-right: 20px;
-    margin-bottom: 80px;
-    box-sizing: border-box;
     
+    /* Ensure box model includes padding in the width calculation */
+    box-sizing: border-box; 
+    
+    /* Clean up residual margins */
+    margin-right: 20%; 
+    margin-bottom: 80px;
+    border-radius: 10px;
+    border-collapse: collapse;
 }
+
 
 .post-content table th,
 .post-content table:not(.highlighttable, .highlight table, .gist .highlight) td {
     min-width: 80px;
     padding: 10px 10px;
     line-height: var(--lineheight);
-    border-bottom: 1px solid var(--border-light);
+    border-bottom: 1px solid var(--border);
 }
 
 .post-content table th {
@@ -160,20 +180,27 @@
     font-size: 14px;
     font-weight: bolder;
     text-transform: uppercase;
-    color: var(--text-color-3);
-    border-bottom: 2px solid var(--tertiary);
+    border-bottom: 2px solid var(--border-light);
+    background-color: var(--table-header-bg);
+    color: var(--secondary-hover);
 }
 
 .post-content table:not(.highlighttable) td code:only-child {
     margin: auto 0;
 }
 
+.post-content table td {
+    padding: 8px 10px;
+    vertical-align: top;
+    background-color: var(--table-bg-1);
+}
 .post-content table tbody tr:hover {
-  background-color: var(--entry);
+  background-color: var(--table-bg-2);
   transition: background 0.2s;
 }
 .post-content table:not(.highlighttable) tr:last-child td {
-    border-bottom: 2px solid var(--tertiary);
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--border-light);
 }
 
 .post-content .highlight table {
@@ -282,18 +309,12 @@
 .toc {
     margin: 0 2px 20px 2px;
     border: 1px solid var(--border-light);
-    background: var(--entry);
+    background: var(--table-bg-2);
     border-radius: var(--radius);
+    color: var(--secondary);
     padding: 0.4em;
 }
 
-.toc li::marker {
-    color: var(--tertiary);
-}
-
-.dark .toc {
-    background: var(--entry);
-}
 
 .toc details summary {
     cursor: zoom-in;
@@ -309,7 +330,7 @@
     display: inline;
     font-weight: var(--semibold);
     text-transform: uppercase;
-    font-size: 15px;
+    font-size: .9rem;
 }
 
 .toc .inner {
@@ -317,10 +338,17 @@
     padding: 0 10px;
     opacity: 0.9;
     font-size: 16px;
+    color: var(--secondary);
+    font-size: .8rem;
 }
 
 .toc li ul {
     margin-inline-start: var(--gap);
+}
+.toc a {
+    color: var(--secondary);
+    /* line-height: .8rem; */
+    text-transform: capitalize;
 }
 
 .toc summary:focus {

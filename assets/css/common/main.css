@@ -28,9 +28,10 @@
 }
 
 .social-icons a {
-    color: var(--secondary);
+    color: var(--primary-hover);
     display: inline-flex;
-    padding: 10px 14px 10px 0px;
+    padding: 8px 14px 8px 0px;
+    /* transition: color 0.3s; */
 }
 
 .social-icons a svg {
@@ -39,7 +40,7 @@
 }
 
 .social-icons a:hover {
-    color: var(--tertiary);
+    color: var(--primary);
 }
 
 code {
@@ -51,6 +52,7 @@ code {
     -ms-text-size-adjust: 100%;
     -moz-text-size-adjust: 100%;
     -webkit-text-size-adjust: 100%;
+    /* -colo */
 }
 
 div.highlight,

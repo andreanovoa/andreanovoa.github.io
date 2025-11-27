@@ -1,7 +1,7 @@
 <div class="profile" style="margin-top: 10rem; flex-direction: column; align-items: center;">
   {{- with site.Params.profileMode}}
   
-  <div class="profile_inner" style="border: 2px solid var(--primary); padding: 1rem; border-radius: 8px; background-color: var(--entry);">
+  <div class="profile_inner" style="border: 2px solid var(--secondary); padding: 1rem; border-radius: 8px;">
 
     <!-- FLEX COLUMN: stack row, then buttons -->
     <div style="display: flex; flex-direction: column; align-items: center;">
@@ -31,26 +31,28 @@
         <!-- Right Column: Titles + Social Icons -->
         <div style="display: flex; flex-direction: column; justify-content: center;">
           <h1 style="margin: 0;">{{ .title | default site.Title | markdownify }}</h1>
-          <span style="font-size: 1.2rem; color: var(--content); margin-bottom: 0.75rem; margin-top: 0.75rem; font-weight: 500;">
+          <h4 style="margin-top: 0.75rem">{{ .subtitle  | markdownify }}</h4>
+          <h5 style="margin-top: 0.25rem">{{ .subtitleInst | markdownify }}</h5>
+          <h4 style="margin-top: 0.75rem">{{ .subsubtitle | markdownify }}</h4>
+          <h5 style="margin-top: 0.25rem; margin-bottom: .75rem" >{{ .subsubtitleInst | markdownify }}</h5>
+          <!-- <span style="font-size: 1.2rem; color: var(--content); margin-bottom: 0.75rem; margin-top: 0.75rem; font-weight: 500;">
             {{ .subtitle | markdownify }}<br>{{ .subsubtitle | markdownify }}
-          </span>
-           
+          </span> -->
+      
           <!-- Social Icons -->
           {{- partial "social_icons.html" -}}
         </div>
       </div> <!-- end row -->
 
       <!-- Division line -->
-      <hr style="width: 85%; margin: 2rem auto 1.5rem auto; border: 0; border-top: 1.5px solid var(--tertiary)">
+      <hr style="width: 85%; margin: 1.5rem auto 1.rem auto; border: 0; border-top: 2px solid var(--secondary)">
 
       <!-- BUTTONS: centered below both columns -->
       <div style="display: flex; justify-content: flex-end; width: 100%; margin-top: 1rem;">
         <!-- Dark Mode Toggle Button -->        
-          <!-- Dark Mode Toggle Button -->
       </div>
-
       {{- with .buttons }}
-      <div class="buttons" style="margin-top: 2rem; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+      <div class="buttons" style=" display: flex; justify-content: center; gap: .1rem; flex-wrap: wrap;">
         {{- range . }}
         <a class="button" href="{{ trim .url " " }}" rel="noopener" title="{{ .name }}">
           <span class="button-inner">
@@ -67,13 +69,13 @@
         </a>
         {{- end }}
 
-          <button id="theme-toggle" style="align-items: right; flw">
-                  <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+          <button id="theme-toggle" style="align-items: right; flow">
+                  <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 20 24"
                         fill="none" stroke="black" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round">
                         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                     </svg>
-                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                         fill="none" stroke="white" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round">
                         <circle cx="12" cy="12" r="5"></circle>
