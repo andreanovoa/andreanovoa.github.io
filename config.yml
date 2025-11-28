@@ -1,4 +1,4 @@
-baseURL: "https://andreanovoa.github.io/andreanovoa-website/" 
+baseURL: "https://andreanovoa.github.io/" 
 title: Andrea Nóvoa
 theme: PaperMod
 
@@ -34,7 +34,7 @@ menu:
 params:
     description: "This website hosts Andrea Nóvoa's research papers, course materials, data, curriculum vitae, and contact information."
     author: Andrea Nóvoa
-    defaultTheme: light
+    defaultTheme: dark
     defaultColor: teal
     hideFooter: false
     disableThemeToggle: false
