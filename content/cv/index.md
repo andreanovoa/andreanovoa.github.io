@@ -9,36 +9,39 @@ hideAuthor: true
 <hr>
 
 
-## Education
+## Academic Positions {.cv-academic-title}
+
+| Years | Position & Institution    |  | 
+|-------|------------------------|-- | --|
+| 2025– | **Assistant Professor in Data Assimilation**<br>Aeronautics Department <span class="cv-highlight">&#124;</span> Imperial College London |  
+| 2025–27 | **Eric & Wendy Schmidt AI in Science Fellow**<br>I-X <span class="cv-highlight">&#124;</span> Imperial College London |  
+| 2024–25 | **Research Associate in Scientific Machine Learning**<br>Aeronautics Department <span class="cv-highlight">&#124;</span> Imperial College London <br> _UKRI projects_:  [AI for Net zero](https://aifornetzero.co.uk/) & ExCALIBUR   ||
+
+
+
+## Education {.cv-academic-title}
+
 
 | Years | Degree & Institution | <span class="cv-note">Notes & Achievements</span> |
 |-------------|------------------|----------------------|
-| 2020–24 | **PhD in Engineering**<br>Cambridge University, UK | <span class="cv-note"><span class="cv-note-label">Awards</span> Amelia Earhart Fellowship <br> <span class="cv-note-label">Thesis</span> Real-time data assimilation in nonlinear dynamical systems<br> <span class="cv-note-label">Examiners</span> Prof. Girolami &amp; Prof. Parente <br> <span class="cv-note-label">Funding</span> Cambridge Trust <span class="cv-highlight">&#124;</span> EPSRC <span class="cv-highlight">&#124;</span> Rolls Royce</span>|
-| 2018–19 | **MPhil in Energy Technologies**<br>Cambridge University, UK | <span class="cv-note"><span class="cv-note-label">Awards</span> Examiners' Prize <span class="cv-highlight">&#124;</span> Hawk's Trust award<br><span class="cv-note-label">Funding</span> Barrié Foundation Fellowship </span>|
-| 2014–18 | **BSc in Energy Engineering**<br>University of Vigo, Spain | <span class="cv-note"><span class="cv-note-label">Awards</span> End-of-degree 2nd national prize</span> |
-
-<!-- <hr> -->
-
-##  Academic Positions
-
-| Years | Position & Institution |  Notes    |
-|-------|-------------|-----------|
-| 2025– | **Research Associate in Scientific Machine Learning**<br>Aeronautics Department, Imperial College London, UK |  UKRI project Excalibur |
-| 2024–25 | **Research Associate in Scientific Machine Learning**<br>Aeronautics Department <br> Imperial College London, UK |  UKRI project AI for Net zero <br>  UKRI project Excalibur  |
+| 2020–24 | **PhD in Engineering**<br>University of Cambridge | <span class="cv-note"><span class="cv-note-label">Awards</span> Amelia Earhart Fellowship <br> <span class="cv-note-label">Thesis</span> Real-time data assimilation in nonlinear dynamical systems<br> <span class="cv-note-label">Examiners</span> Prof. Girolami &amp; Prof. Parente <br> <span class="cv-note-label">Funding</span> Cambridge Trust <span class="cv-highlight">&#124;</span> EPSRC <span class="cv-highlight">&#124;</span> Rolls Royce</span>|
+| 2018–19 | **MPhil in Energy Technologies**<br>University of Cambridge | <span class="cv-note"><span class="cv-note-label">Awards</span> Examiners' Prize <span class="cv-highlight">&#124;</span> Hawk's Trust award<br><span class="cv-note-label">Funding</span> Barrié Foundation Fellowship </span>|
+| 2014–18 | **BSc in Energy Engineering**<br>University of Vigo | <span class="cv-note"><span class="cv-note-label">Awards</span> End-of-degree 2nd national prize</span> |
 
 
 
-## Invited talks
+
+## Invited talks {.cv-academic-title}
 
 | Year | Event | Presentation |
 |------|-------|--------------|
 | 2025  | **Data-Centric Engineering Journal** | [Real-time digital twins: unifying bias-aware data assimilation and machine learning](https://doi.org/10.52843/cassyni.svynpv) |
 | 2024 | **The Alan Turing Institute**   <br> Φ‑ML meets Engineering seminar series | [Real-time data assimilation in nonlinear thermoacoustic instabilities](https://www.turing.ac.uk/events/phi-ml-meets-engineering-real-time-data-assimilation-nonlinear-thermoacoustic-instabilities) |
-| 2024 | The AI for Net Zero Webinar Series | [A real-time digital twin of a hydrogen-fuelled annular combustor](https://www.youtube.com/watch?v=BB-Qp1RTBdA&t=2098s) |
+| 2024 | **The AI for Net Zero Webinar Series** | [A real-time digital twin of a hydrogen-fuelled annular combustor](https://www.youtube.com/watch?v=BB-Qp1RTBdA&t=2098s) |
 
 
+## Conference Presentations {.cv-academic-title}
 
-## Conference Presentations
 
 | Year | Conference | Presentation |
 |------|------------|--------------|

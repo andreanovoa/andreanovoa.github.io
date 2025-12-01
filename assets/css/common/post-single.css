@@ -59,8 +59,8 @@
 
 .post-content h2{
     margin: 32px auto 24px;
-    color: var(--tertiary);
-    text-transform: uppercase;
+    /* text-transform: uppercase; */
+    /* color: var(--table-header-bg); */
 }
 
 .post-content h1 {
@@ -88,6 +88,7 @@
     font-weight: var(--bold);
     text-transform: uppercase;
 }
+
 
 
 
@@ -165,6 +166,8 @@
 }
 
 .post-content table {
+    /* margin: 1px auto; */
+    /* align-items: right; */
     max-width: 1000px;
     width: fit-content;
     
@@ -180,7 +183,7 @@
 
 .post-content table th,
 .post-content table:not(.highlighttable, .highlight table, .gist .highlight) td {
-    min-width: 100px;
+    width: fit-content;
     padding: 10px 10px;
     line-height: var(--lineheight);
     border-bottom: 1px solid var(--border);
@@ -499,7 +502,20 @@ a[href^="#fn:"]:hover, a[href^="#fnref:"]:hover {
 }
 
 
-.cv-note {
+
+
+.post-content .cv-academic-title { color: var(--table-header-bg); 
+    /* font-weight: 600; */
+    font-size: 1.1em;
+    margin-top: 20px;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    font-weight: 800;
+
+}   
+
+
+.post-content .cv-note {
   display: block;
   position: relative;
   margin-left: -4ch;
@@ -507,7 +523,7 @@ a[href^="#fn:"]:hover, a[href^="#fnref:"]:hover {
 }
 
 
-.cv-note-label {
+.post-content .cv-note-label {
   /* Ensure label are aligned to the "column" and right-justified */
   display: inline-block;
   width: 9ch;
@@ -523,7 +539,7 @@ a[href^="#fn:"]:hover, a[href^="#fnref:"]:hover {
   padding-right: 0.5ch;
 }
 
-.cv-highlight {
+.post-content .cv-highlight {
   color: var(--table-header-bg);
   font-weight: 600;
   padding: 0 0.1em;
@@ -654,3 +670,4 @@ a[href^="#fn:"]:hover, a[href^="#fnref:"]:hover {
     border: 1px solid var(--primary); 
     /* tr */
     opacity: 0.3;}
+
