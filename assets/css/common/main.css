@@ -77,3 +77,20 @@ div.highlight:hover .copy-code,
 pre:hover .copy-code {
     display: block;
 }
+
+/* assets/css/custom.css */
+.publication-grid {
+    display: grid;
+    /* Create responsive columns: minimum 350px wide, 1fr (equal space) otherwise */
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); 
+    gap: 2rem; /* Space between the grid items */
+    margin-top: 2rem;
+}
+
+.publication-card {
+    height: 100%; /* Ensures all cards in a row have the same height */
+    /* Add card specific styling here, e.g., padding and borders */
+    padding: 1.5rem;
+    border: 1px solid var(--border-color); 
+    border-radius: 8px;
+}

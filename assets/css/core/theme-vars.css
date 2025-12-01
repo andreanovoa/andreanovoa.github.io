@@ -12,7 +12,7 @@
   /* --- MAIN COLOR 1: #ddffe7 (H: 146, S: 75%, L: 93%) --- */
   --main-color-1-h: 146; 
   --main-color-1-s: 75%;
-  --main-color-1-l: 93%;  /* Lightness component */
+  --main-color-1-l: 95%;  /* Lightness component */
 
   /* --- MAIN COLOR 2: #98d7c2 (H: 164, S: 47%, L: 72%) --- *//* #8DB3AF */
   --main-color-2-h: 164;
@@ -63,23 +63,22 @@
   --radius: 8px;
 
   /* LIGHT MODE COLORS - Using Papermod Defaults/Overrides */
-  --theme: hsl(var(--main-color-3-hsl), 5%); /* Lightest/darkest background */
+  --theme: hsl(var(--main-color-1-hs), 98%); /* Lightest/darkest background */
 
-  --primary: hsl(var(--main-color-3-hs), 70%); 
-  --secondary: hsl(var(--main-color-3-hs), 45%); 
-  --tertiary: hsl(var(--main-color-3-hs), 20%); 
+  --primary: hsl(var(--main-color-3-hsl)); 
+  --secondary: hsl(var(--main-color-2-hs), 40%); 
+  --tertiary: hsl(var(--main-color-2-hs), 20%);  
 
-  --primary-hover: hsla(var(--main-color-3-hsl), .5); 
-  --secondary-hover: hsla(var(--main-color-3-hsl), .5); 
-  --tertiary-hover: hsla(var(--main-color-3-hsl), .5); 
+  --primary-hover: hsla(var(--main-color-1-hsl), 1.); 
+  --secondary-hover: hsla(var(--main-color-2-hsl)); 
 
   /* FIXED: Must use HSL components (H, S, L) to create HSLA */
-  --entry: hsla(var(--main-color-3-hs), 70%, 0.2); 
+  --entry: hsla(var(--main-color-3-hs), 70%, 0.12); 
   --profile-inner: hsla(var(--main-color-3-hs), 40%, .2);
 
 
   /* FIXED: Table backgrounds must now use HSLA format */
-  --table-header-bg: hsla(var(--main-color-3-hsl), 0.2);
+  --table-header-bg: hsla(var(--main-color-3-hsl), 0.6);
   --table-bg-1: hsla(var(--main-color-3-hsl), 0.1);
   --table-bg-2: hsla(var(--main-color-3-hsl), 0.12);
 
@@ -92,9 +91,8 @@
   --border-light: hsla(var(--main-color-3-hsl), 0.2);
 
   /* Code/Borders */
-  --hljs-bg: var(--main-color-1, #0757f8); 
-  --code-bg: hsla(var(--main-color-3-hsl), 0.9);
-  --code-block-bg: hsl(230, 8%, 11%); /* Converted rgb(28, 29, 33) to HSL */
+  --code-block-bg: var(--theme);
+  --code-bg: hsla(var(--main-color-3-hsl), 0.12);
 
   /* Font/Size Variables */
   --semibold: 300;
@@ -117,12 +115,12 @@
   /* --lightness-mid: 40%;   Use for highlights or lighter backgrounds */
   /* --lightness-high: 8%;  Use for very light backgrounds (like a theme background) */
 
-  --theme: hsl(var(--main-color-3-hs), 8%); /* Lightest/darkest background */
+  --theme: hsl(var(--main-color-3-hs), 5%); /* Lightest/darkest background */
   
   /* Text/Secondary Colors */
-  --table-header-bg: hsla(var(--main-color-3-hsl), .75);
-  --table-bg-1: hsla(var(--main-color-3-hsl), .1);
-  --table-bg-2: hsla(var(--main-color-3-hsl), .3);
+  --table-header-bg: hsla(var(--main-color-2-hsl), 75%);
+  --table-bg-1: hsla(var(--main-color-2-hsl), 10%);
+  --table-bg-2: hsla(var(--main-color-2-hsl), 20%);
 
 
   --content-low: hsl(0, 0%, 0%); 
@@ -132,11 +130,10 @@
  
   --code-bg: hsla(var(--main-color-3-hsl), 0.1);
   --code-block-bg: hsl(230, 8%, 11%); /* Converted rgb(28, 29, 33) to HSL */
-
+/* 
 
   --primary: hsl(var(--main-color-3-hs), 20%); 
   --secondary: hsl(var(--main-color-3-hs), 40%); 
-  --tertiary: hsl(var(--main-color-3-hs), 70%); 
 
 
   --entry: hsla(var(--main-color-3-hs), 20%, 0.2); 
@@ -144,10 +141,18 @@
 
   /* --tertiary:  hsl(var(--main-color-1-hsl));  */
 
-  --primary-hover: hsla(var(--main-color-3-hsl), .5); 
+  /* --primary-hover: hsla(var(--main-color-3-hsl), .5); 
   --secondary-hover: hsla(var(--main-color-3-hsl), .5); 
-  --tertiary-hover: hsla(var(--main-color-3-hsl), .5); 
+  --tertiary-hover: hsla(var(--main-color-3-hsl), .5);  */
 
+
+  --primary: hsl(var(--main-color-2-hs), 65%); 
+  --secondary: hsl(var(--main-color-2-hs), 50%); 
+  --tertiary: hsl(var(--main-color-2-hs), 85%);  
+
+  --primary-hover: hsla(var(--main-color-3-hsl), 72%); 
+  --secondary-hover: hsla(var(--main-color-2-hsl), 30%); 
+  --tertiary-hover: hsl(var(--main-color-1-hsl), 70%);  
 
 
 }

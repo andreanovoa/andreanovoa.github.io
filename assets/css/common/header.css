@@ -24,9 +24,9 @@
 }
 
 .logo a {
-    color: var(--tertiary); 
+    color: var(--theme); 
     font-size: var(--headersize);
-    font-weight: var(--semibold);
+    font-weight: 500;
 }
 
 .logo a img, .logo a svg {
@@ -67,14 +67,14 @@ body:not(.dark) #sun {
 }
 
 #menu a {
-    color: var(--tertiary); 
+    color: var(--theme); 
     font-size: var(--headersize);
-    font-weight: var(--semibold);
+    font-weight: 500;
     font-variant: all-small-caps;
 }
 
 #menu .active {
-    border-bottom: 2px solid var(--tertiary);
+    border-bottom: 2px solid var(--theme);
 }
 
 .lang-switch li,

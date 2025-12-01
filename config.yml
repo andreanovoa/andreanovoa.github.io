@@ -18,12 +18,12 @@ menu:
         - name: CV
           url: cv/
           weight: 1
-        - name: Papers
+        - name: Publications
           url: papers/
           weight: 2
-        # - name: Courses
-        #   url: courses/
-        #   weight: 3
+        # - name: Publications
+        #   url: publications/
+          # weight: 3
         # - name: Data
         #   url: data/
         #   weight: 4 
@@ -34,7 +34,7 @@ menu:
 params:
     description: "This website hosts Andrea Nóvoa's research papers, course materials, data, curriculum vitae, and contact information."
     author: Andrea Nóvoa
-    defaultTheme: dark
+    defaultTheme: auto
     defaultColor: teal
     hideFooter: false
     disableThemeToggle: false
@@ -66,10 +66,12 @@ params:
           imageHeight: 160
           icon: "favicon-32x32.png"
           buttons:
-            - name: CV
+            - name: About
               url: cv/
             - name: Publications
               url: papers/
+            - name: Talks
+              url: talks/
 
     socialIcons:
         - name: Email
@@ -85,7 +87,9 @@ params:
         
     
     assets:
-        disableScrollBarStyle: false
+        disableScrollBarStyle: true
+        disableFeatherIcons: false
+    enableFontAwesome: true
     cover:
         hiddenInList: false
         hiddenInSingle: true

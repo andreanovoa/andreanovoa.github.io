@@ -21,10 +21,10 @@ hideAuthor: true
 
 ##  Academic Positions
 
-| Years | Institution |  Notes    |
+| Years | Position & Institution |  Notes    |
 |-------|-------------|-----------|
-| 2025– | **Research Associate in Scientific Machine Learning**<br>Aeronautics Department, Imperial College London, UK |  UKRI project Excalibur|
-| 2024–25 | **Research Assistant/Associate in Scientific Machine Learning**<br>Aeronautics Department, Imperial College London, UK |  UKRI project AI for Net zero|
+| 2025– | **Research Associate in Scientific Machine Learning**<br>Aeronautics Department, Imperial College London, UK |  UKRI project Excalibur |
+| 2024–25 | **Research Associate in Scientific Machine Learning**<br>Aeronautics Department <br> Imperial College London, UK |  UKRI project AI for Net zero <br>  UKRI project Excalibur  |
 
 
 

@@ -22,7 +22,27 @@
       {{- partial "post_canonical.html" . -}}
     </div>
     {{- end }}
+
+    {{ with .Params.related_links }}
+    <div class="related-material-links" style="margin-top: 2rem;">
+      <ul>
+        {{ range . }}
+          <li>
+            <a href="{{ .url | safeURL }}" 
+            {{ with .target }}target="{{.}}" rel="noopener noreferrer"{{ end }}
+            {{ with .id }}id="{{.}}"{{ end }} > <span data-feather="{{ .icon }}" aria-hidden="true"></span> 
+            {{ .name }}
+          </a>
+          </li>
+        {{ end }}
+      </ul>
+    </div>
+    <hr class="pub-separator"/>
+  {{ end }}
+
+
   </header>
+
   {{- $isHidden := (.Param "cover.hiddenInSingle") | default (.Param "cover.hidden") | default false }}
   {{- partial "cover.html" (dict "cxt" . "IsSingle" true "isHidden" $isHidden) }}
   {{- if (.Param "ShowToc") }}
@@ -37,6 +57,7 @@
   </div>
   {{- end }}
 
+  
   <footer class="post-footer">
     {{- $tags := .Language.Params.Taxonomies.tag | default "tags" }}
     <ul class="post-tags">
@@ -55,6 +76,51 @@
   {{- if (.Param "comments") }}
   {{- partial "comments.html" . }}
   {{- end }}
-</article>
+
+  </article>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const bibtexButton = document.getElementById('bibtex-button');
+        const bibtexSource = document.getElementById('bibtex-source');
+
+        // Check if both elements are present before proceeding
+        if (bibtexButton && bibtexSource) {
+            
+            bibtexButton.addEventListener('click', function(event) {
+                event.preventDefault(); 
+                
+                const bibtexText = bibtexSource.innerText.trim();
+
+                navigator.clipboard.writeText(bibtexText).then(function() {
+                    // Success feedback
+                    bibtexButton.innerHTML = '<span data-feather="check" aria-hidden="true"></span> Copied!';
+                    feather.replace();
+                    // Revert button and re-render icons
+                    setTimeout(function() {
+                        bibtexButton.innerHTML = '<span data-feather="copy" aria-hidden="true"></span> BibTeX';
+                        if (typeof feather !== 'undefined') {
+                            feather.replace();
+                        }
+                    }, 2000);
+
+                }).catch(function(err) {
+                    console.error('Copy Failed:', err);
+                    alert('Copy failed. Ensure your browser allows clipboard access.');
+                });
+            });
+        }
+    });
+
+    // Ensure Feather Icons initialize when the page loads
+    window.onload = function() {
+        if (typeof feather !== 'undefined') {
+            feather.replace();
+        }
+    };
+</script>
+
+
+
 
 {{- end }}{{/* end main */}}

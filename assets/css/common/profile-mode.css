@@ -69,8 +69,8 @@
 
 .button {
     /* background: var(--prisecondarymary-hover); */
-    border-color: var(--secondary-hover);
-    border-width: 2px;
+    border-color: var(--secondary);
+    border-width: 1.5px;
     border-style: solid;
     border-radius: 40px;
     margin: 6px 12px 6px 0px;
@@ -84,15 +84,15 @@
     letter-spacing: 0.04em;                             /* gentle spacing */
     /* color: var(--text-color-2); */
     text-transform: uppercase;
-    color: var(--tertiary-hover);
+    color: var(--secondary);
 }
 
 .button:hover {
-    background: var(--secondary);
+    background: var(--tertiary);
     border-color: var(--tertiary);
 }
 
 
 .button-inner:hover {
-    color: var(--tertiary);
+    color: var(--theme);
 }
