@@ -9,7 +9,7 @@ description: "."
 
 #### Office address
 
-Room CAGB 420  
+Room CAGB 420B
 Department of Aeronautics
 Imperial College London
 

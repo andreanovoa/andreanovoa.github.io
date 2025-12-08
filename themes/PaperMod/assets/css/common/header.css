@@ -50,6 +50,7 @@ body:not(.dark) #sun {
     display: none;
 }
 
+
 #menu {
     list-style: none;
     word-break: keep-all;

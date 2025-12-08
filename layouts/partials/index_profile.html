@@ -1,6 +1,74 @@
+
+{{- $themeClass := .Site.Params.defaultTheme | default "auto" -}}
+
+
+{{- /* theme-toggle is enabled */}}
+{{- if (not site.Params.disableThemeToggle) }}
+{{- /* theme is light */}}
+{{- if (eq site.Params.defaultTheme "light") }}
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    }
+
+</script>
+{{- /* theme is dark */}}
+{{- else if (eq site.Params.defaultTheme "dark") }}
+<script>
+    if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    }
+
+</script>
+{{- else }}
+{{- /* theme is auto */}}
+<script>
+(function() {
+    const pref = localStorage.getItem("pref-theme");
+
+    if (pref === "dark") {
+        document.documentElement.classList.add("dark");
+    } else if (pref === "light") {
+        document.documentElement.classList.add("light");
+    } else {
+        // AUTO MODE → use system preference
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            document.documentElement.classList.add("dark");
+        } else {
+            document.documentElement.classList.add("light");
+        }
+    }
+})();
+</script>
+{{- end }}
+{{- /* theme-toggle is disabled and theme is auto */}}
+{{- else if (and (ne site.Params.defaultTheme "light") (ne site.Params.defaultTheme "dark"))}}
+
+<script>
+(function() {
+    const pref = localStorage.getItem("pref-theme");
+
+    if (pref === "dark") {
+        document.documentElement.classList.add("dark");
+    } else if (pref === "light") {
+        document.documentElement.classList.add("light");
+    } else {
+        // AUTO MODE → use system preference
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            document.documentElement.classList.add("dark");
+        } else {
+            document.documentElement.classList.add("light");
+        }
+    }
+})();
+</script> 
+
+{{- end }} 
+
+
+
 <div class="profile" style="margin-top: 10rem; flex-direction: column; align-items: center;">
   {{- with site.Params.profileMode}}
-  
   <div class="profile_inner" style="border: 2px solid var(--secondary); padding: 1rem; border-radius: 8px;">
 
     <!-- FLEX COLUMN: stack row, then buttons -->
@@ -30,7 +98,7 @@
 
         <!-- Right Column: Titles + Social Icons -->
         <div style="display: flex; flex-direction: column; justify-content: center;">
-          <h1 style="margin: 0;">{{ .title | default site.Title | markdownify }}</h1>
+          <h1 style="margin: 0; color: var(--tertiary);">{{ .title | default site.Title | markdownify }}</h1>
           <h4 style="margin-top: 0.75rem">{{ .subtitle  | markdownify }}</h4>
           <h5 style="margin-top: 0.25rem">{{ .subtitleInst | markdownify }}</h5>
           <h4 style="margin-top: 0.75rem">{{ .subsubtitle | markdownify }}</h4>
@@ -69,7 +137,7 @@
         </a>
         {{- end }}
 
-          <button id="theme-toggle" style="align-items: right; flow">
+          <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
                   <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 20 24"
                         fill="none" stroke="black" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round">
@@ -91,7 +159,7 @@
           </button>
       </div>
       {{- end }}
-
+      
     </div> <!-- flex column -->
   </div>
   {{- end}}

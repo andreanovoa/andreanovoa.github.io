@@ -1,6 +1,46 @@
 {{- define "main" }}
 
+
+
+<!-- {{- if (not site.Params.disableThemeToggle) }}
+<script>
+(function() {
+    const moon = document.getElementById("moon");
+    const sun = document.getElementById("sun");
+    const toggle = document.getElementById("theme-toggle");
+
+    function updateThemeIcon() {
+        if (document.body.classList.contains("dark")) {
+            // Dark mode → show sun
+            sun.style.display = "inline";
+            moon.style.display = "none";
+        } else {
+            // Light mode → show moon
+            sun.style.display = "none";
+            moon.style.display = "inline";
+        }
+    }
+
+    // Initial setup
+    updateThemeIcon();
+
+    toggle.addEventListener("click", () => {
+        if (document.body.classList.contains("dark")) {
+            document.body.classList.remove("dark");
+            localStorage.setItem("pref-theme", "light");
+        } else {
+            document.body.classList.add("dark");
+            localStorage.setItem("pref-theme", "dark");
+        }
+        updateThemeIcon();
+    });
+})();
+</script>
+{{- end }} -->
+
+
 {{- if (and site.Params.profileMode.enabled .IsHome) }}
+{{- partial "head.html" . }}
 {{- partial "index_profile.html" . }}
 {{- else }} {{/* if not profileMode */}}
 

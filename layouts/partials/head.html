@@ -105,30 +105,11 @@
     <style>
         #theme-toggle,
         .top-link {
-            display: true;
+            display: none;
         }
-
     </style>
-    {{- if (and (ne site.Params.defaultTheme "light") (ne site.Params.defaultTheme "dark")) }}
-    <style>
-        @media (prefers-color-scheme: dark) {
-
-            .list {
-                background: var(--theme);
-            }
-
-            .list:not(.dark)::-webkit-scrollbar-track {
-                background: 0 0;
-            }
-
-            .list:not(.dark)::-webkit-scrollbar-thumb {
-                border-color: var(--theme);
-            }
-        }
-
-    </style>
-    {{- end }}
 </noscript>
+
 
 <script src="https://unpkg.com/feather-icons"></script>
 {{- partial "templates/opengraph.html" . }}
@@ -142,4 +123,5 @@
 {{ if or .Page.Params.math .Site.Params.math }}
 {{- partial "math.html" .}}
 {{ end }} 
+
 
