@@ -57,12 +57,13 @@ Because of physical assumptions and numerical approximations, low-order models a
 First, we design a data assimilation framework to perform combined state, parameter, and bias estimation. Second, we propose a mathematical solution with a sequential method, i.e., the regularized bias-aware ensemble Kalman Filter (r-EnKF), which requires a model of the bias and its gradient (i.e., the Jacobian). Third, we propose an echo state network as the model bias estimator. We derive the Jacobian of the network, and design a robust training strategy with data augmentation to accurately infer the bias in different scenarios. Fourth, we apply the r-EnKF to nonlinearly coupled oscillators (with and without time-delay) affected by different forms of bias. The r-EnKF infers in real-time parameters and states, and a unique bias. The applications that we showcase are relevant to acoustics, thermoacoustics, and vibrations; however, the r-EnKF opens new opportunities for combined state, parameter and bias estimation for real-time and on-the-fly prediction in nonlinear systems.
 
 ---
-<!-- #### Conceptual illustration of unknown unknowns inference -->
+#### Conceptual of sequential bias-aware data assimilation
 
-![Conceptual illustration of unknown unknowns inference](inferring_unknowns_cover.gif)
+<!-- ![Conceptual illustration of unknown unknowns inference](inferring_unknowns_cover.gif) -->
 
 
----
+<img src="inferring_unknowns_cover.gif" style="display: block; margin: 0 auto 1em;" alt="Conceptual illustration of unknown unknowns inference" width=1000px/>
+
 
 #### Citation
 

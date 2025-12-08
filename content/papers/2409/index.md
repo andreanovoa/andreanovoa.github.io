@@ -3,7 +3,7 @@ title: "A real-time digital twin of azimuthal thermoacoustic instabilities"
 # subtitle: " Regularized bias-aware ensemble Kalman filter"  
 date: 2024-09-25
 tags: ["thermoacoustics", "data assimilation", "model bias", "experimental data"]  
-author: ["Andrea Nóvoa", "Nicolas Noiray", "James R. Dawwson", "Luca Magri"]  
+author: ["Andrea Nóvoa", "Nicolas Noiray", "James R. Dawson", "Luca Magri"]  
 summary: "This paper develops novel methods to infer unknown unknowns in complex dynamical systems using data assimilation techniques."  
 # summary: "We propose an innovative approach for detecting and quantifying unknown unknown errors in computational models, enhancing prediction reliability and robustness."  
 cover:
@@ -69,10 +69,9 @@ This work opens new opportunities for real-time digital twinning of multi-physic
 
 
 #### Schematic of the proposed digital twin framework. 
-<div style="background:#ffffff;padding:0.5rem;border-radius:4px;">
-<img src="JFM_DT_schematic_both.webp" alt="(a) Physical and digital systems evolve independently. (b) Diagram of the r-EnKF update performed sequentially when measurement data become available" />
+<img src="JFM_DT_schematic_both.webp" style="display: block; margin: 0 auto 1em;background:#ffffff;padding:0.5rem;border-radius:4px;" alt="(a) Physical and digital systems evolve independently. (b) Diagram of the r-EnKF update performed sequentially when measurement data become available" />
 <figcaption style="text-align:center;">(a) Physical and digital systems evolve independently. (b) Diagram of the r-EnKF update performed sequentially when measurement data become available.</figcaption>
-</div>
+
 
 ---
 
