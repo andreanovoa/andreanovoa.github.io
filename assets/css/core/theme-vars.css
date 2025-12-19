@@ -105,6 +105,8 @@
   --lineheight: 1.45;
   --lineclamp: 8;
   --marginleft: 26px;
+
+  --gray: hsla(0, 0%, 77%, .5); 
 }
 
 /* --- Dark Mode Overrides --- */
@@ -125,26 +127,11 @@
 
   --content-low: hsl(0, 0%, 0%); 
   --content-mid: hsl(0, 0%, 35%); 
-  --content: hsl(0, 0%, 77%); 
+  --content: var(--gray);
 
  
   --code-bg: hsla(var(--main-color-3-hsl), 0.1);
   --code-block-bg: hsl(230, 8%, 11%); /* Converted rgb(28, 29, 33) to HSL */
-/* 
-
-  --primary: hsl(var(--main-color-3-hs), 20%); 
-  --secondary: hsl(var(--main-color-3-hs), 40%); 
-
-
-  --entry: hsla(var(--main-color-3-hs), 20%, 0.2); 
-  --profile-inner: hsla(var(--main-color-3-hs), 20%, 0.2); 
-
-  /* --tertiary:  hsl(var(--main-color-1-hsl));  */
-
-  /* --primary-hover: hsla(var(--main-color-3-hsl), .5); 
-  --secondary-hover: hsla(var(--main-color-3-hsl), .5); 
-  --tertiary-hover: hsla(var(--main-color-3-hsl), .5);  */
-
 
   --primary: hsl(var(--main-color-2-hs), 65%); 
   --secondary: hsl(var(--main-color-2-hs), 50%); 

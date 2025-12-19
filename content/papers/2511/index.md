@@ -73,7 +73,7 @@ We show that DA-MIRL successfully estimates and suppresses the chaotic dynamics 
 
 #### Schematic of the proposed DA-MIRL. 
 <!-- <div style="background:#ffffff;padding:0.5rem;border-radius:4px;"> -->
-<img src="drawing-DA-MIRL.png" width=800px alt="Detailed schematic of the DA-MIRL" style="display: block; margin: 0 auto 1em;"/>
+<img src="drawing-DA-MIRL.png" width=800px alt="Detailed schematic of the DA-MIRL" style="display: block; margin: 0 auto 1em; background:var(--gray);padding:2rem"/>
 <figcaption style="text-align:center;">
 The DA-MIRL aims to control a partially observed <span style="color: #b8b6b4ff;font-weight:bold;text-shadow: -1px 1px 1px var(--content)">environment</span> by integrating three components: <span style="color: #ffccaaff;font-weight:bold;text-shadow: -1px 1px 1px var(--content)">model environment</span>, <span style="color: #afc6e9ff;font-weight:bold;text-shadow: -1px 1px 1px var(--content)">state estimation</span>,  and <span style="color: #c6e9afff;font-weight:bold;text-shadow: -1px 1px 1px var(--content)">agent</span>. The numerical model $\mathbf{F}$ approximates the environment by forecasting an ensemble of states $\mathbf{s}_j$ (stacked boxes). If there are no observations, the model runs autonomously, otherwise, the model prediction is updated by the state estimator. The state estimator perturbs the observations $\mathbf{o}$ and assimilates them with the forecast ensemble $\mathbf{s}_j^f$ via the EnKF, which results in the analysis ensemble $\mathbf{s}_j^a$⁠. The model $\mathbf{F}$ is re-initialized with $\mathbf{s}_j^a$. The actor-critic agent interacts with both the environment and its model to apply and determine the optimal action at any time $t_k$⁠. The critic, which is active only during training, approximates the $Q$-value function from the state-action pair. The actor (i.e. the policy $\boldsymbol{\pi}$⁠) determines the action $\mathbf{a}$ from the expected value of the full state of the environment. We do not have access to the environment’s full state, hence, we feed the expected value given by the model, i.e. the ensemble mean $\bar{s}$⁠. </br></br></figcaption>
 
@@ -82,7 +82,7 @@ The DA-MIRL aims to control a partially observed <span style="color: #b8b6b4ff;f
 
 #### Control episode of the DA-MIRL with the control-aware ESN. 
 <!-- <div style="background:#ffffff;padding:0.5rem;border-radius:4px;"> -->
-<img src="results.png" width=1000px alt="Detailed schematic of the DA-MIRL" style="display: block; margin: 0 auto 1em;background:#ffffff;padding:0.5rem;border-radius:4px;"/>
+<img src="results.png" width=1000px alt="Detailed schematic of the DA-MIRL" style="display: block; margin: 0 auto 1em;background:var(--gray);padding:1rem;border-radius:4px;"/>
 <!-- </div> -->
 <figcaption style="text-align:center;">
 Spatio-temporal evolution of the environment ${\mathbf{u}}^{true}$ (i.e., the truth), the  model ensemble mean prediction $\hat{\mathbf{u}}$, and the reconstruction error. The triangles and circles indicate the location of the actuators and sensors, respectively⁠. The observations and actuations begin at time step $k=500$.</figcaption>

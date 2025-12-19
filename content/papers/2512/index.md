@@ -12,7 +12,7 @@ cover:
     relative: true  
 related_links:
   - name: "Published paper"
-    url: "https://www.sciencedirect.com/science/article/pii/S0045782525008722"
+    url: "https://doi.org/10.1016/j.cma.2025.118600"
     icon: "book-open" # Feather Icon
     target: "_blank"
   - name: "Arxiv preprint"
@@ -62,7 +62,7 @@ The DA-CAE-ESN provides a numerically stable and real-time adaptive ROM. The DA-
 
 #### Schematic of the proposed DA-CAE-ESN. 
 <!-- <div style="background:#ffffff;padding:0.5rem;border-radius:4px;"> -->
-<img src="cover.png" width=800px alt="Detailed schematic of the DA-MIRL" style="display: block; margin: 0 auto 1em;background:var(  --content);padding:0.5rem;border-radius:4px;"/>
+<img src="cover.png" width=1000px alt="Detailed schematic of the DA-MIRL" style="display: block; margin: 0 auto 1em;background:var(  --gray);padding:0.5rem;border-radius:4px;"/>
 <figcaption style="text-align:center;">
 Illustration of the proposed DA-CAE-ESN framework, which integrates a convolutional autoencoder, an echo state network and an ensemble Kalman filter with Kolmogorov flow data.  The CAE encodes an ensemble of initial snapshots into a latent state $\mathbf{y}$ at a time $t_1$ via the encoder $\mathcal{E}$. 
     In the latent space, the ESN forecasts in closed-loop an ensemble of predicted latent states $\mathbf{\hat{y}}(t_j)$ until observations become available (here, for illustration at $t=t_3$). Then, the EnKF combines the partial and noisy observations $\mathbf{d}$ with the ensemble of reservoir states $\mathbf{r}_j^f$, resulting in the analysis ensemble $\mathbf{r}^a(t_j)$. The updated ESN can continue to forecast in closed-loop. The decoder $\mathcal{D}$ recovers the prediction of the full flow field $\mathbf{\hat{u}}(t_j)$ from any $\mathbf{\hat{y}}(t_j)$ (here, for illustration at $t=t_4$). 
