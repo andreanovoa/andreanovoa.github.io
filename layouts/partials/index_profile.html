@@ -85,11 +85,11 @@
               {{- $img = resources.Get .imageUrl }}
             {{- end }}
             {{- if $img }}
-              <img draggable="false" src="{{ $img.Permalink }}"
+              <img draggable="false" src="{{ $img.RelPermalink }}"
                    alt="{{ .imageTitle | default "profile image" }}" title="{{ .imageTitle }}"
                    height="{{ .imageHeight | default 150 }}" width="{{ .imageWidth | default 150 }}" />
             {{- else }}
-              <img draggable="false" src="{{ .imageUrl | absURL }}" 
+              <img draggable="false" src="{{ .imageUrl | relURL }}" 
                    alt="{{ .imageTitle | default "profile image" }}" title="{{ .imageTitle }}"
                    height="{{ .imageHeight | default 150 }}" width="{{ .imageWidth | default 150 }}" />
             {{- end }}

@@ -41,7 +41,7 @@
                       </span>
                     {{- end }}
                   </h3>
-                  <a class="entry-link" aria-label="post link to {{ .Title | plainify }}" href="{{ .Permalink }}"></a>
+                  <a class="entry-link" aria-label="post link to {{ .Title | plainify }}" href="{{ .RelPermalink }}"></a>
                 </article>
               {{- end }}
             {{- end }}

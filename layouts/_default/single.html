@@ -1,9 +1,20 @@
 {{- define "main" }}
 
-<article class="post-single">
+{{- $singleClass := "post-single" }}
+{{- if eq .RelPermalink "/cv/" }}
+{{- $singleClass = "post-single post-single--cv" }}
+{{- end }}
+<article class="{{ $singleClass }}">
+  {{- if eq .RelPermalink "/cv/" }}
+  <div class="page-top-zone">
+  {{- end }}
   <header class="post-header">
     {{ partial "breadcrumbs.html" . }}
-    <h1 class="post-title entry-hint-parent">
+    {{- $postTitleClass := "post-title entry-hint-parent" }}
+    {{- if eq .RelPermalink "/cv/" }}
+    {{- $postTitleClass = "post-title entry-hint-parent post-title--center" }}
+    {{- end }}
+    <h1 class="{{ $postTitleClass }}">
       {{ .Title }}
       {{- if .Draft }}
       <span class="entry-hint" title="Draft">
@@ -48,6 +59,9 @@
   {{- if (.Param "ShowToc") }}
   {{- partial "toc.html" . }}
   {{- end }}
+  {{- if eq .RelPermalink "/cv/" }}
+  </div>
+  {{- end }}
 
   {{- if .Content }}
   <div class="post-content">
@@ -62,7 +76,7 @@
     {{- $tags := .Language.Params.Taxonomies.tag | default "tags" }}
     <ul class="post-tags">
       {{- range ($.GetTerms $tags) }}
-      <li><a href="{{ .Permalink }}">{{ .LinkTitle }}</a></li>
+      <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
       {{- end }}
     </ul>
     {{- if (.Param "ShowPostNavLinks") }}

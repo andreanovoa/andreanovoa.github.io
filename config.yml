@@ -1,4 +1,6 @@
 baseURL: "https://andreanovoa.github.io/" 
+relativeURLs: true
+canonifyURLs: false
 title: Andrea Nóvoa
 theme: PaperMod
 
@@ -21,15 +23,12 @@ menu:
         - name: Publications
           url: papers/
           weight: 2
-        # - name: Publications
-        #   url: publications/
-          # weight: 3
+        - name: Talks
+          url: talks/
+          weight: 3
         # - name: Data
         #   url: data/
         #   weight: 4 
-        # - name: Blog
-        #   url: https://en.wikipedia.org/wiki/Moritz-Maria_von_Igelfeld_(character)
-        #   weight: 6
 
 params:
     description: "This website hosts Andrea Nóvoa's research papers, course materials, data, curriculum vitae, and contact information."
@@ -46,7 +45,7 @@ params:
     ShowBreadCrumbs: false
     ShowCodeCopyButtons: true
     ShowAllPagesInArchive: false
-    MainSections: ["papers","data","courses"]
+    MainSections: ["papers","talks","cv"]
     ShowToc: false
     disableScrollToTop: true
     TocOpen: true
@@ -66,7 +65,7 @@ params:
           imageHeight: 160
           icon: "favicon-32x32.png"
           buttons:
-            - name: About
+            - name: CV
               url: cv/
             - name: Publications
               url: papers/

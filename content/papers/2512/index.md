@@ -7,7 +7,7 @@ author: ["Elise Özalp", "Andrea Nóvoa", "Luca Magri"]
 summary: "This paper introduces DA-MIRL, a novel framework that integrates sequential DA with off-policy RL to estimate and control high-dimensional, spatio-temporal chaos using only partial and noisy observations.."  
 # summary: "We propose an innovative approach for detecting and quantifying unknown unknown errors in computational models, enhancing prediction reliability and robustness."  
 cover:
-    image: "cover.png"  
+    image: "AE.gif"  
     alt: "DA-CAE-ESN diagram"
     relative: true  
 related_links:

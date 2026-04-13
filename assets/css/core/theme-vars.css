@@ -82,8 +82,8 @@
   --table-bg-1: hsla(var(--main-color-3-hsl), 0.1);
   --table-bg-2: hsla(var(--main-color-3-hsl), 0.12);
 
-  --content: hsl(0, 0%, 26%); 
-  --content-mid: hsl(0, 0%, 67%); 
+  --content: hsl(var(--main-color-3-h), 12%, 24%); 
+  --content-mid: hsl(var(--main-color-3-h), 10%, 52%); 
   --content-low: hsl(0, 0%, 100%); 
 
   /* FIXED: Borders must now use HSLA format */
@@ -126,14 +126,14 @@
 
 
   --content-low: hsl(0, 0%, 0%); 
-  --content-mid: hsl(0, 0%, 35%); 
-  --content: var(--gray);
+  --content-mid: hsl(var(--main-color-2-h), 12%, 58%); 
+  --content: hsl(var(--main-color-2-h), 10%, 74%);
 
  
   --code-bg: hsla(var(--main-color-3-hsl), 0.1);
   --code-block-bg: hsl(230, 8%, 11%); /* Converted rgb(28, 29, 33) to HSL */
 
-  --primary: hsl(var(--main-color-2-hs), 65%); 
+  --primary: hsl(var(--main-color-2-hs), 56%); 
   --secondary: hsl(var(--main-color-2-hs), 50%); 
   --tertiary: hsl(var(--main-color-2-hs), 85%);  
 

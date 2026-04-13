@@ -10,6 +10,38 @@
     font-size: var(--h1size);
 }
 
+.page-title--center {
+    text-align: center;
+}
+
+.page-top-zone {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    background-color: hsla(var(--main-color-2-hsl), 0.06);
+}
+
+.page-top-zone .post-header,
+.page-top-zone .page-header {
+    padding-inline: max(var(--gap), calc((100vw - var(--nav-width)) / 2));
+    padding-block: var(--gap);
+    margin: 0;
+}
+
+.page-top-zone .toc {
+    margin: var(--gap) auto var(--content-gap);
+}
+
+.page-header--talks {
+    align: center;
+    margin: 0;
+}
+
+.page-header--talks h1 {
+    margin: 0;
+    font-size: var(--h1size);
+}
+
 .pagination {
     display: flex;
 }
@@ -31,28 +63,17 @@
     color: var(--primary-hover);
     display: inline-flex;
     padding: 8px 14px 8px 0px;
-    /* transition: color 0.3s; */
 }
 
 .social-icons a svg {
-    height: 30px;
-    width: 30px;
-}
-
-.social-icons a:hover {
-    color: var(--primary);
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
 }
 
 code {
     direction: ltr;
-}
-
-code {
     text-size-adjust: 100%;
-    -ms-text-size-adjust: 100%;
-    -moz-text-size-adjust: 100%;
-    -webkit-text-size-adjust: 100%;
-    /* -colo */
 }
 
 div.highlight,
@@ -78,19 +99,155 @@ pre:hover .copy-code {
     display: block;
 }
 
-/* assets/css/custom.css */
 .publication-grid {
     display: grid;
-    /* Create responsive columns: minimum 350px wide, 1fr (equal space) otherwise */
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); 
-    gap: 2rem; /* Space between the grid items */
-    margin-top: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-top: 0.4rem;
 }
 
 .publication-card {
-    height: 100%; /* Ensures all cards in a row have the same height */
-    /* Add card specific styling here, e.g., padding and borders */
+    height: 100%;
     padding: 1.5rem;
-    border: 1px solid var(--border-color); 
+    border: 1px solid var(--border-color);
     border-radius: 8px;
+}
+
+.publication-grid--talks {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: var(--gap);
+    margin-top: 0;
+    margin-bottom: calc(var(--gap) * 2.1);
+    overflow-x: auto;
+    overflow-y: hidden;
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    padding-top: 0.2rem;
+    padding-bottom: 0.6rem;
+    padding-inline: max(var(--gap), calc((100vw - var(--nav-width)) / 2));
+    border-radius: 0;
+    scroll-snap-type: x proximity;
+    overscroll-behavior-x: contain;
+}
+
+.publication-grid--papers {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: var(--gap);
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x proximity;
+    overscroll-behavior-x: contain;
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    margin-top: 0;
+    margin-bottom: calc(var(--gap) * 2.1);
+    padding-top: 0.2rem;
+    padding-bottom: 0.6rem;
+    padding-inline: max(var(--gap), calc((100vw - var(--nav-width)) / 2));
+}
+
+.publication-card--paper {
+    width: 420px;
+    min-width: 420px;
+    flex: 0 0 420px;
+    height: auto;
+    scroll-snap-align: start;
+}
+
+.publication-card--talk {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    width: 500px;
+    max-width: 500px;
+    min-width: 500px;
+    flex: 0 0 500px;
+    height: auto;
+    scroll-snap-align: start;
+}
+
+.talk-card-top {
+    display: block;
+}
+
+.talk-card-copy {
+    min-width: 0;
+}
+
+.publication-card--talk .entry-cover {
+    margin-bottom: 0;
+    max-width: 100%;
+}
+
+.publication-card--talk .entry-cover img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+}
+
+.publication-card--talk .entry-content {
+    margin: 0;
+    line-clamp: 4;
+    -webkit-line-clamp: 4;
+}
+
+.publication-card--talk .entry-footer {
+    margin-top: 0.4rem;
+}
+
+.publication-card--talk .entry-header {
+    width: 100%;
+}
+
+.publication-card--talk .entry-hint-parent {
+    display: block;
+    width: 100%;
+}
+
+.publication-card--talk .entry-header h2 {
+    font-size: 1.2rem;
+    line-height: 1.25;
+    width: 100%;
+}
+
+@media screen and (max-width: 768px) {
+    .publication-card--paper {
+        width: 360px;
+        min-width: 360px;
+        flex-basis: 360px;
+    }
+
+    .publication-card--talk {
+        width: 440px;
+        min-width: 440px;
+        flex-basis: 440px;
+    }
+}
+
+@media screen and (max-width: 520px) {
+    .publication-card--paper {
+        width: 300px;
+        min-width: 300px;
+        flex-basis: 300px;
+    }
+
+    .publication-card--talk {
+        width: 360px;
+        min-width: 360px;
+        flex-basis: 360px;
+    }
+
+    .publication-card--talk .entry-cover {
+        max-width: 100%;
+    }
+
+    .publication-card--talk .entry-header h2 {
+        font-size: 1.05rem;
+    }
 }

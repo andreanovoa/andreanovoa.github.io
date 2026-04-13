@@ -6,6 +6,9 @@
     margin-inline-end: auto;
     line-height: var(--header-height);
     background: var(--primary);
+    border-bottom: 1px solid var(--border);
+    height: var(--header-height);
+    width: 100%;
 }
 /* 
 .nav a {

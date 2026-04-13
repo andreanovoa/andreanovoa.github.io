@@ -11,15 +11,6 @@
     color: var(--primary);
 }
 
-.post-title--center {
-    justify-content: center;
-    text-align: center;
-}
-
-.post-single--cv .post-meta {
-    text-align: center;
-}
-
 .post-description {
     margin-top: 10px;
     margin-bottom: 5px;
@@ -183,7 +174,7 @@
     /* margin: 1px auto; */
     /* align-items: right; */
     max-width: 100%;
-    width: fit-content;
+    width: 100%;
     
     /* Ensure box model includes padding in the width calculation */
     box-sizing: border-box; 
@@ -197,7 +188,7 @@
 
 .post-content table th,
 .post-content table:not(.highlighttable, .highlight table, .gist .highlight) td {
-    width: fit-content;
+    width: auto;
     padding: 10px 10px;
     line-height: var(--lineheight);
     border-bottom: 1px solid var(--border);
@@ -222,29 +213,6 @@
     vertical-align: top;
     background-color: var(--table-bg-1);
 }
-
-
-.post-content table strong,
-.post-content table b {
-    color: var(--table-header-bg);
-    font-weight: 600;
-    text-decoration: none;
-}
-
-.post-content table strong a:hover,
-.post-content table b a:hover {
-        color: var(--linkcolor);
-        opacity: 0.9;
-        text-decoration: none;
-}
-
-.post-content table a:hover strong,
-.post-content table a:hover b {
-        color: var(--linkcolor);
-    opacity: 0.9;
-    text-decoration: none;
-}
-
 .post-content table tbody tr:hover {
   background-color: var(--table-bg-2);
   transition: background 0.2s;
@@ -508,8 +476,7 @@ a[href^="#fn:"]:hover, a[href^="#fnref:"]:hover {
 }
 
 
-.post-content .capital-title { 
-    color: var(--table-header-bg); 
+.post-content .capital-title { color: var(--table-header-bg); 
     /* font-weight: 600; */
     font-size: 1.1em;
     text-transform: uppercase;
@@ -519,8 +486,7 @@ a[href^="#fn:"]:hover, a[href^="#fnref:"]:hover {
 }   
 
 
-.post-content .cv-academic-title { 
-    color: var(--table-header-bg); 
+.post-content .cv-academic-title { color: var(--table-header-bg); 
     /* font-weight: 600; */
     font-size: 1.1em;
     margin-top: 20px;
@@ -530,6 +496,35 @@ a[href^="#fn:"]:hover, a[href^="#fnref:"]:hover {
 
 }   
 
+/* CV tables should keep a squared right edge. */
+.post-single--cv .post-content table {
+    max-width: 1000px;
+    width: auto;
+    border-radius: 10px 0 0 10px !important;
+    border-collapse: separate;
+    border-spacing: 0;
+    overflow: hidden;
+}
+
+.post-single--cv .post-content table th,
+.post-single--cv .post-content table td {
+    width: auto;
+    border-radius: 0 !important;
+}
+
+.post-single--cv .post-content table thead tr:first-child th:first-child {
+    border-top-left-radius: 10px !important;
+}
+
+.post-single--cv .post-content table tbody tr:last-child td:first-child {
+    border-bottom-left-radius: 10px !important;
+}
+
+.post-single--cv .post-content table thead tr:first-child th:last-child,
+.post-single--cv .post-content table tbody tr:last-child td:last-child {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
 
 
 .post-content .cv-note {
