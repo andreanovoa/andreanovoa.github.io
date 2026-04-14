@@ -1,72 +1,4 @@
 
-{{- $themeClass := .Site.Params.defaultTheme | default "auto" -}}
-
-
-{{- /* theme-toggle is enabled */}}
-{{- if (not site.Params.disableThemeToggle) }}
-{{- /* theme is light */}}
-{{- if (eq site.Params.defaultTheme "light") }}
-<script>
-    if (localStorage.getItem("pref-theme") === "dark") {
-        document.body.classList.add('dark');
-    }
-
-</script>
-{{- /* theme is dark */}}
-{{- else if (eq site.Params.defaultTheme "dark") }}
-<script>
-    if (localStorage.getItem("pref-theme") === "light") {
-        document.body.classList.remove('dark')
-    }
-
-</script>
-{{- else }}
-{{- /* theme is auto */}}
-<script>
-(function() {
-    const pref = localStorage.getItem("pref-theme");
-
-    if (pref === "dark") {
-        document.documentElement.classList.add("dark");
-    } else if (pref === "light") {
-        document.documentElement.classList.add("light");
-    } else {
-        // AUTO MODE → use system preference
-        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-            document.documentElement.classList.add("dark");
-        } else {
-            document.documentElement.classList.add("light");
-        }
-    }
-})();
-</script>
-{{- end }}
-{{- /* theme-toggle is disabled and theme is auto */}}
-{{- else if (and (ne site.Params.defaultTheme "light") (ne site.Params.defaultTheme "dark"))}}
-
-<script>
-(function() {
-    const pref = localStorage.getItem("pref-theme");
-
-    if (pref === "dark") {
-        document.documentElement.classList.add("dark");
-    } else if (pref === "light") {
-        document.documentElement.classList.add("light");
-    } else {
-        // AUTO MODE → use system preference
-        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-            document.documentElement.classList.add("dark");
-        } else {
-            document.documentElement.classList.add("light");
-        }
-    }
-})();
-</script> 
-
-{{- end }} 
-
-
-
 <div class="profile" style="margin-top: 10rem; flex-direction: column; align-items: center;">
   {{- with site.Params.profileMode}}
   <div class="profile_inner" style="border: 2px solid var(--secondary); padding: 1rem; border-radius: 8px;">
@@ -137,13 +69,13 @@
         </a>
         {{- end }}
 
-          <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
-                  <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 20 24"
+          <button class="profile-theme-toggle" data-theme-toggle accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                  <svg class="profile-moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 20 24"
                         fill="none" stroke="black" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round">
                         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                     </svg>
-                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                    <svg class="profile-sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                         fill="none" stroke="white" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round">
                         <circle cx="12" cy="12" r="5"></circle>
@@ -157,6 +89,17 @@
                         <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
                 </svg>
           </button>
+            <button class="accent-toggle-home" id="accent-toggle-home" aria-haspopup="listbox" aria-expanded="false" title="Colour theme">
+                    <span class="rainbow-ring-container" aria-hidden="true">
+                      <span class="rainbow-circle"></span>
+                    </span>
+          </button>
+            <ul id="accent-menu-home" class="accent-menu" role="listbox" aria-label="Colour theme">
+              <li role="option" data-accent="blue"><span class="accent-swatch" style="background:hsl(210,60%,55%)"></span><span>Blue</span></li>
+              <li role="option" data-accent="teal"><span class="accent-swatch" style="background:hsl(175,55%,45%)"></span><span>Teal</span></li>
+              <li role="option" data-accent="purple"><span class="accent-swatch" style="background:hsl(260,55%,55%)"></span><span>Purple</span></li>
+              <li role="option" data-accent="rose"><span class="accent-swatch" style="background:hsl(345,60%,55%)"></span><span>Rose</span></li>
+            </ul>
       </div>
       {{- end }}
       
@@ -164,3 +107,70 @@
   </div>
   {{- end}}
 </div>
+
+      <script>
+      (function() {
+        var btn = document.getElementById('accent-toggle-home');
+        var menu = document.getElementById('accent-menu-home');
+        if (!btn || !menu) return;
+
+        function getCurrent() {
+          return document.documentElement.getAttribute('data-accent') || 'blue';
+        }
+
+        function setActive(accent) {
+          menu.querySelectorAll('li[data-accent]').forEach(function(item) {
+            item.setAttribute('aria-selected', item.getAttribute('data-accent') === accent ? 'true' : 'false');
+          });
+        }
+
+        function openMenu() {
+          var rect = btn.getBoundingClientRect();
+          menu.style.top = (rect.bottom + 6) + 'px';
+          menu.style.left = rect.left + 'px';
+          menu.style.right = 'auto';
+          menu.classList.add('open');
+          btn.setAttribute('aria-expanded', 'true');
+          setActive(getCurrent());
+        }
+
+        function closeMenu() {
+          menu.classList.remove('open');
+          btn.setAttribute('aria-expanded', 'false');
+        }
+
+        btn.addEventListener('click', function(event) {
+          event.preventDefault();
+          event.stopPropagation();
+          if (menu.classList.contains('open')) {
+            closeMenu();
+          } else {
+            openMenu();
+          }
+        });
+
+        menu.addEventListener('click', function(event) {
+          var item = event.target.closest('li[data-accent]');
+          if (!item) return;
+          var accent = item.getAttribute('data-accent');
+          document.documentElement.setAttribute('data-accent', accent);
+          localStorage.setItem('pref-accent', accent);
+          setActive(accent);
+          closeMenu();
+        });
+
+        document.addEventListener('click', function(event) {
+          if (!menu.contains(event.target) && event.target !== btn && !btn.contains(event.target)) {
+            closeMenu();
+          }
+        });
+
+        document.addEventListener('keydown', function(event) {
+          if (event.key === 'Escape') {
+            closeMenu();
+          }
+        });
+
+        setActive(getCurrent());
+      })();
+      </script>

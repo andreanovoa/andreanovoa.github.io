@@ -6,6 +6,9 @@
 {{- if (eq site.Params.defaultTheme "light") }}
 <script>
     if (localStorage.getItem("pref-theme") === "dark") {
+        document.documentElement.classList.remove('light');
+        document.documentElement.classList.add('dark');
+        document.body.classList.remove('light');
         document.body.classList.add('dark');
     }
 
@@ -14,7 +17,10 @@
 {{- else if (eq site.Params.defaultTheme "dark") }}
 <script>
     if (localStorage.getItem("pref-theme") === "light") {
-        document.body.classList.remove('dark')
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+        document.body.classList.remove('dark');
+        document.body.classList.add('light');
     }
 
 </script>
@@ -26,14 +32,22 @@
 
     if (pref === "dark") {
         document.documentElement.classList.add("dark");
+        document.body.classList.add("dark");
+        document.body.classList.remove("light");
     } else if (pref === "light") {
         document.documentElement.classList.add("light");
+        document.body.classList.add("light");
+        document.body.classList.remove("dark");
     } else {
         // AUTO MODE → use system preference
         if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
             document.documentElement.classList.add("dark");
+            document.body.classList.add("dark");
+            document.body.classList.remove("light");
         } else {
             document.documentElement.classList.add("light");
+            document.body.classList.add("light");
+            document.body.classList.remove("dark");
         }
     }
 })();
@@ -47,14 +61,22 @@
 
     if (pref === "dark") {
         document.documentElement.classList.add("dark");
+        document.body.classList.add("dark");
+        document.body.classList.remove("light");
     } else if (pref === "light") {
         document.documentElement.classList.add("light");
+        document.body.classList.add("light");
+        document.body.classList.remove("dark");
     } else {
         // AUTO MODE → use system preference
         if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
             document.documentElement.classList.add("dark");
+            document.body.classList.add("dark");
+            document.body.classList.remove("light");
         } else {
             document.documentElement.classList.add("light");
+            document.body.classList.add("light");
+            document.body.classList.remove("dark");
         }
     }
 })();
@@ -83,10 +105,16 @@
                         {{- end }}
                     {{- end }}
                     <img src="{{ $img.RelPermalink }}" alt="" aria-label="logo"
+                        class="theme-switch-logo"
+                        data-logo-black="{{ "favicon_black/favicon-32x32.png" | absURL }}"
+                        data-logo-white="{{ "favicon_white/favicon-32x32.png" | absURL }}"
                         height="{{- site.Params.label.iconHeight | default "30" -}}"
                         width="{{- site.Params.label.iconHeight | default "30" -}}">
                 {{- else }}
                 <img src="{{- site.Params.label.icon | relURL -}}" alt="" aria-label="logo"
+                    class="theme-switch-logo"
+                    data-logo-black="{{ "favicon_black/favicon-32x32.png" | absURL }}"
+                    data-logo-white="{{ "favicon_white/favicon-32x32.png" | absURL }}"
                     height="{{- site.Params.label.iconHeight | default "30" -}}"
                     width="{{- site.Params.label.iconHeight | default "30" -}}">
                 {{- end -}}
@@ -126,7 +154,7 @@
             <li></li>
             <div class="logo-switches">
                 {{- if (not site.Params.disableThemeToggle) }}
-                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                <button id="theme-toggle" data-theme-toggle accesskey="t" title="(Alt + T)">
                     <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
                         fill="none" stroke="black" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round">
@@ -147,6 +175,11 @@
                     </svg>
                 </button>
                 {{- end }}
+                <button id="accent-toggle" data-accent-trigger aria-haspopup="listbox" aria-expanded="false" title="Colour theme">
+                    <span class="rainbow-ring-container" aria-hidden="true">
+                        <span class="rainbow-circle"></span>
+                    </span>
+                </button>
                 {{- $lang := .Lang}}
                 {{- $separator := or $label_text (not site.Params.disableThemeToggle)}}
                 {{- with site.Home.Translations }}
@@ -172,6 +205,69 @@
             </div>
              </ul>
     </nav>
+    <ul id="accent-menu" class="accent-menu" role="listbox" aria-label="Colour theme">
+        <li role="option" data-accent="blue"><span class="accent-swatch" style="background:hsl(210,60%,55%)"></span><span>Blue</span></li>
+        <li role="option" data-accent="teal"><span class="accent-swatch" style="background:hsl(175,55%,45%)"></span><span>Teal</span></li>
+        <li role="option" data-accent="purple"><span class="accent-swatch" style="background:hsl(260,55%,55%)"></span><span>Purple</span></li>
+        <li role="option" data-accent="rose"><span class="accent-swatch" style="background:hsl(345,60%,55%)"></span><span>Rose</span></li>
+    </ul>
 </header>
+
+<script>
+(function() {
+    var menu = document.getElementById('accent-menu');
+    if (!menu) return;
+
+    function getCurrent() {
+        return document.documentElement.getAttribute('data-accent') || 'blue';
+    }
+    function setActive(a) {
+        menu.querySelectorAll('li').forEach(function(li) {
+            li.setAttribute('aria-selected', li.getAttribute('data-accent') === a ? 'true' : 'false');
+        });
+    }
+    function openMenu(btn) {
+        var r = btn.getBoundingClientRect();
+        menu.style.top   = (r.bottom + 6) + 'px';
+        menu.style.right = (window.innerWidth - r.right) + 'px';
+        menu.style.left  = 'auto';
+        menu.classList.add('open');
+        document.querySelectorAll('[data-accent-trigger]').forEach(function(t) {
+            t.setAttribute('aria-expanded', 'false');
+        });
+        btn.setAttribute('aria-expanded', 'true');
+        setActive(getCurrent());
+    }
+    function closeMenu() {
+        menu.classList.remove('open');
+        document.querySelectorAll('[data-accent-trigger]').forEach(function(t) {
+            t.setAttribute('aria-expanded', 'false');
+        });
+    }
+
+    document.addEventListener('click', function(e) {
+        var btn = e.target.closest('[data-accent-trigger]');
+        if (btn) {
+            e.stopPropagation();
+            menu.classList.contains('open') ? closeMenu() : openMenu(btn);
+            return;
+        }
+        var li = e.target.closest('#accent-menu li[data-accent]');
+        if (li) {
+            var a = li.getAttribute('data-accent');
+            document.documentElement.setAttribute('data-accent', a);
+            localStorage.setItem('pref-accent', a);
+            setActive(a);
+            closeMenu();
+            return;
+        }
+        closeMenu();
+    });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeMenu();
+    });
+    setActive(getCurrent());
+})();
+</script>
 
 

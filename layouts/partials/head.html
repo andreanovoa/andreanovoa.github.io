@@ -1,4 +1,7 @@
 <meta charset="utf-8">
+<script>
+(function(){var a=localStorage.getItem('pref-accent');if(a)document.documentElement.setAttribute('data-accent',a);})();
+</script>
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 {{- if hugo.IsProduction | and (ne .Params.robotsNoIndex true) }}
@@ -86,12 +89,49 @@
 {{- end -}}
 
 {{- /* Favicons */}}
-<link rel="icon" href="{{ site.Params.assets.favicon | default "favicon.ico" | absURL }}">
-<link rel="icon" type="image/png" sizes="16x16" href="{{ site.Params.assets.favicon16x16 | default "favicon-16x16.png" | absURL }}">
-<link rel="icon" type="image/png" sizes="32x32" href="{{ site.Params.assets.favicon32x32 | default "favicon-32x32.png" | absURL }}">
-<link rel="apple-touch-icon" href="{{ site.Params.assets.apple_touch_icon | default "apple-touch-icon.png" | absURL }}">
+<link id="favicon-ico" rel="icon" href="{{ "favicon_black/favicon.ico" | absURL }}">
+<link id="favicon-16" rel="icon" type="image/png" sizes="16x16" href="{{ "favicon_black/favicon-16x16.png" | absURL }}">
+<link id="favicon-32" rel="icon" type="image/png" sizes="32x32" href="{{ "favicon_black/favicon-32x32.png" | absURL }}">
+<link id="favicon-apple" rel="apple-touch-icon" href="{{ "favicon_black/apple-touch-icon.png" | absURL }}">
 <meta name="theme-color" content="{{ site.Params.assets.theme_color | default "#2e2e33" }}">
 <meta name="msapplication-TileColor" content="{{ site.Params.assets.msapplication_TileColor | default "#2e2e33" }}">
+
+<script>
+(function () {
+  function setHref(id, href) {
+    var el = document.getElementById(id);
+    if (el) el.setAttribute('href', href);
+  }
+
+  window.updateThemeFavicons = function (mode) {
+    var folder = mode === 'dark' ? 'favicon_black' : 'favicon_white';
+    var base = window.location.origin + '/';
+
+    setHref('favicon-ico', base + folder + '/favicon.ico');
+    setHref('favicon-16', base + folder + '/favicon-16x16.png');
+    setHref('favicon-32', base + folder + '/favicon-32x32.png');
+    setHref('favicon-apple', base + folder + '/apple-touch-icon.png');
+
+    var logoSrc = mode === 'dark'
+      ? (base + 'favicon_black/favicon-32x32.png')
+      : (base + 'favicon_white/favicon-32x32.png');
+    document.querySelectorAll('.theme-switch-logo').forEach(function (img) {
+      var darkSrc = img.getAttribute('data-logo-black');
+      var lightSrc = img.getAttribute('data-logo-white');
+      img.setAttribute('src', mode === 'dark' ? (darkSrc || logoSrc) : (lightSrc || logoSrc));
+    });
+  };
+
+  var pref = localStorage.getItem('pref-theme');
+  var mode = pref === 'dark' || pref === 'light'
+    ? pref
+    : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  window.updateThemeFavicons(mode);
+  document.addEventListener('DOMContentLoaded', function () {
+    window.updateThemeFavicons(mode);
+  });
+})();
+</script>
 
 {{- /* RSS */}}
 {{ range .AlternativeOutputFormats -}}

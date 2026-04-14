@@ -49,12 +49,185 @@ button#theme-toggle {
     color: white;
 }
 
-body.dark #moon {
+.header button#theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header button#theme-toggle svg {
+    stroke: rgba(255, 255, 255, 0.95);
+}
+
+:root {
+    --theme-toggle-icon-color: rgba(0, 0, 0, 0.85);
+}
+
+button#accent-toggle {
+    font-size: 16px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    line-height: 1;
+    opacity: 1.;
+}
+
+
+/* Rainbow button on the profile card (light background context) */
+button.accent-toggle-home {
+    font-size: 16px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    line-height: 1;
+    border-radius: 4px;
+    opacity: 1.;
+}
+
+button.accent-toggle-home:hover {
+    opacity: 1;
+}
+
+.buttons [data-theme-toggle],
+.buttons button.accent-toggle-home {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    margin: 1px 1px;
     vertical-align: middle;
+    align-self: center;
+    line-height: 0;
+}
+
+.buttons [data-theme-toggle] svg,
+.buttons button.accent-toggle-home .rainbow-ring-container {
+    flex-shrink: 0;
+    display: block;
+}
+
+#sun {
+    width: 18px;
+    height: 18px;
+}
+
+
+#moon {
+    width: 14px;
+    height: 14px;
+}
+
+.accent-menu {
+    display: none;
+    position: fixed;
+    list-style: none;
+    margin: 0 !important;
+    padding: 0px 0;
+    background: var(--theme);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+    z-index: 9999;
+    min-width: 110px;
+    text-align: left;
+}
+
+.accent-menu.open {
+    display: block;
+}
+
+.accent-menu li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px; /* Slightly more vertical breathing room */
+
+    /* CRITICAL RESETS */
+    margin: 0 !important;              /* Kills the stepping effect */
+    margin-inline-start: 0 !important; /* Specific reset for modern themes */
+    float: none !important;            /* Ensures they don't try to sit side-by-side */
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--content);
+    white-space: nowrap;
+    font-variant: all-small-caps;
+    font-weight: 500;
+    line-height: 1.1;
+}
+
+.accent-menu li:hover {
+    background: var(--entry);
+}
+
+.accent-menu li[aria-selected="true"] {
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.accent-swatch {
+    display: block;
+    width: 10px;
+    height: 10px;
+    min-width: 10px;
+    min-height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    align-self: center;
+}
+
+/* The Parent: Handles the border and shadow */
+.rainbow-ring-container {
+    margin-left: 5px;
+    margin-right: 0px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 12px; /* 12px circle + 8px for shadows/borders */
+    height: 12px;
+    border-radius: 50%;
+    /* Apply your borders/shadows here */
+    box-shadow: 0 0 0 1px var(--theme-toggle-icon-color);
+}
+
+button#accent-toggle .rainbow-ring-container {
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.95);
+}
+
+/* The Child: The masked rainbow */
+.rainbow-circle {
+    display: block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: conic-gradient(
+        #e74c3c 0deg, #e67e22 60deg, #f1c40f 120deg,
+        #2ecc71 180deg, #3498db 240deg, #9b59b6 300deg, #e74c3c 360deg
+    );
+}
+
+html.dark #moon,
+body.dark #moon,
+html.dark .profile-moon,
+body.dark .profile-moon {
     display: none;
 }
 
-body:not(.dark) #sun {
+body.dark {
+    --theme-toggle-icon-color: rgba(255, 255, 255, 0.95);
+}
+
+body.dark .header button#theme-toggle svg {
+    stroke: rgba(0, 0, 0, 0.85);
+}
+
+body.dark button#accent-toggle .rainbow-ring-container {
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.85);
+}
+
+html:not(.dark) body:not(.dark) #sun,
+html:not(.dark) body:not(.dark) .profile-sun {
     display: none;
 }
 

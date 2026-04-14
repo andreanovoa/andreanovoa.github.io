@@ -18,7 +18,7 @@
     width: 100vw;
     margin-left: calc(50% - 50vw);
     margin-right: calc(50% - 50vw);
-    background-color: hsla(var(--main-color-2-hsl), 0.06);
+    background-color: hsla(var(--main-color-2-hsl), 0.14);
 }
 
 .page-top-zone .post-header,
@@ -210,7 +210,8 @@ pre:hover .copy-code {
     width: 100%;
 }
 
-.publication-card--talk .entry-header h2 {
+.publication-card--talk .entry-header h2,
+.publication-card--paper .entry-header h2 {
     font-size: 1.2rem;
     line-height: 1.25;
     width: 100%;

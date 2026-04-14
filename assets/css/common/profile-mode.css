@@ -74,6 +74,7 @@
 }
 
 .buttons {
+    align-items: center;
     flex-wrap: wrap;
 }
 
