@@ -18,7 +18,6 @@ hideAuthor: true
 | 2024–25 | **Research Associate in Scientific Machine Learning** <br> _UKRI projects_: [AI for Net zero](https://aifornetzero.co.uk/) & ExCALIBUR| Imperial College London<br>Aeronautics Department |
 
 
-
 ## Education {.cv-academic-title}
 
 
