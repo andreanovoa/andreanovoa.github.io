@@ -210,7 +210,9 @@ button#accent-toggle .rainbow-ring-container {
 html.dark #moon,
 body.dark #moon,
 html.dark .profile-moon,
-body.dark .profile-moon {
+body.dark .profile-moon,
+html.dark .mobile-moon,
+body.dark .mobile-moon {
     display: none;
 }
 
@@ -227,7 +229,8 @@ body.dark button#accent-toggle .rainbow-ring-container {
 }
 
 html:not(.dark) body:not(.dark) #sun,
-html:not(.dark) body:not(.dark) .profile-sun {
+html:not(.dark) body:not(.dark) .profile-sun,
+html:not(.dark) body:not(.dark) .mobile-sun {
     display: none;
 }
 
@@ -273,6 +276,49 @@ html:not(.dark) body:not(.dark) .profile-sun {
 
 .logo-switches {
     flex-wrap: inherit;
+}
+
+/* Profile layout defaults (desktop/tablet): positions and socials to the right of image */
+.profile-flex-row {
+    display: grid !important;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+        "image name"
+        "image positions"
+        "image social";
+    /* column-gap: 0.25rem; */
+    /* row-gap: 0.15rem; */
+    align-items: start;
+}
+
+.profile-image-col {
+    grid-area: image;
+}
+
+.profile-name-col {
+    grid-area: name;
+}
+
+.profile-name-title {
+    line-height: 1.2;
+}
+
+.profile-positions {
+    grid-area: positions;
+    text-align: left;
+    align-items: flex-start !important;
+}
+
+.profile-positions h4:first-child {
+    margin-top: -1rem !important;
+}
+
+.profile-social {
+    grid-area: social;
+    display: flex;
+    justify-content: flex-start;
+    gap: 8px;
+    margin-top: -1.5rem;
 }
 
 #mobile-nav-toggle,
@@ -429,13 +475,68 @@ html:not(.dark) body:not(.dark) .profile-sun {
         stroke: var(--theme);
     }
 
+    .mobile-menu-toggle .mobile-moon,
+    .mobile-menu-toggle .mobile-sun {
+        stroke: var(--theme);
+    }
+
     .mobile-menu-toggle .rainbow-ring-container {
         margin: 0;
-        /* stroke: var(--theme);; */
         box-shadow: 0 0 0 1px var(--theme);
+    }
+
+    /* Profile layout on mobile:
+       row 1 -> image + name
+       row 2 -> positions full width
+       row 3 -> social icons full width */
+    .profile-flex-row {
+        grid-template-columns: auto auto;
+        grid-template-areas:
+            "image name"
+            "positions positions"
+            "social social";
+        column-gap: 0.6rem;
+        row-gap: 0.35rem;
+        justify-content: center !important;
+        align-items: center;
+    }
+
+    .profile-image-col img {
+        width: 100px !important;
+        height: 100px !important;
+        max-width: 100px !important;
+        object-fit: cover;
+    }
+
+    .profile-image-col {
+        justify-self: end;
+        align-items: flex-end !important;
+        margin-right: -10px;
+    }
+
+    .profile-name-title {
+        margin-top: 0 !important;
+        max-width: 150px !important;
+        word-break: normal;
+        overflow-wrap: normal;
+        align-self: center;
+        text-align: left;
+    }
+
+    .profile-positions {
+        flex-basis: 100%;
+        width: 100%;
+        text-align: center;
+        align-items: center !important;
+    }
+
+    .profile-social {
+        width: 100%;
+        display: flex;
+        justify-content: center;
     }
 }
 /* 
 .logo a, #menu a {
-    
+    also, the toggles
 } */

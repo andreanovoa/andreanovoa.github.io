@@ -1,6 +1,23 @@
 <meta charset="utf-8">
 <script>
 (function(){var a=localStorage.getItem('pref-accent')||'teal';document.documentElement.setAttribute('data-accent',a);})();
+{{- if (not site.Params.disableThemeToggle) }}
+(function(){
+    var pref=localStorage.getItem('pref-theme');
+    if(pref==='dark'){document.documentElement.classList.add('dark');document.body&&document.body.classList.add('dark');}
+    else if(pref==='light'){document.documentElement.classList.add('light');document.body&&document.body.classList.add('light');}
+    else{
+        {{- if eq site.Params.defaultTheme "dark" }}
+        document.documentElement.classList.add('dark');
+        {{- else if eq site.Params.defaultTheme "light" }}
+        document.documentElement.classList.add('light');
+        {{- else }}
+        if(window.matchMedia('(prefers-color-scheme: dark)').matches){document.documentElement.classList.add('dark');}
+        else{document.documentElement.classList.add('light');}
+        {{- end }}
+    }
+})();
+{{- end }}
 </script>
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">

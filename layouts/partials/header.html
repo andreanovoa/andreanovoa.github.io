@@ -219,14 +219,14 @@
         {{- end }}
         <li role="none" class="mobile-menu-controls">
             {{- if (not site.Params.disableThemeToggle) }}
-            <button class="mobile-menu-toggle" data-theme-toggle accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
-                <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-                    fill="none" stroke="black" stroke-width="2" stroke-linecap="round"
+            <button class="mobile-menu-toggle" data-theme-toggle aria-label="Toggle theme">
+                <svg class="mobile-moon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                    fill="none" stroke-width="2" stroke-linecap="round"
                     stroke-linejoin="round">
                     <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                 </svg>
-                <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-                    fill="none" stroke="white" stroke-width="2" stroke-linecap="round"
+                <svg class="mobile-sun" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                    fill="none" stroke-width="2" stroke-linecap="round"
                     stroke-linejoin="round">
                     <circle cx="12" cy="12" r="5"></circle>
                     <line x1="12" y1="1" x2="12" y2="3"></line>
@@ -337,6 +337,8 @@
 
     document.addEventListener('click', function(e) {
         if (!menu.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
+            var accentMenu = document.getElementById('accent-menu');
+            if (accentMenu && accentMenu.contains(e.target)) return;
             closeMenu();
         }
     });

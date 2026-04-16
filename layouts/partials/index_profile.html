@@ -7,10 +7,10 @@
     <div style="display: flex; flex-direction: column; align-items: center;">
 
       <!-- FLEX ROW: the two columns -->
-      <div style="display: flex; align-items: flex-start; gap: 2rem; width: 100%; justify-content: center;">
+      <div class="profile-flex-row" style="display: flex; align-items: flex-start; gap: 2rem; width: 100%; justify-content: center;">
 
         <!-- Left Column: Image -->
-        <div style="display: flex; flex-direction: column; align-items: flex-start;">
+        <div class="profile-image-col" style="display: flex; flex-direction: column; align-items: flex-start;">
           {{- if .imageUrl -}}
             {{- $img := "" }}
             {{- if not (urls.Parse .imageUrl).IsAbs }}
@@ -28,18 +28,19 @@
           {{- end }}
         </div>
 
-        <!-- Right Column: Titles + Social Icons -->
-        <div style="display: flex; flex-direction: column; justify-content: center;">
-          <h1 style="margin: 0; color: var(--tertiary);">{{ .title | default site.Title | markdownify }}</h1>
-          <h4 style="margin-top: 0.75rem">{{ .subtitle  | markdownify }}</h4>
+        <!-- Right Column: Name -->
+        <div class="profile-name-col" style="display: flex; flex-direction: column; justify-content: center;">
+          <h1 class="profile-name-title" style="margin: 0; color: var(--tertiary);">{{ .title | default site.Title | markdownify }}</h1>
+        </div>
+
+        <div class="profile-positions" style="display: flex; flex-direction: column; align-items: flex-start;">
+          <h4 style="margin-top: 0.05rem">{{ .subtitle  | markdownify }}</h4>
           <h5 style="margin-top: 0.25rem">{{ .subtitleInst | markdownify }}</h5>
-          <h4 style="margin-top: 0.75rem">{{ .subsubtitle | markdownify }}</h4>
-          <h5 style="margin-top: 0.25rem; margin-bottom: .75rem" >{{ .subsubtitleInst | markdownify }}</h5>
-          <!-- <span style="font-size: 1.2rem; color: var(--content); margin-bottom: 0.75rem; margin-top: 0.75rem; font-weight: 500;">
-            {{ .subtitle | markdownify }}<br>{{ .subsubtitle | markdownify }}
-          </span> -->
-      
-          <!-- Social Icons -->
+          <h4 style="margin-top: 1rem">{{ .subsubtitle | markdownify }}</h4>
+          <h5 style="margin-top: 0.25rem; margin-bottom: .25rem" >{{ .subsubtitleInst | markdownify }}</h5>
+        </div>
+        
+        <div class="profile-social">
           {{- partial "social_icons.html" -}}
         </div>
       </div> <!-- end row -->
