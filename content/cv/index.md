@@ -13,9 +13,10 @@ hideAuthor: true
 
 | Years | Position | Institution |
 |-------|----------|-------------|
-| 2025– | **Assistant Professor in Data Assimilation** | Imperial College London<br>Aeronautics Department |
-| 2025–27 | **Eric & Wendy Schmidt AI in Science Fellow** | Imperial College London<br>I-X Institute|
-| 2024–25 | **Research Associate in Scientific Machine Learning** <br> _UKRI projects_: [AI for Net zero](https://aifornetzero.co.uk/) & ExCALIBUR| Imperial College London<br>Aeronautics Department |
+| 2025– | [**Assistant Professor in Data Assimilation**](https://profiles.imperial.ac.uk/a.novoa) | Imperial College London<br>Aeronautics Department |
+| 2025–27 |[**Eric & Wendy Schmidt AI in Science Fellow**](https://ix.imperial.ac.uk/our-people) | Imperial College London<br>I-X Institute|
+| 2025–26 | [**CoSeC Fellow**](https://www.cosec.ac.uk/what-is-cosec/cosec-fellowship-programme/cosec-2025-fellows/andrea-novoa-2/) | Computational Science Centre for Research Communities <br> UKRI STFC Scientific Computing|
+| 2024–25 | **Research Associate in Scientific Machine Learning** <br> _UKRI projects_: [AI for Net zero](https://aifornetzero.co.uk/) & [ExCALIBUR](https://excalibur.ac.uk/)| Imperial College London<br>Aeronautics Department |
 
 
 ## Education {.cv-academic-title}

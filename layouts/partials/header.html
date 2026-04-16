@@ -152,7 +152,7 @@
             {{- end }}
             <!-- Spacing -->
             <li></li>
-            <div class="logo-switches">
+            <li class="logo-switches">
                 {{- if (not site.Params.disableThemeToggle) }}
                 <button id="theme-toggle" data-theme-toggle accesskey="t" title="(Alt + T)">
                     <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
@@ -201,8 +201,7 @@
                     {{- end}}
                 </ul>
                 {{- end }}
-            </div>
-            </div>
+            </li>
              </ul>
     </nav>
     <ul id="accent-menu" class="accent-menu" role="listbox" aria-label="Colour theme">
@@ -219,7 +218,7 @@
     if (!menu) return;
 
     function getCurrent() {
-        return document.documentElement.getAttribute('data-accent') || 'blue';
+        return document.documentElement.getAttribute('data-accent') || 'teal';
     }
     function setActive(a) {
         menu.querySelectorAll('li').forEach(function(li) {
