@@ -88,6 +88,15 @@
 {{- end -}}
 {{- print " " $colorClass -}}
 " id="top">
+    {{- if (not site.Params.disableThemeToggle) }}
+    <script>
+    (function(){
+        var pref=localStorage.getItem('pref-theme');
+        if(pref==='light'){document.body.classList.remove('dark');document.body.classList.add('light');document.documentElement.classList.remove('dark');document.documentElement.classList.add('light');}
+        else if(pref==='dark'){document.body.classList.add('dark');document.documentElement.classList.add('dark');}
+    })();
+    </script>
+    {{- end }}
     <!-- {{- if not .IsHome  }} -->
     {{- partialCached "header.html" . .Page -}}
     <!-- {{- end }} -->
