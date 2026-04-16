@@ -203,7 +203,50 @@
                 {{- end }}
             </li>
              </ul>
+        <button id="mobile-nav-toggle" aria-haspopup="menu" aria-expanded="false" aria-controls="mobile-nav-menu" title="Open navigation">
+            <span class="hamburger-lines" aria-hidden="true"></span>
+        </button>
     </nav>
+    <ul id="mobile-nav-menu" class="mobile-nav-menu" role="menu" aria-label="Main navigation">
+        {{- range site.Menus.main }}
+        {{- $menu_item_url := (cond (strings.HasSuffix .URL "/") .URL (printf "%s/" .URL) ) | relLangURL }}
+        {{- $page_url:= $currentPage.RelPermalink | relLangURL }}
+        <li role="none">
+            <a role="menuitem" href="{{ .URL | relLangURL }}" {{- if eq $menu_item_url $page_url }} class="active" {{- end }}>
+                {{- .Name -}}
+            </a>
+        </li>
+        {{- end }}
+        <li role="none" class="mobile-menu-controls">
+            {{- if (not site.Params.disableThemeToggle) }}
+            <button class="mobile-menu-toggle" data-theme-toggle accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                    fill="none" stroke="black" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+                <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                    fill="none" stroke="white" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+            </button>
+            {{- end }}
+            <button class="mobile-menu-toggle" data-accent-trigger aria-haspopup="listbox" aria-expanded="false" title="Colour theme" aria-label="Toggle colour theme">
+                <span class="rainbow-ring-container" aria-hidden="true">
+                    <span class="rainbow-circle"></span>
+                </span>
+            </button>
+        </li>
+    </ul>
     <ul id="accent-menu" class="accent-menu" role="listbox" aria-label="Colour theme">
         <li role="option" data-accent="blue"><span class="accent-swatch" style="background:hsl(210,60%,55%)"></span><span>Blue</span></li>
         <li role="option" data-accent="teal"><span class="accent-swatch" style="background:hsl(175,55%,45%)"></span><span>Teal</span></li>
@@ -266,6 +309,45 @@
         if (e.key === 'Escape') closeMenu();
     });
     setActive(getCurrent());
+})();
+</script>
+
+<script>
+(function() {
+    var btn = document.getElementById('mobile-nav-toggle');
+    var menu = document.getElementById('mobile-nav-menu');
+    if (!btn || !menu) return;
+
+    function closeMenu() {
+        menu.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+    }
+
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var willOpen = !menu.classList.contains('open');
+        if (willOpen) {
+            menu.classList.add('open');
+            btn.setAttribute('aria-expanded', 'true');
+        } else {
+            closeMenu();
+        }
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!menu.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
+            closeMenu();
+        }
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeMenu();
+    });
+
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768) closeMenu();
+    });
 })();
 </script>
 

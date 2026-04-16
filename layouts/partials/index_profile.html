@@ -127,8 +127,8 @@
         function openMenu() {
           var rect = btn.getBoundingClientRect();
           menu.style.top = (rect.bottom + 6) + 'px';
-          menu.style.left = rect.left + 'px';
-          menu.style.right = 'auto';
+          menu.style.right = Math.max(8, window.innerWidth - rect.right) + 'px';
+          menu.style.left = 'auto';
           menu.classList.add('open');
           btn.setAttribute('aria-expanded', 'true');
           setActive(getCurrent());
