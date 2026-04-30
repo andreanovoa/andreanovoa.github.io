@@ -10,7 +10,8 @@ url: "talks"
 
 | Year | Event | Location | Presentation |
 |------|-------|----------|--------------|
-| 2026 | Cypher 3rd General Meeting -- keynote | Istanbul, Turkey | TBD |
+| 2026 | Cypher 3rd General Meeting -- keynote | Istanbul, Turkey | [**Real-time modelling**](https://cypher.ulb.be/event/cypher-3rd-general-meeting/) |
+| 2026 | Le CNAM (Conservatoire national des arts et métiers) | Paris, France | [**Real-time digital twins: Integrating ensemble data assimilation and reduced-order modelling**](https://maths.cnam.fr/M2N/spip.php?article105&lang=en) |
 | 2025 | SISSA Mathlab | Trieste, Italy | **Real-time digital twins: Integrating ensemble data assimilation, reduced-order modelling, and reinforcement learning** |
 | 2025 | Data-Centric Engineering Journal | Online |[**Real-time digital twins: unifying bias-aware data assimilation and machine learning**](https://doi.org/10.52843/cassyni.svynpv) |
 | 2024 | The Alan Turing Institute -- <br> Phi-ML meets Engineering seminar series | Online |[**Real-time data assimilation in nonlinear thermoacoustic instabilities**](https://www.turing.ac.uk/events/phi-ml-meets-engineering-real-time-data-assimilation-nonlinear-thermoacoustic-instabilities) |
