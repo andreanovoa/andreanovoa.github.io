@@ -45,6 +45,7 @@
 {{- else }} {{/* if not profileMode */}}
 
 {{- $isTalks := eq .Section "talks" }}
+{{- $isOutreach := eq .Section "outreach" }}
 {{- $isTopZone := or $isTalks (eq .Section "papers") }}
 {{- if $isTopZone }}
 <div class="page-top-zone">
@@ -71,7 +72,7 @@
 </header>
 {{- end }}
 
-{{- if and .Content (and (ne .Section "talks") (ne .Section "papers")) }}
+{{- if and .Content (and (ne .Section "talks") (ne .Section "papers") (ne .Section "outreach")) }}
 <div class="post-content">
   {{- if not (.Param "disableAnchoredHeadings") }}
   {{- partial "anchored_headings.html" .Content -}}
@@ -102,6 +103,8 @@
 {{- $gridClass = "publication-grid publication-grid--talks" }}
 {{- else if eq .Section "papers" }}
 {{- $gridClass = "publication-grid publication-grid--papers" }}
+{{- else if eq .Section "outreach" }}
+{{- $gridClass = "publication-grid publication-grid--outreach" }}
 {{- end }}
 
 <div class="{{ $gridClass }}"> 
@@ -121,6 +124,8 @@
   {{- $cardClass = printf "%s publication-card--talk" $cardClass }}
   {{- else if eq $.Section "papers" }}
   {{- $cardClass = printf "%s publication-card--paper" $cardClass }}
+  {{- else if eq $.Section "outreach" }}
+  {{- $cardClass = printf "%s publication-card--outreach" $cardClass }}
   {{- end }}
   {{- $cardHref := .RelPermalink }}
   {{- if and (eq $.Section "talks") .Params.related_links (gt (len .Params.related_links) 0) }}
@@ -129,7 +134,27 @@
 
   <article class="{{ $cardClass }}"> 
     {{- $isHidden := (.Param "cover.hiddenInList") | default (.Param "cover.hidden") | default false }}
-    {{- if eq $.Section "talks" }}
+    {{- if eq $.Section "outreach" }}
+    {{- partial "cover.html" (dict "cxt" . "IsSingle" false "isHidden" $isHidden) }}
+    <div class="outreach-card-body">
+      <h2 class="outreach-card-title">{{ .Title }}</h2>
+      <div class="outreach-card-meta">
+        {{- if .Params.event_type }}<span>{{ .Params.event_type }}</span>{{- end }}
+        {{- if and .Params.event_type .Params.location }}<span class="outreach-dot">·</span>{{- end }}
+        {{- if .Params.location }}<span>{{ .Params.location }}</span>{{- end }}
+        {{- if or .Params.event_type .Params.location }}<span class="outreach-dot">·</span>{{- end }}
+        <span>{{ .Date.Format "2 January 2006" }}</span>
+      </div>
+      <p class="outreach-card-summary">{{ .Summary | plainify | htmlUnescape }}{{ if .Truncated }}...{{ end }}</p>
+      {{- if .Params.links }}
+      <div class="outreach-card-links">
+        {{- range .Params.links }}
+        <a href="{{ .url }}" target="_blank" rel="noopener" class="outreach-link">{{ .name }}</a>
+        {{- end }}
+      </div>
+      {{- end }}
+    </div>
+    {{- else if eq $.Section "talks" }}
     <div class="talk-card-top">
       {{- partial "cover.html" (dict "cxt" . "IsSingle" false "isHidden" $isHidden) }}
     </div>
@@ -184,7 +209,9 @@
     </footer>
     {{- end }}
     {{- end }}
+    {{- if ne $.Section "outreach" }}
     <a class="entry-link" aria-label="post link to {{ .Title | plainify }}" href="{{ $cardHref }}"></a>
+    {{- end }}
   </article>
   {{- end }}
 </div>

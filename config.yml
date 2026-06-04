@@ -26,9 +26,9 @@ menu:
         - name: Talks
           url: talks/
           weight: 3
-        # - name: Data
-        #   url: data/
-        #   weight: 4 
+        - name: Outreach
+          url: outreach/
+          weight: 4
 
 params:
     description: "This website hosts Andrea Nóvoa's research papers, course materials, data, curriculum vitae, and contact information."
@@ -71,6 +71,8 @@ params:
               url: papers/
             - name: Talks
               url: talks/
+            - name: Outreach
+              url: outreach/
 
     socialIcons:
         - name: Email

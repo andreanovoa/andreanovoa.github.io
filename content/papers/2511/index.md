@@ -2,10 +2,9 @@
 title: "Data-assimilated model-informed reinforcement learning (DA-MIRL)"
 # subtitle: " Regularized bias-aware ensemble Kalman filter"  
 date: 2025-10-20
-tags: ["data assimilation", "reinforcement learning", "experimental data", "chaos"]  
+tags: ["data assimilation", "reinforcement learning", "chaos"]  
 author: ["Defne Ozan", "Andrea Nóvoa", "George Rigas", "Luca Magri"]  
-summary: "This paper introduces DA-MIRL, a novel framework that integrates sequential DA with off-policy RL to estimate and control high-dimensional, spatio-temporal chaos using only partial and noisy observations.."  
-# summary: "We propose an innovative approach for detecting and quantifying unknown unknown errors in computational models, enhancing prediction reliability and robustness."  
+summary: "This paper introduces DA-MIRL, a novel framework that integrates sequential DA with off-policy RL to estimate and control high-dimensional, spatio-temporal chaos using only partial and noisy observations."   
 cover:
     image: "cover.png"  
     alt: "DA-MIRL diagram"
