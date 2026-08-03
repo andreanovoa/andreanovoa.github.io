@@ -385,6 +385,7 @@ pre:hover .copy-code {
 
 .students-table {
     width: 100%;
+    table-layout: fixed;
     border-collapse: collapse;
     font-size: 0.9rem;
     margin-bottom: 2rem;
@@ -405,4 +406,41 @@ pre:hover .copy-code {
     padding: 0.5rem 0.75rem;
     border-bottom: 1px solid var(--border-color);
     vertical-align: top;
+}
+
+.students-table th:nth-child(1),
+.students-table td:nth-child(1) {
+    width: 13%;
+}
+
+.students-table th:nth-child(2),
+.students-table td:nth-child(2) {
+    width: 38%;
+}
+
+.students-table th:nth-child(3),
+.students-table td:nth-child(3) {
+    width: 39%;
+}
+
+.students-table th:last-child,
+.students-table td:last-child {
+    width: 10%;
+    white-space: nowrap;
+}
+
+.post-content .students-table .cv-note {
+    display: inline;
+    white-space: nowrap;
+    margin-left: 0;
+    padding-left: 0;
+    color: var(--content);
+}
+
+.post-content .students-table .cv-note-label {
+    display: inline;
+    width: auto;
+    text-align: left;
+    margin-left: 0;
+    padding-right: 0.4ch;
 }

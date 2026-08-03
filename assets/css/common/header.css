@@ -293,6 +293,7 @@ html:not(.dark) body:not(.dark) .mobile-sun {
 
 .profile-image-col {
     grid-area: image;
+    margin: 0 0rem 0 1rem;
 }
 
 .profile-name-col {
@@ -307,6 +308,7 @@ html:not(.dark) body:not(.dark) .mobile-sun {
     grid-area: positions;
     text-align: left;
     align-items: flex-start !important;
+    margin: 0rem 1rem 0 0rem;
 }
 
 .profile-positions h4:first-child {
@@ -498,19 +500,20 @@ html:not(.dark) body:not(.dark) .mobile-sun {
         column-gap: 0.6rem;
         row-gap: 0.35rem;
         justify-content: center !important;
-        align-items: center;
+        align-items: center !important;
     }
 
     .profile-image-col img {
-        width: 100px !important;
-        height: 100px !important;
-        max-width: 100px !important;
+        width: 130px !important;
+        height: 130px !important;
+        max-width: 130px !important;
         object-fit: cover;
     }
 
     .profile-image-col {
         justify-self: end;
         align-items: flex-end !important;
+        margin-left: 0 !important;
         margin-right: -10px;
     }
 
@@ -519,7 +522,7 @@ html:not(.dark) body:not(.dark) .mobile-sun {
         max-width: 150px !important;
         word-break: normal;
         overflow-wrap: normal;
-        align-self: center;
+        align-self: flex-start !important;
         text-align: left;
     }
 

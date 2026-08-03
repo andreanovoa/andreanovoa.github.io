@@ -17,17 +17,17 @@ menu:
         # - name: Books
         #   url: books/
         #   weight: 5 
-        - name: CV
-          url: cv/
-          weight: 1
         - name: Publications
           url: papers/
-          weight: 2
+          weight: 1
         - name: Talks
           url: talks/
-          weight: 3
+          weight: 2
         - name: Activities
           url: outreach/
+          weight: 3
+        - name: Group
+          url: group/
           weight: 4
 
 params:
@@ -61,8 +61,8 @@ params:
           subsubtitle: "Eric & Wendy Schmidt AI in Science Fellow"
           subsubtitleInst: "I-X Institute | Imperial College London"
           imageUrl: "headshot_wb.jpg"
-          imageWidth: 160
-          imageHeight: 160
+          imageWidth: 200
+          imageHeight: 200
           icon: "favicon-32x32.png"
           buttons:
             - name: CV
@@ -71,10 +71,15 @@ params:
               url: papers/
             - name: Talks
               url: talks/
-            - name: Outreach
+            - name: Activities
               url: outreach/
+            - name: Group
+              url: group/
 
     socialIcons:
+        - name: Cv
+          title: CV
+          url: cv/
         - name: Email
           url: mailto:a[dot]novoa[at]imperial.ac.uk
         - name: Google Scholar

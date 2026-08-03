@@ -37,73 +37,81 @@
           <h4 style="margin-top: 0.05rem">{{ .subtitle  | markdownify }}</h4>
           <h5 style="margin-top: 0.25rem">{{ .subtitleInst | markdownify }}</h5>
           <h4 style="margin-top: 1rem">{{ .subsubtitle | markdownify }}</h4>
-          <h5 style="margin-top: 0.25rem; margin-bottom: .25rem" >{{ .subsubtitleInst | markdownify }}</h5>
+          <h5 style="margin-top: 0.25rem; margin-bottom: 0rem" >{{ .subsubtitleInst | markdownify }}</h5>
         </div>
         
-        <div class="profile-social">
+        <div class="profile-social" style="display: flex; align-items: center; gap: 0.1rem;">
           {{- partial "social_icons.html" -}}
         </div>
       </div> <!-- end row -->
 
       <!-- Division line -->
-      <hr style="width: 85%; margin: 1.5rem auto 1.rem auto; border: 0; border-top: 2px solid var(--secondary)">
+      <hr style="width: 85%; margin: .25rem 1rem 1rem  1rem; border: 0; border-top: 2px solid color-mix(in srgb, var(--secondary) 40%, transparent)">
 
-      <!-- BUTTONS: centered below both columns -->
-      <div style="display: flex; justify-content: flex-end; width: 100%; margin-top: 1rem;">
-        <!-- Dark Mode Toggle Button -->        
-      </div>
+      <!-- BUTTONS: centered below both columns, wrapped into two rows -->
       {{- with .buttons }}
-      <div class="buttons" style=" display: flex; justify-content: center; gap: .1rem; flex-wrap: wrap;">
-        {{- range . }}
-        <a class="button" href="{{ trim .url " " }}" rel="noopener" title="{{ .name }}">
-          <span class="button-inner">
-            {{ .name }}
-            {{- if (findRE "://" .url) }}&nbsp;
-            <svg fill="none" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round"
-              stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="14" width="4">
-              <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 01-2-2h6"></path>
-              <path d="M15 3h6v6"></path>
-              <path d="M10 14L21 3"></path>
-            </svg>
-            {{- end }}
-          </span>
-        </a>
+      {{- $half := div (add (len .) 1) 2 }}
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 0.2rem;">
+        {{- range (slice (first $half .) (after $half .)) }}
+        {{- if . }}
+        <div class="buttons" style="display: flex; justify-content: center; gap: .1rem; flex-wrap: wrap;">
+          {{- range . }}
+          <a class="button" href="{{ trim .url " " }}" rel="noopener" title="{{ .name }}">
+            <span class="button-inner">
+              {{ .name }}
+              {{- if (findRE "://" .url) }}&nbsp;
+              <svg fill="none" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round"
+                stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="14" width="4">
+                <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 01-2-2h6"></path>
+                <path d="M15 3h6v6"></path>
+                <path d="M10 14L21 3"></path>
+              </svg>
+              {{- end }}
+            </span>
+          </a>
+          {{- end }}
+        </div>
         {{- end }}
-
-          <button class="profile-theme-toggle" data-theme-toggle accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
-                  <svg class="profile-moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 20 24"
-                        fill="none" stroke="black" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                    </svg>
-                    <svg class="profile-sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                        fill="none" stroke="white" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="5"></circle>
-                        <line x1="12" y1="1" x2="12" y2="3"></line>
-                        <line x1="12" y1="21" x2="12" y2="23"></line>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                        <line x1="1" y1="12" x2="3" y2="12"></line>
-                        <line x1="21" y1="12" x2="23" y2="12"></line>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                </svg>
-          </button>
-            <button class="accent-toggle-home" id="accent-toggle-home" aria-haspopup="listbox" aria-expanded="false" title="Colour theme">
-                    <span class="rainbow-ring-container" aria-hidden="true">
-                      <span class="rainbow-circle"></span>
-                    </span>
-          </button>
-            <ul id="accent-menu-home" class="accent-menu" role="listbox" aria-label="Colour theme">
-              <li role="option" data-accent="blue"><span class="accent-swatch" style="background:hsl(210,60%,55%)"></span><span>Blue</span></li>
-              <li role="option" data-accent="teal"><span class="accent-swatch" style="background:hsl(175,55%,45%)"></span><span>Teal</span></li>
-              <li role="option" data-accent="purple"><span class="accent-swatch" style="background:hsl(260,55%,55%)"></span><span>Purple</span></li>
-              <li role="option" data-accent="rose"><span class="accent-swatch" style="background:hsl(345,60%,55%)"></span><span>Rose</span></li>
-            </ul>
+        {{- end }}
       </div>
       {{- end }}
-      
+
+      <!-- TOGGLES: theme + accent colour, at the very bottom -->
+      <hr style="width: 85%; margin: 1rem auto; border: 0; border-top: 2px solid color-mix(in srgb, var(--secondary) 40%, transparent)">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+        <button class="profile-theme-toggle" data-theme-toggle accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                <svg class="profile-moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 20 24"
+                      fill="none" stroke="black" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round">
+                      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                  </svg>
+                  <svg class="profile-sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                      fill="none" stroke="white" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="5"></circle>
+                      <line x1="12" y1="1" x2="12" y2="3"></line>
+                      <line x1="12" y1="21" x2="12" y2="23"></line>
+                      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                      <line x1="1" y1="12" x2="3" y2="12"></line>
+                      <line x1="21" y1="12" x2="23" y2="12"></line>
+                      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+              </svg>
+        </button>
+          <button class="accent-toggle-home" id="accent-toggle-home" aria-haspopup="listbox" aria-expanded="false" title="Colour theme">
+                  <span class="rainbow-ring-container" aria-hidden="true">
+                    <span class="rainbow-circle"></span>
+                  </span>
+        </button>
+          <ul id="accent-menu-home" class="accent-menu" role="listbox" aria-label="Colour theme">
+            <li role="option" data-accent="blue"><span class="accent-swatch" style="background:hsl(210,60%,55%)"></span><span>Blue</span></li>
+            <li role="option" data-accent="teal"><span class="accent-swatch" style="background:hsl(175,55%,45%)"></span><span>Teal</span></li>
+            <li role="option" data-accent="purple"><span class="accent-swatch" style="background:hsl(260,55%,55%)"></span><span>Purple</span></li>
+            <li role="option" data-accent="rose"><span class="accent-swatch" style="background:hsl(345,60%,55%)"></span><span>Rose</span></li>
+          </ul>
+      </div>
+
     </div> <!-- flex column -->
   </div>
   {{- end}}
