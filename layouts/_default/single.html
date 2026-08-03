@@ -1,17 +1,18 @@
 {{- define "main" }}
 
+{{- $isTopZonePage := or (eq .RelPermalink "/cv/") (eq .RelPermalink "/group/") }}
 {{- $singleClass := "post-single" }}
 {{- if eq .RelPermalink "/cv/" }}
 {{- $singleClass = "post-single post-single--cv" }}
 {{- end }}
 <article class="{{ $singleClass }}">
-  {{- if eq .RelPermalink "/cv/" }}
+  {{- if $isTopZonePage }}
   <div class="page-top-zone">
   {{- end }}
   <header class="post-header">
     {{ partial "breadcrumbs.html" . }}
     {{- $postTitleClass := "post-title entry-hint-parent" }}
-    {{- if eq .RelPermalink "/cv/" }}
+    {{- if $isTopZonePage }}
     {{- $postTitleClass = "post-title entry-hint-parent post-title--center" }}
     {{- end }}
     <h1 class="{{ $postTitleClass }}">
@@ -59,7 +60,7 @@
   {{- if (.Param "ShowToc") }}
   {{- partial "toc.html" . }}
   {{- end }}
-  {{- if eq .RelPermalink "/cv/" }}
+  {{- if $isTopZonePage }}
   </div>
   {{- end }}
 
