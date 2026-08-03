@@ -12,9 +12,12 @@ TBD
 
 <hr>
 
-## Students
+## PhD Students
 
-### Current
+
+## Master & Undergraduate Students
+
+#### Current
 
 <table class="students-table">
   <thead>
@@ -58,7 +61,7 @@ TBD
   </tbody>
 </table>
 
-### Past
+#### Past
 
 <table class="students-table">
   <thead>
