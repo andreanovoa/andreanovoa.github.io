@@ -1,5 +1,6 @@
 ---
 title: "The group"
+date: 2026-08-03
 disableAnchoredHeadings: true
 hideAuthor: true    
 ---

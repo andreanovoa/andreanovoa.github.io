@@ -4,6 +4,8 @@
 {{- $singleClass := "post-single" }}
 {{- if eq .RelPermalink "/cv/" }}
 {{- $singleClass = "post-single post-single--cv" }}
+{{- else if eq .RelPermalink "/group/" }}
+{{- $singleClass = "post-single post-single--cv" }}
 {{- end }}
 <article class="{{ $singleClass }}">
   {{- if $isTopZonePage }}
