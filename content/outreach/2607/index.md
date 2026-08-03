@@ -1,9 +1,9 @@
 ---
 title: "20th Biennial CTR Summer Program"
 date: 2026-07-01
-location: Center for Turbulence Research (CTR), Stanford University
+location: Stanford University
 event_type: "Visiting scholar"
-summary: "Spent a month as a visiting scholar at Stanford's Center for Turbulence Research working on two data-driven turbulence modelling projects."
+summary: "Spent a month as a visiting scholar at Stanford's Center for Turbulence Research working on two turbulence modelling projects."
 cover:
     image: group.png
     relative: true
