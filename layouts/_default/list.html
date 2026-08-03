@@ -146,6 +146,7 @@
         <span>{{ .Date.Format "2 January 2006" }}</span>
       </div>
       <p class="outreach-card-summary">{{ .Summary | plainify | htmlUnescape }}{{ if .Truncated }}...{{ end }}</p>
+      <a href="{{ .RelPermalink }}" class="outreach-readmore">Read more&nbsp;→</a>
       {{- if .Params.links }}
       <div class="outreach-card-links">
         {{- range .Params.links }}

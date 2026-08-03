@@ -287,6 +287,18 @@ pre:hover .copy-code {
     margin: 0;
 }
 
+.outreach-readmore {
+    align-self: flex-start;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--primary);
+    text-decoration: none;
+}
+
+.outreach-readmore:hover {
+    text-decoration: underline;
+}
+
 .outreach-card-links {
     padding-top: 0.4rem;
     display: flex;
