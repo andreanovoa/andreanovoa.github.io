@@ -46,20 +46,20 @@
 
 {{- $isTalks := eq .Section "talks" }}
 {{- $isOutreach := eq .Section "outreach" }}
-{{- $isTopZone := or $isTalks (eq .Section "papers") }}
+{{- $isTopZone := or $isTalks (or (eq .Section "papers") $isOutreach) }}
 {{- if $isTopZone }}
 <div class="page-top-zone">
 {{- end }}
 
 {{- if not .IsHome | and .Title }}
 {{- $pageHeaderClass := "page-header" }}
-{{- if eq .Section "talks" }}
+{{- if or (eq .Section "talks") (eq .Section "outreach") }}
 {{- $pageHeaderClass = "page-header page-header--talks" }}
 {{- end }}
 <header class="{{ $pageHeaderClass }}">
   {{- partial "breadcrumbs.html" . }}
   {{- $pageTitleClass := "" }}
-  {{- if or (eq .Section "talks") (eq .Section "papers") }}
+  {{- if or (eq .Section "talks") (eq .Section "papers") (eq .Section "outreach") }}
   {{- $pageTitleClass = "capital-title page-title--center" }}
   {{- end }}
   <h1{{ if ne $pageTitleClass "" }} class="{{ $pageTitleClass }}"{{ end }}>
@@ -70,6 +70,10 @@
     {{- end}}
   </h1>
 </header>
+{{- end }}
+
+{{- if $isOutreach }}
+</div>
 {{- end }}
 
 {{- if and .Content (and (ne .Section "talks") (ne .Section "papers") (ne .Section "outreach")) }}
@@ -217,7 +221,7 @@
   {{- end }}
 </div>
 
-{{- if $isTopZone }}
+{{- if and $isTopZone (not $isOutreach) }}
 </div>
 {{- end }}
 

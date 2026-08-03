@@ -1,5 +1,5 @@
 ---
-title: "Recent works" 
+title: "Recent works & publication list" 
 description: "A list of my peer-reviewed papers, preprints, and conference proceedings."
 type: "publication"
 layout: "list"

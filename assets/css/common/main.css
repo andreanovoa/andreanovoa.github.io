@@ -287,6 +287,30 @@ pre:hover .copy-code {
     margin: 0;
 }
 
+.post-content .outreach-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.6rem;
+    margin: 1rem 0;
+}
+
+.post-content .outreach-gallery img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 0.4rem;
+    border: 1px solid var(--border);
+}
+
+.post-content .outreach-gallery--cover-only {
+    grid-template-columns: 1fr;
+}
+
+.post-content .outreach-gallery--cover-only img {
+    height: auto;
+    object-fit: contain;
+}
+
 .outreach-readmore {
     align-self: flex-start;
     font-size: 0.85rem;

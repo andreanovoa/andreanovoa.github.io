@@ -68,6 +68,16 @@
     {{- if not (.Param "disableAnchoredHeadings") }}
     {{- partial "anchored_headings.html" .Content -}}
     {{- else }}{{ .Content }}{{ end }}
+
+    {{- if and (eq .Section "outreach") (.Param "cover.image") (not (in .Content "outreach-gallery")) }}
+    {{- $coverImage := .Param "cover.image" }}
+    {{- $coverRes := (.Resources.ByType "image").GetMatch (printf "*%s*" $coverImage) }}
+    {{- $coverURL := $coverImage | relURL }}
+    {{- if $coverRes }}{{ $coverURL = $coverRes.RelPermalink }}{{ end }}
+    <div class="outreach-gallery outreach-gallery--cover-only">
+      <img src="{{ $coverURL }}" alt="{{ (.Param "cover.alt") | default .Title }}">
+    </div>
+    {{- end }}
   </div>
   {{- end }}
 
