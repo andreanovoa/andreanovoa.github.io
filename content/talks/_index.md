@@ -8,19 +8,22 @@ url: "talks"
 
 ## Invited Keynote Talks & Seminars  {.capital-title}
 
-| Year | Event | Location | Presentation |
+| Year | Host | Location | Presentation |
 |------|-------|----------|--------------|
+| 2026 |  City St George's University <br> *Workshop on Data-Driven ROMs & Data Assimilation* | London, UK | [**Real-time data assimilation for modelling and control of fluid flows**](Data_Driven_ROMs_Workshop_Leaflet%5B68%5D.pdf) |
 | 2026 | Cypher 3rd General Meeting -- keynote | Istanbul, Turkey | [**Real-time modelling**](https://cypher.ulb.be/event/cypher-3rd-general-meeting/) |
 | 2026 | Le CNAM (Conservatoire national des arts et métiers) | Paris, France | [**Real-time digital twins: Integrating ensemble data assimilation and reduced-order modelling**](https://maths.cnam.fr/M2N/spip.php?article105&lang=en) |
 | 2025 | SISSA Mathlab | Trieste, Italy | **Real-time digital twins: Integrating ensemble data assimilation, reduced-order modelling, and reinforcement learning** |
 | 2025 | Data-Centric Engineering Journal | Online |[**Real-time digital twins: unifying bias-aware data assimilation and machine learning**](https://doi.org/10.52843/cassyni.svynpv) |
-| 2024 | The Alan Turing Institute -- <br> Phi-ML meets Engineering seminar series | Online |[**Real-time data assimilation in nonlinear thermoacoustic instabilities**](https://www.turing.ac.uk/events/phi-ml-meets-engineering-real-time-data-assimilation-nonlinear-thermoacoustic-instabilities) |
+| 2024 | The Alan Turing Institute <br> *Phi-ML meets Engineering seminar series* | Online |[**Real-time data assimilation in nonlinear thermoacoustic instabilities**](https://www.turing.ac.uk/events/phi-ml-meets-engineering-real-time-data-assimilation-nonlinear-thermoacoustic-instabilities) |
 | 2024 | The AI for Net Zero Webinar Series | Online |[**A real-time digital twin of a hydrogen-fuelled annular combustor**](https://www.youtube.com/watch?v=BB-Qp1RTBdA&t=2098s) |
 
-## Conference Presentations  {.capital-title}
+## Conference Contrubutions  {.capital-title}
 
 | Year | Conference | Location | Presentation |
 |------|------------|----------|--------------|
+| 2026 | ERCOFTAC SIG 20: European Drag Reduction and Flow Control Meeting | Madrid, Spain |[**A data-built latent dynamics surrogate for opposition control under sparse and lagged wall measurements**](https://www.ercoftac.org/events/european-drag-reduction-and-flow-control-meeting-2026-edrfcm2026/) <br> Pérez Cuadrado, Cavallazzi, Nóvoa & Pinelli |
+| 2026 | EUROMECH Colloquium 668: Coherent Structures in Multiphysics Flows | Berlin, Germany |[**Wake interactions between porous discs: Linear nowcasting and forecasting from sparse experimental data**](https://668.euromech.org/program/) <br> Klopsch, Nóvoa, Goodwin, Laizet & Rigas |
 | 2026 | 3rd ERCOFTAC Workshop on ML for Fluid Dynamics | Amsterdam, Netherlands |[**Real-time data assimilation in latent spaces for chaotic forecasting**](https://ml4fluids2026.github.io/) <br> Magri, Özalp and Nóvoa |
 | 2026 | 3rd ERCOFTAC Workshop on ML for Fluid Dynamics | Amsterdam, Netherlands |[**Efficient real-time adaptation of ROMs for unsteady flows using data assimilation**](https://ml4fluids2026.github.io/) <br> Zighed, Nóvoa, Magri and Sayadi |
 | 2026 | Machine Learning and Dynamical Systems  and Differential Equations for Data Science | Kyoto University, Japan |[**Towards real-time digital turbulence**](https://www.youtube.com/watch?v=OpwGqn0VN6U) <br> Nóvoa, Özalp, Ozan and Magri |

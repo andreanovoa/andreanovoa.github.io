@@ -34,7 +34,7 @@ params:
     description: "This website hosts Andrea Nóvoa's research papers, course materials, data, curriculum vitae, and contact information."
     author: Andrea Nóvoa
     defaultTheme: dark
-    defaultColor: teal
+    defaultColor: blue
     hideFooter: false
     disableThemeToggle: false
     ShowShareButtons: false
