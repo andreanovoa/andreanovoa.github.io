@@ -1,0 +1,14 @@
+<span class="tlinks">
+  {{- with .doi }}
+  <a href="{{ . }}" target="_blank" rel="noopener noreferrer" data-tooltip="Published" aria-label="Published"><span data-feather="book-open" aria-hidden="true"></span></a>
+  {{- end }}
+  {{- with .arxiv }}
+  <a href="{{ . }}" target="_blank" rel="noopener noreferrer" data-tooltip="Preprint" aria-label="Preprint"><span data-feather="file-text" aria-hidden="true"></span></a>
+  {{- end }}
+  {{- with .code }}
+  <a href="{{ . }}" target="_blank" rel="noopener noreferrer" data-tooltip="Code" aria-label="Code"><span data-feather="github" aria-hidden="true"></span></a>
+  {{- end }}
+  {{- with .bibtex }}
+  <button type="button" class="bib-copy tlink-btn" data-bibtex="{{ . }}" data-tooltip="BibTeX" aria-label="Copy BibTeX citation"><span data-feather="copy" aria-hidden="true"></span><span class="bib-label"></span></button>
+  {{- end }}
+</span>

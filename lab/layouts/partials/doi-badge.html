@@ -1,0 +1,18 @@
+{{- $url := or .doi .arxiv }}
+{{- with $url }}
+{{- $isDoi := strings.Contains . "doi.org" }}
+{{- $isArxiv := strings.Contains . "arxiv.org" }}
+{{- $key := "link" }}
+{{- $val := . | replaceRE `^https?://(www\.)?` `` }}
+{{- if $isDoi }}
+  {{- $key = "doi" }}
+  {{- $val = . | replaceRE `^https?://(www\.)?doi\.org/` `` }}
+{{- else if $isArxiv }}
+  {{- $key = "arXiv" }}
+  {{- $val = . | replaceRE `^https?://(www\.)?arxiv\.org/abs/` `` }}
+{{- else }}
+  {{- if strings.HasSuffix (lower .) ".pdf" }}{{ $key = "pdf" }}{{ end }}
+  {{- $val = index (split $val "/") 0 }}
+{{- end }}
+<a class="doi-badge" href="{{ . }}" target="_blank" rel="noopener noreferrer" aria-label="{{ $key }} {{ $val }}"><span class="doi-badge-key">{{ $key }}</span><span class="doi-badge-val">{{ $val }}</span></a>
+{{- end }}

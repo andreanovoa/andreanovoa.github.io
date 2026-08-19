@@ -1,0 +1,22 @@
+<head>
+  <meta charset="utf-8">
+  <script>
+  // Runs before first paint so the page never flashes the wrong theme.
+  (function () {
+    var accent = localStorage.getItem('pref-accent') || 'blue';
+    document.documentElement.setAttribute('data-accent', accent);
+    var theme = localStorage.getItem('pref-theme');
+    if (theme === 'dark') { document.documentElement.classList.add('dark'); }
+    else if (theme === 'light') { document.documentElement.classList.add('light'); }
+  })();
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ if .IsHome }}{{ site.Title }} — {{ site.Params.shortTitle }}{{ else }}{{ .Title }} · {{ site.Title }}{{ end }}</title>
+  <meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ site.Params.description }}{{ end }}">
+  {{- $css := resources.Get "css/main.css" | minify | fingerprint }}
+  <link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  {{- if or .Params.math site.Params.math }}{{ partial "math.html" . }}{{ end }}
+</head>

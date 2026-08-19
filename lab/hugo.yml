@@ -1,0 +1,49 @@
+baseURL: "/"
+languageCode: "en-gb"
+title: "Nóvoa Lab"
+
+enableRobotsTXT: true
+enableInlineShortcodes: true
+
+params:
+  shortTitle: "Nóvoa Lab"
+  brandSub: "SciML-DA"
+  math: true
+  tagline: "Real-time digital twins of turbulent and chaotic flows."
+  description: >-
+    We develop data assimilation and scientific machine learning methods that
+    combine physical models with sparse, noisy sensor data, so that predictions
+    of turbulent and chaotic systems can be corrected in real time.
+  institution: "Aeronautics Department & I-X Institute, Imperial College London"
+  pi: "Andrea Nóvoa"
+  email: "a.novoa@imperial.ac.uk"
+  personalSite: "https://andreanovoa.github.io/"
+  github: "https://github.com/andreanovoa"
+  scholar: "https://scholar.google.com/citations?user=X0TjtAgAAAAJ&hl=en"
+  orcid: "https://orcid.org/0000-0003-0597-8326"
+  linkedin: "https://www.linkedin.com/in/andreanovoamartinez/"
+
+menu:
+  main:
+    - name: "Publications"
+      url: /publications/
+      weight: 2
+    - name: "People"
+      url: /people/
+      weight: 3
+    - name: "Code & Data"
+      url: /code/
+      weight: 4
+    - name: "Join"
+      url: /join/
+      weight: 5
+
+markup:
+  goldmark:
+    renderer:
+      unsafe: true
+  tableOfContents:
+    startLevel: 2
+    endLevel: 3
+
+disableKinds: ["taxonomy", "term", "RSS"]

@@ -1,0 +1,35 @@
+{{- $initials := "" }}
+{{- range (split .name " ") }}{{ $initials = printf "%s%s" $initials (substr . 0 1) }}{{ end }}
+<li class="person">
+  <div class="person-avatar">
+    {{- with .photo }}
+    <img src="{{ . | relURL }}" alt="{{ $.name }}" loading="lazy">
+    {{- else }}
+    <span class="initials" aria-hidden="true">{{ $initials }}</span>
+    {{- end }}
+  </div>
+  <div class="person-body">
+    <h3 class="person-name">{{ .name }}</h3>
+    <p class="person-role">
+      {{ .role }}
+      {{- with .since }} · since {{ . }}{{ end }}
+      {{- with .years }} · {{ . }}{{ end }}
+    </p>
+    {{- with .affiliation }}<p class="person-affil">{{ . }}</p>{{ end }}
+    {{- with .project }}<p class="person-project">{{ . }}</p>{{ end }}
+    <p class="person-meta">
+      {{- with .cosupervisor }}<span><span class="meta-label">Co-supervisor</span> {{ . }}</span>{{ end }}
+      {{- with .funding }}<span><span class="meta-label">Funding</span> {{ if $.fundingUrl }}<a href="{{ $.fundingUrl }}">{{ . }}</a>{{ else }}{{ . }}{{ end }}</span>{{ end }}
+      {{- with .now }}<span><span class="meta-label">Now</span> {{ . }}</span>{{ end }}
+    </p>
+    {{- with .links }}
+    <p class="person-links">
+      {{- with .website }}<a class="icon-link" href="{{ . }}"><span data-feather="globe" aria-hidden="true"></span> Website</a>{{ end }}
+      {{- with .scholar }}<a class="icon-link" href="{{ . }}"><span data-feather="book-open" aria-hidden="true"></span> Scholar</a>{{ end }}
+      {{- with .orcid }}<a class="icon-link" href="{{ . }}"><span data-feather="award" aria-hidden="true"></span> ORCID</a>{{ end }}
+      {{- with .github }}<a class="icon-link" href="{{ . }}"><span data-feather="github" aria-hidden="true"></span> GitHub</a>{{ end }}
+      {{- with .linkedin }}<a class="icon-link" href="{{ . }}"><span data-feather="linkedin" aria-hidden="true"></span> LinkedIn</a>{{ end }}
+    </p>
+    {{- end }}
+  </div>
+</li>

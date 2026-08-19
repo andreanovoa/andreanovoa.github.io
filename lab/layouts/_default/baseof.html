@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="{{ site.LanguageCode | default "en" }}">
+{{- partial "head.html" . }}
+<body{{ if eq .Section "research" }}{{ with .Params.weight }} data-topic="{{ . }}"{{ end }}{{ end }}>
+  {{- partial "nav.html" . }}
+  <main class="wrap">
+    {{- block "main" . }}{{ end }}
+  </main>
+  {{- partial "footer.html" . }}
+  <script src="https://unpkg.com/feather-icons"></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    if (typeof feather !== 'undefined') { feather.replace(); }
+
+    document.querySelectorAll('.bib-copy').forEach(function (button) {
+      var label = button.querySelector('.bib-label');
+      var original = label ? label.textContent : '';
+      button.addEventListener('click', function (event) {
+        event.preventDefault();
+        var bibtex = button.getAttribute('data-bibtex') || '';
+        var done = function () {
+          if (label) { label.textContent = 'Copied!'; }
+          button.classList.add('is-copied');
+          setTimeout(function () {
+            if (label) { label.textContent = original; }
+            button.classList.remove('is-copied');
+          }, 1500);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(bibtex).then(done);
+        } else {
+          var ta = document.createElement('textarea');
+          ta.value = bibtex; ta.style.position = 'fixed'; ta.style.opacity = '0';
+          document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+          document.body.removeChild(ta); done();
+        }
+      });
+    });
+  });
+
+    // Persistent scroll rail: macOS overlay scrollbars fade out, so the native
+    // bar is hidden in CSS and this drives a visible thumb instead.
+    document.querySelectorAll('[data-scroller]').forEach(function (root) {
+      var view  = root.querySelector('.scroll-view');
+      var rail  = root.querySelector('.scroll-rail');
+      var thumb = root.querySelector('.scroll-thumb');
+      if (!view || !rail || !thumb) { return; }
+
+      function sync() {
+        var overflow = view.scrollWidth - view.clientWidth;
+        root.classList.toggle('is-scrollable', overflow > 1);
+        if (overflow <= 1) { thumb.style.width = '100%'; thumb.style.left = '0px'; return; }
+        var ratio = view.clientWidth / view.scrollWidth;
+        var railW = rail.clientWidth;
+        var thumbW = Math.max(ratio * railW, 24);
+        thumb.style.width = thumbW + 'px';
+        thumb.style.left = (view.scrollLeft / overflow) * (railW - thumbW) + 'px';
+      }
+
+      view.addEventListener('scroll', sync, { passive: true });
+      window.addEventListener('resize', sync);
+      if (window.ResizeObserver) { new ResizeObserver(sync).observe(view); }
+
+      var dragging = false, startX = 0, startScroll = 0;
+      thumb.addEventListener('pointerdown', function (e) {
+        dragging = true; startX = e.clientX; startScroll = view.scrollLeft;
+        thumb.classList.add('is-dragging');
+        thumb.setPointerCapture(e.pointerId);
+        e.preventDefault();
+      });
+      thumb.addEventListener('pointermove', function (e) {
+        if (!dragging) { return; }
+        var overflow = view.scrollWidth - view.clientWidth;
+        var railW = rail.clientWidth;
+        var thumbW = thumb.offsetWidth;
+        var travel = railW - thumbW;
+        if (travel <= 0) { return; }
+        view.scrollLeft = startScroll + ((e.clientX - startX) / travel) * overflow;
+      });
+      ['pointerup', 'pointercancel'].forEach(function (evt) {
+        thumb.addEventListener(evt, function () {
+          dragging = false; thumb.classList.remove('is-dragging');
+        });
+      });
+
+      sync();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+{{ define "main" }}
+{{- $data := site.Data.code }}
+<article class="page">
+  <h1 class="page-title">{{ .Title }}</h1>
+  {{ with .Params.lead }}<p class="lead">{{ . }}</p>{{ end }}
+  <div class="prose">{{ .Content }}</div>
+
+  <div class="org-cards">
+    {{- range $data.orgs }}
+    <a class="org-card" href="{{ .url }}">
+      <span class="org-handle">{{ .name }}</span>
+      <span class="org-blurb">{{ .blurb }}</span>
+      <span class="org-cta">github.com/{{ .name }} &rarr;</span>
+    </a>
+    {{- end }}
+    {{- with $data.zenodo }}
+    <a class="org-card" href="{{ .url }}">
+      <span class="org-handle">{{ .name }}</span>
+      <span class="org-blurb">{{ .blurb }}</span>
+      <span class="org-cta">All datasets &rarr;</span>
+    </a>
+    {{- end }}
+  </div>
+
+  {{- range $org := $data.orgs }}
+  {{- $repos := where $data.repos "org" $org.key }}
+  {{- with $repos }}
+  <h2 class="group-heading" id="{{ $org.key }}"><a href="{{ $org.url }}">{{ $org.name }}</a></h2>
+  <ul class="repos">
+    {{- range $repo := . }}
+    <li class="repo">
+      <h3 class="repo-name"><a class="icon-link" href="{{ $repo.url }}"><span data-feather="github" aria-hidden="true"></span> {{ $repo.name }}</a></h3>
+      <p class="dataset-meta">
+        <span class="tag">Software</span>
+        {{- with $repo.version }}<span>{{ . }}</span>{{ end }}
+        {{- with $repo.date }}<span>{{ . }}</span>{{ end }}
+        {{- with $repo.license }}<span>{{ . }}</span>{{ end }}
+        {{- with $repo.doi }}<span class="mono">{{ . }}</span>{{ end }}
+      </p>
+      <p class="repo-desc">{{ $repo.description }}</p>
+      {{- if or $repo.docs $repo.paper }}
+      <ul class="link-boxes">
+        {{- with $repo.docs }}
+        <li><a class="link-box" href="{{ . }}" target="_blank" rel="noopener noreferrer"><span data-feather="book" aria-hidden="true"></span> Docs</a></li>
+        {{- end }}
+        {{- with $repo.paper }}
+        <li><a class="link-box" href="{{ . }}" target="_blank" rel="noopener noreferrer"><span data-feather="book-open" aria-hidden="true"></span> {{ with $repo.paperTitle }}{{ . }}{{ else }}Paper{{ end }}</a></li>
+        {{- end }}
+      </ul>
+      {{- end }}
+    </li>
+    {{- end }}
+  </ul>
+  {{- end }}
+  {{- end }}
+
+  {{- with $data.datasets }}
+  <h2 class="group-heading" id="data">Data</h2>
+  <ul class="repos">
+    {{- range $set := . }}
+    <li class="repo dataset">
+      <h3 class="repo-name"><a class="icon-link" href="{{ $set.url }}"><span data-feather="database" aria-hidden="true"></span> {{ $set.title }}</a></h3>
+      <p class="dataset-meta">
+        <span class="tag">Dataset</span>
+        {{- with $set.date }}<span>{{ . }}</span>{{ end }}
+        {{- with $set.size }}<span>{{ . }}</span>{{ end }}
+        {{- with $set.license }}<span>{{ . }}</span>{{ end }}
+        {{- with $set.doi }}<span class="mono">{{ . }}</span>{{ end }}
+      </p>
+      <p class="repo-desc">{{ $set.description }}</p>
+      {{- with $set.paper }}
+      <ul class="link-boxes">
+        <li><a class="link-box" href="{{ . }}" target="_blank" rel="noopener noreferrer"><span data-feather="book-open" aria-hidden="true"></span> {{ with $set.paperTitle }}{{ . }}{{ else }}Paper{{ end }}</a></li>
+      </ul>
+      {{- end }}
+    </li>
+    {{- end }}
+  </ul>
+  {{- end }}
+
+</article>
+{{ end }}

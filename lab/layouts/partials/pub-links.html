@@ -1,0 +1,18 @@
+<ul class="link-boxes">
+  {{- with .doi }}
+  <li><a class="link-box" href="{{ . }}" target="_blank" rel="noopener noreferrer">
+    <span data-feather="book-open" aria-hidden="true"></span> Published</a></li>
+  {{- end }}
+  {{- with .arxiv }}
+  <li><a class="link-box" href="{{ . }}" target="_blank" rel="noopener noreferrer">
+    <span data-feather="file-text" aria-hidden="true"></span> Preprint</a></li>
+  {{- end }}
+  {{- with .code }}
+  <li><a class="link-box" href="{{ . }}" target="_blank" rel="noopener noreferrer">
+    <span data-feather="github" aria-hidden="true"></span> Code</a></li>
+  {{- end }}
+  {{- with .bibtex }}
+  <li><button type="button" class="link-box bib-copy" data-bibtex="{{ . }}" aria-label="Copy BibTeX citation">
+    <span data-feather="copy" aria-hidden="true"></span> <span class="bib-label">BibTeX</span></button></li>
+  {{- end }}
+</ul>

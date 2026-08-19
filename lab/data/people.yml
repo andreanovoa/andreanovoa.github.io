@@ -1,0 +1,75 @@
+# Current group members and alumni.
+# `photo` is optional: if omitted, the site renders an initials avatar.
+# Put photos in static/img/people/ and reference them as "img/people/name.jpg".
+
+current:
+  - name: "Andrea Nóvoa"
+    role: "Principal investigator"
+    since: "2026"
+    affiliation: "Assistant Professor in Data Assimilation, Aeronautics; Eric & Wendy Schmidt AI in Science Fellow, I-X"
+    photo: "img/people/andrea-novoa.jpg"
+    links:
+      website: "https://andreanovoa.github.io/"
+      scholar: "https://scholar.google.com/citations?user=X0TjtAgAAAAJ&hl=en"
+      orcid: "https://orcid.org/0000-0003-0597-8326"
+      github: "https://github.com/andreanovoa"
+      linkedin: "https://www.linkedin.com/in/andreanovoamartinez/"
+
+  - name: "Ben Eze"
+    role: "PhD student"
+    since: "2026"
+    affiliation: "Aeronautics, Imperial College London"
+    project: "Interpretable scientific machine learning for real-time prediction of chaotic systems"
+    funding: "President's PhD Scholarship"
+    fundingUrl: "https://www.imperial.ac.uk/study/fees-and-funding/postgraduate-doctoral/grants-scholarships/presidents-phd/#how-to-apply"
+    links:
+      orcid: "https://orcid.org/0009-0009-8594-082X"
+
+  - name: "Lukas Campbell"
+    role: "UROP student"
+    since: "2026"
+    affiliation: "Aeronautics, Imperial College London"
+    project: "Autoencoder-based reduced-order modelling"
+
+  - name: "Tarek Obegi"
+    role: "Undergraduate summer researcher"
+    since: "2026"
+    affiliation: "Aeronautics, Imperial College London"
+    project: "Bidirectional digital twins for the control of chaotic systems"
+
+  - name: "Konstantinos Barmpounis"
+    role: "MSc student"
+    since: "2026"
+    affiliation: "MSc Advanced Aeronautical Engineering, Imperial College London"
+    project: "Real-time bias-aware data assimilation for turbulent wind farm wake estimation"
+    cosupervisor: "Luca Magri"
+
+  - name: "Salvatore Aloj"
+    role: "MSc student"
+    since: "2026"
+    affiliation: "MSc Advanced Aeronautical Engineering, Imperial College London"
+    project: "Experimental investigation of time-resolved wake interactions in wind farms"
+    cosupervisor: "George Rigas"
+
+alumni:
+  - name: "Ben Eze"
+    role: "MEng final-year project"
+    years: "2025–26"
+    affiliation: "Aeronautics, Imperial College London"
+    project: "Vision transformer masked autoencoders for restricted-domain flow reconstruction"
+    cosupervisor: "Luca Magri"
+    now: "PhD student in the group"
+
+  - name: "Josh Coskun"
+    role: "MSc student"
+    years: "2025"
+    affiliation: "MSc Advanced Aeronautical Engineering, Imperial College London"
+    project: "Real-time data assimilation and modelling from particle image velocimetry measurements"
+    cosupervisor: "Luca Magri (main)"
+
+  - name: "Leo Hsieh"
+    role: "MEng final-year project"
+    years: "2024–25"
+    affiliation: "Aeronautics, Imperial College London"
+    project: "Real-time prediction of chaotic systems' states and parameters"
+    cosupervisor: "Luca Magri (main)"

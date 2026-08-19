@@ -1,0 +1,42 @@
+{{ define "main" }}
+{{- $ref := "" }}
+{{- with .Params.key }}{{ with where site.Data.publications "key" . }}{{ $ref = index . 0 }}{{ end }}{{ end }}
+<article class="page page--paper">
+  <p class="backlink"><a href="{{ "/publications/" | relURL }}">&larr; All publications</a></p>
+  <h1 class="page-title">{{ .Title }}</h1>
+  {{- with .Params.author }}
+  <p class="paper-authors">{{ delimit . ", " ", " }}</p>
+  {{- end }}
+  {{- with $ref }}
+  <p class="paper-venue">{{ .venue }}{{ with .detail }} · {{ . }}{{ end }} · {{ .year }}</p>
+  <div class="paper-links">{{ partial "pub-links.html" . }}</div>
+  {{- end }}
+
+  <div class="prose paper-body">
+    {{ .Content }}
+  </div>
+
+  {{- with .Params.tags }}
+  <div class="scroller" data-scroller>
+    <div class="tag-bar scroll-view" role="list" aria-label="Topics" tabindex="0">
+      <ul class="post-tags">
+        {{- range . }}<li role="listitem">{{ . }}</li>{{ end }}
+      </ul>
+    </div>
+    <div class="scroll-rail" aria-hidden="true"><span class="scroll-thumb"></span></div>
+  </div>
+  {{- end }}
+
+  {{- with $ref }}{{ with .apa }}
+  <section class="citations">
+    <h2>Cite this paper</h2>
+    <ol class="apa-list">
+      <li class="apa">
+        {{ . | safeHTML }}
+        {{- partial "doi-badge.html" $ref }}
+      </li>
+    </ol>
+  </section>
+  {{ end }}{{ end }}
+</article>
+{{ end }}

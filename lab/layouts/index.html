@@ -1,0 +1,69 @@
+{{ define "main" }}
+{{- $people := site.Data.people }}
+{{- $pubs := site.Data.publications }}
+{{- $code := site.Data.code }}
+
+<section class="hero">
+  <h1 class="hero-title">{{ site.Params.tagline }}</h1>
+  <p class="hero-lead">{{ site.Params.description }}</p>
+  <p class="hero-meta">{{ site.Params.institution }}</p>
+</section>
+
+<section class="stats">
+  <a class="stat" href="{{ "/people/" | relURL }}">
+    <span class="stat-num">{{ len $people.current }}</span>
+    <span class="stat-label">current members</span>
+  </a>
+  <a class="stat" href="{{ "/people/#alumni" | relURL }}">
+    <span class="stat-num">{{ len $people.alumni }}</span>
+    <span class="stat-label">alumni</span>
+  </a>
+  <a class="stat" href="{{ "/publications/" | relURL }}">
+    <span class="stat-num">{{ len $pubs }}</span>
+    <span class="stat-label">publications</span>
+  </a>
+  <a class="stat" href="{{ "/code/" | relURL }}">
+    <span class="stat-num">{{ len $code.repos }}</span>
+    <span class="stat-label">open-source repositories</span>
+  </a>
+  <a class="stat" href="{{ "/code/#data" | relURL }}">
+    <span class="stat-num">{{ len $code.datasets }}</span>
+    <span class="stat-label">archived dataset{{ if ne (len $code.datasets) 1 }}s{{ end }}</span>
+  </a>
+</section>
+
+<section class="home-section">
+  <div class="section-head">
+    <h2>What we work on</h2>
+  </div>
+  <div class="cards cards--compact">
+    {{- range (site.GetPage "/research").Pages.ByWeight }}
+    <a class="card"{{ with .Params.weight }} data-topic="{{ . }}"{{ end }} href="{{ .RelPermalink }}">
+      <h3>{{ .Title }}</h3>
+      <span class="card-cta">Read more &rarr;</span>
+    </a>
+    {{- end }}
+  </div>
+</section>
+
+<section class="home-section">
+  <div class="section-head">
+    <h2>Latest research</h2>
+    <a class="more" href="{{ "/publications/" | relURL }}">All publications &rarr;</a>
+  </div>
+  <div class="scroller" data-scroller>
+    <div class="pub-cards scroll-view">
+    {{- range first 5 (where $pubs "cover" "!=" nil) }}
+    {{- partial "pub-card.html" . }}
+    {{- end }}
+    </div>
+    <div class="scroll-rail" aria-hidden="true"><span class="scroll-thumb"></span></div>
+  </div>
+</section>
+
+<section class="home-section cta">
+  <h2>Join the group</h2>
+  <p>We are looking for PhD students, UROP and Erasmus+ students interested in data assimilation and scientific machine learning for fluids.</p>
+  <a class="button" href="{{ "/join/" | relURL }}">Openings and how to apply</a>
+</section>
+{{ end }}

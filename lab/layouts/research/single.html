@@ -1,0 +1,37 @@
+{{ define "main" }}
+<article class="page page--narrow">
+  <p class="backlink"><a href="{{ "/research/" | relURL }}">&larr; Research themes</a></p>
+  <h1 class="page-title">{{ .Title }}</h1>
+  {{ with .Params.blurb }}<p class="lead">{{ . }}</p>{{ end }}
+  <div class="prose">{{ .Content }}</div>
+
+  {{- with .Params.publications }}
+  {{- $all := site.Data.publications }}
+  <section class="citations">
+    <h2>Key publications</h2>
+    <ol class="apa-list">
+      {{- range $key := . }}
+      {{- range $ref := where $all "key" $key }}
+      <li class="apa">
+        {{ $ref.apa | safeHTML }}
+        {{- partial "doi-badge.html" $ref }}
+      </li>
+      {{- end }}
+      {{- end }}
+    </ol>
+  </section>
+  {{- end }}
+
+  {{- $others := where (where .Parent.Pages.ByWeight "Permalink" "!=" .Permalink) "Kind" "page" }}
+  {{- with $others }}
+  <nav class="theme-nav">
+    <h2>Other themes</h2>
+    <ul>
+      {{- range . }}
+      <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+      {{- end }}
+    </ul>
+  </nav>
+  {{- end }}
+</article>
+{{ end }}

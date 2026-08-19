@@ -1,0 +1,114 @@
+<header class="site-header">
+  <div class="wrap nav-inner">
+    <a class="brand" href="{{ "/" | relURL }}">
+      <span class="brand-name">{{ site.Params.shortTitle }}</span>
+      <span class="brand-sub">{{ site.Params.brandSub }}</span>
+    </a>
+    <nav class="nav">
+      {{- range site.Menus.main }}
+      <a href="{{ .URL | relURL }}"{{ if $.IsMenuCurrent "main" . }} class="is-active"{{ end }}>{{ .Name }}</a>
+      {{- end }}
+    </nav>
+    <div class="nav-toggles">
+      <button class="theme-toggle" data-theme-toggle accesskey="t" title="Toggle theme (Alt + T)" aria-label="Toggle theme">
+        <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+        <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+      </button>
+      <button class="accent-toggle" id="accent-toggle" aria-haspopup="listbox" aria-expanded="false" title="Colour theme" aria-label="Colour theme">
+        <span class="rainbow-ring-container" aria-hidden="true"><span class="rainbow-circle"></span></span>
+      </button>
+    </div>
+    <ul id="accent-menu" class="accent-menu" role="listbox" aria-label="Colour theme">
+      <li role="option" data-accent="blue"><span class="accent-swatch" style="background:hsl(210,60%,55%)"></span><span>Blue</span></li>
+      <li role="option" data-accent="teal"><span class="accent-swatch" style="background:hsl(175,55%,45%)"></span><span>Teal</span></li>
+      <li role="option" data-accent="purple"><span class="accent-swatch" style="background:hsl(260,55%,55%)"></span><span>Purple</span></li>
+      <li role="option" data-accent="rose"><span class="accent-swatch" style="background:hsl(345,60%,55%)"></span><span>Rose</span></li>
+    </ul>
+  </div>
+</header>
+<script>
+(function () {
+  var btn = document.getElementById('accent-toggle');
+  var menu = document.getElementById('accent-menu');
+
+  document.querySelectorAll('[data-theme-toggle]').forEach(function (toggle) {
+    toggle.addEventListener('click', function () {
+      var root = document.documentElement;
+      // No explicit choice yet: fall back to what the system is showing.
+      var isDark = root.classList.contains('dark') ||
+        (!root.classList.contains('light') &&
+         window.matchMedia('(prefers-color-scheme: dark)').matches);
+      root.classList.toggle('dark', !isDark);
+      root.classList.toggle('light', isDark);
+      localStorage.setItem('pref-theme', isDark ? 'light' : 'dark');
+    });
+  });
+
+  if (!btn || !menu) return;
+
+  function current() {
+    return document.documentElement.getAttribute('data-accent') || 'blue';
+  }
+
+  function setActive(accent) {
+    menu.querySelectorAll('li[data-accent]').forEach(function (item) {
+      item.setAttribute('aria-selected', item.getAttribute('data-accent') === accent ? 'true' : 'false');
+    });
+  }
+
+  function open() {
+    var rect = btn.getBoundingClientRect();
+    menu.style.top = (rect.bottom + 6) + 'px';
+    menu.style.right = Math.max(8, window.innerWidth - rect.right) + 'px';
+    menu.style.left = 'auto';
+    menu.classList.add('open');
+    btn.setAttribute('aria-expanded', 'true');
+    setActive(current());
+  }
+
+  function close() {
+    menu.classList.remove('open');
+    btn.setAttribute('aria-expanded', 'false');
+  }
+
+  btn.addEventListener('click', function (event) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (menu.classList.contains('open')) { close(); } else { open(); }
+  });
+
+  menu.addEventListener('click', function (event) {
+    var item = event.target.closest('li[data-accent]');
+    if (!item) return;
+    var accent = item.getAttribute('data-accent');
+    document.documentElement.setAttribute('data-accent', accent);
+    localStorage.setItem('pref-accent', accent);
+    setActive(accent);
+    close();
+  });
+
+  document.addEventListener('click', function (event) {
+    if (!menu.contains(event.target) && !btn.contains(event.target)) { close(); }
+  });
+
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') { close(); }
+  });
+
+  setActive(current());
+})();
+</script>

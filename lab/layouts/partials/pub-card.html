@@ -1,0 +1,21 @@
+{{- $page := "" }}
+{{- with .key }}{{ $page = site.GetPage (printf "/publications/%s" .) }}{{ end }}
+{{- $href := "" }}{{ with $page }}{{ $href = .RelPermalink }}{{ end }}
+<article class="pub-card">
+  {{- with .cover }}
+  <div class="pub-card-cover">
+    {{- if $href }}<a href="{{ $href }}">{{ end }}
+    <img src="{{ . | relURL }}" alt="{{ $.title }}" loading="lazy">
+    {{- if $href }}</a>{{ end }}
+  </div>
+  {{- end }}
+  <div class="pub-card-body">
+    <h3 class="pub-card-title">
+      {{- if $href }}<a href="{{ $href }}">{{ .title }}</a>{{ else }}{{ .title }}{{ end -}}
+    </h3>
+    <p class="pub-card-authors">{{ .authors }}</p>
+    <p class="pub-card-venue">{{ .venue }}{{ with .detail }} · {{ . }}{{ end }} · {{ .year }}</p>
+    {{- with .blurb }}<p class="pub-card-blurb">{{ . }}</p>{{ end }}
+    {{- partial "pub-links.html" . }}
+  </div>
+</article>

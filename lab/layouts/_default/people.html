@@ -1,0 +1,24 @@
+{{ define "main" }}
+{{- $people := site.Data.people }}
+<article class="page">
+  <h1 class="page-title">{{ .Title }}</h1>
+  {{ with .Params.lead }}<p class="lead">{{ . }}</p>{{ end }}
+  <div class="prose">{{ .Content }}</div>
+
+  <h2 class="group-heading" id="current">Current group</h2>
+  <ul class="people">
+    {{- range $people.current }}
+    {{- partial "person.html" . }}
+    {{- end }}
+  </ul>
+
+  {{- with $people.alumni }}
+  <h2 class="group-heading" id="alumni">Alumni</h2>
+  <ul class="people">
+    {{- range . }}
+    {{- partial "person.html" . }}
+    {{- end }}
+  </ul>
+  {{- end }}
+</article>
+{{ end }}
