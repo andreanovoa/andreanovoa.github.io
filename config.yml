@@ -75,6 +75,8 @@ params:
               url: outreach/
             - name: Students
               url: students/
+            - name: Nóvoa Lab
+              url: https://sciml-da.github.io/
 
     socialIcons:
         - name: Cv
