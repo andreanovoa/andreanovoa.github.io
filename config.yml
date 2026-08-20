@@ -26,8 +26,8 @@ menu:
         - name: Activities
           url: outreach/
           weight: 3
-        - name: Group
-          url: group/
+        - name: Students
+          url: students/
           weight: 4
 
 params:
@@ -73,8 +73,8 @@ params:
               url: talks/
             - name: Activities
               url: outreach/
-            - name: Group
-              url: group/
+            - name: Students
+              url: students/
 
     socialIcons:
         - name: Cv

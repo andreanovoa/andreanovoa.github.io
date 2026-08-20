@@ -1,10 +1,10 @@
 {{- define "main" }}
 
-{{- $isTopZonePage := or (eq .RelPermalink "/cv/") (eq .RelPermalink "/group/") }}
+{{- $isTopZonePage := or (eq .RelPermalink "/cv/") (eq .RelPermalink "/students/") }}
 {{- $singleClass := "post-single" }}
 {{- if eq .RelPermalink "/cv/" }}
 {{- $singleClass = "post-single post-single--cv" }}
-{{- else if eq .RelPermalink "/group/" }}
+{{- else if eq .RelPermalink "/students/" }}
 {{- $singleClass = "post-single post-single--cv" }}
 {{- end }}
 <article class="{{ $singleClass }}">
