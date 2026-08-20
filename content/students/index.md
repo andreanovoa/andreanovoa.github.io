@@ -1,21 +1,18 @@
 ---
-title: "Students"
+title: "Current students & alumni"
 aliases: ["/group/"]
 date: 2026-08-03
 disableAnchoredHeadings: true
 hideAuthor: true    
-related_links:
-  - name: "Visit the lab website"
-    url: "https://sciml-da.github.io/"
-    icon: "external-link"
-    target: "_blank"
 ---
 
-## Openings
+## Join the lab
 
-- Please, keep an eye on **[PhD openings at Imperial's website](https://www.imperial.ac.uk/aeronautics/study/phd/phd-opportunities-and-funding/)**, or contact me.  
+<div class="cta-box">
+  <p>We are looking for PhD students, UROP and Erasmus+ students interested in data assimilation and scientific machine learning for fluids.</p>
+  <a class="cta-button" href="https://sciml-da.github.io/join/" target="_blank" rel="noopener noreferrer">Openings and how to apply</a>
+</div>
 
-- For **[Erasmus+ Traineeship](https://www.imperial.ac.uk/study/apply/visiting-students/)** or [**Undergraduate Research Opportunities Programme** (UROP)](https://www.imperial.ac.uk/urop/),  please, contact me.
 <hr>
 
 ## PhD Students
