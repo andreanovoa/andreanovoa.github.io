@@ -19,6 +19,10 @@
   --brand-fg: hsl(var(--accent-h), 60%, 98%);
   --brand-soft: hsl(var(--accent-h), 60%, 94%);
 
+  /* hover/active highlight inside the header bar. Pinned to white in both
+     themes: --brand-fg flips to near-black in dark mode for the lighter bar. */
+  --nav-hl: #ffffff;
+
   --radius: 10px;
   --wrap: 62rem;
   --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
@@ -103,13 +107,14 @@ a:hover { color: var(--accent); text-decoration: underline; }
 .brand { color: var(--brand-fg); opacity: 0.9; display: flex; flex-direction: column; line-height: 1.2; }
 /* the global a:hover is more specific than .brand, so without this the brand
    turns accent-orange on hover; it highlights to the full bar foreground instead */
-.brand:hover { color: var(--brand-fg); opacity: 1; text-decoration: none; }
+.brand:hover { color: var(--nav-hl); opacity: 1; text-decoration: none; }
 .brand-name { font-family: var(--serif); font-size: 1.2rem; font-weight: 700; }
 .brand-sub { font-size: 0.72rem; opacity: 0.8; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
 .nav { display: flex; flex-wrap: wrap; gap: 1.1rem; margin-left: auto; }
 .nav a { color: var(--brand-fg); opacity: 0.85; font-size: 0.82rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; padding: 0.15rem 0; }
-.nav a:hover, .nav a.is-active { opacity: 1; text-decoration: none; }
-.nav a.is-active { box-shadow: inset 0 -2px 0 currentColor; }
+.nav a:hover, .nav a.is-active { color: var(--nav-hl); opacity: 1; }
+.nav a.is-active { text-decoration: none; box-shadow: inset 0 -2px 0 currentColor; }
+.nav a:hover { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 0.3em; }
 
 /* ---------- generic page ---------- */
 main.wrap { padding-top: 2.5rem; padding-bottom: 4rem; }
