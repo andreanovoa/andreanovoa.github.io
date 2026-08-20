@@ -3,9 +3,12 @@ title: "The group"
 date: 2026-08-03
 disableAnchoredHeadings: true
 hideAuthor: true    
+related_links:
+  - name: "Visit the lab website"
+    url: "https://sciml-da.github.io/"
+    icon: "external-link"
+    target: "_blank"
 ---
-
-<hr>
 
 ## Openings
 
