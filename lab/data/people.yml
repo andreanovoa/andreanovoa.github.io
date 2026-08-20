@@ -22,6 +22,7 @@ current:
     funding: "President's PhD Scholarship"
     fundingUrl: "https://www.imperial.ac.uk/study/fees-and-funding/postgraduate-doctoral/grants-scholarships/presidents-phd/#how-to-apply"
     links:
+      scholar: "https://scholar.google.com/citations?user=wUmO9q8AAAAJ&hl=en"
       orcid: "https://orcid.org/0009-0009-8594-082X"
 
   - name: "Lukas Campbell"
