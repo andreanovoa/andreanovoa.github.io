@@ -104,10 +104,33 @@ a:hover { color: var(--accent); text-decoration: underline; }
   min-height: 4rem;
   flex-wrap: wrap;
 }
-.brand { color: var(--brand-fg); opacity: 0.9; display: flex; flex-direction: column; line-height: 1.2; }
+/* the padding and transparent border are always present so revealing the box on
+   hover does not shift the bar; the negative margin keeps the text optically
+   aligned with the wrap edge. */
+.brand {
+  color: var(--brand-fg);
+  opacity: 0.9;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+  padding: 0.32rem 0.6rem;
+  margin-left: -0.6rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  transition: opacity 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
 /* the global a:hover is more specific than .brand, so without this the brand
-   turns accent-orange on hover; it highlights to the full bar foreground instead */
-.brand:hover { color: var(--nav-hl); opacity: 1; text-decoration: none; }
+   would turn accent-orange on hover instead of highlighting. rgba values first
+   as a fallback for browsers without color-mix. */
+.brand:hover {
+  color: var(--nav-hl);
+  opacity: 1;
+  text-decoration: none;
+  border-color: rgba(255, 255, 255, 0.55);
+  border-color: color-mix(in srgb, var(--nav-hl) 55%, transparent);
+  background: rgba(255, 255, 255, 0.12);
+  background: color-mix(in srgb, var(--nav-hl) 12%, transparent);
+}
 .brand-name { font-family: var(--serif); font-size: 1.2rem; font-weight: 700; }
 .brand-sub { font-size: 0.72rem; opacity: 0.8; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
 .nav { display: flex; flex-wrap: wrap; gap: 1.1rem; margin-left: auto; }
