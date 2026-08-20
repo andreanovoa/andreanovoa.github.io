@@ -48,15 +48,3 @@ The DA-MIRL aims to control a partially observed <span style="color: #b8b6b4ff;f
 <!-- </div> -->
 <figcaption style="text-align:center;">
 Spatio-temporal evolution of the environment ${\mathbf{u}}^{true}$ (i.e., the truth), the  model ensemble mean prediction $\hat{\mathbf{u}}$, and the reconstruction error. The triangles and circles indicate the location of the actuators and sensors, respectively⁠. The observations and actuations begin at time step $k=500$.</figcaption>
-
----
-
-#### Citation
-
-
-<div class="styled-quote">
-D. E. Ozan, A. Nóvoa, G. Rigas, L. Magri; Data-assimilated model-informed reinforcement learning. Proc. A 1 December 2025; 481 (2327): 20250476. doi: 10.1098/rspa.2025.0476
-</div>
-
-
----

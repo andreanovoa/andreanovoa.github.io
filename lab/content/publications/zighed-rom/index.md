@@ -33,16 +33,3 @@ We further show that, for the dynamical system considered, the dominant source o
 <figcaption style="text-align:center;">
 The variational encoder $\mathcal{E}$ compresses the velocity field $(U_t, V_t)$, together with the parameter $\xi$, into the mean $\mu$ and variance $\sigma^2$ of the latent distribution. Sampling $\epsilon \sim \mathcal{N}(0, I)$ yields an ensemble of latent states $z_{i,t}$, which the decoder $\mathcal{D}$ maps back to an ensemble of full-state trajectories $\psi \in \mathbb{R}^{N,T,D}$. On the right, the ensemble mean $\bar{\psi}$ and the ensemble spread $\tilde{\psi}$ of the flow past a cylinder are shown at increasing times $t$; the spread grows as the forecast departs from the observations, which provides the uncertainty estimate that the ensemble Kalman filter exploits.
 </br></br></figcaption>
-
-
-----
-
-#### Citation
-
-
-<div class="styled-quote">
-Zighed, I., Nóvoa, A., Magri, L., & Sayadi, T. (2026). Efficient adaptation of ROMs for unsteady flows using data assimilation. Computers & Fluids, 107250. doi: 10.1016/j.compfluid.2026.107250.  
-</div>
-
-
----

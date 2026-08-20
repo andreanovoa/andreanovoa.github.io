@@ -39,16 +39,3 @@ This work opens new opportunities for real-time digital twinning of multi-physic
 #### Schematic of the proposed digital twin framework. 
 <img src="JFM_DT_schematic_both.webp" style="display: block; margin: 0 auto 1em;background:#ffffff;padding:0.5rem;border-radius:4px;" alt="(a) Physical and digital systems evolve independently. (b) Diagram of the r-EnKF update performed sequentially when measurement data become available" />
 <figcaption style="text-align:center;">(a) Physical and digital systems evolve independently. (b) Diagram of the r-EnKF update performed sequentially when measurement data become available.</figcaption>
-
-
----
-
-#### Citation
-
-
-<div class="styled-quote">
-Nóvoa A, Noiray N, Dawson JR, Magri L. A real-time digital twin of azimuthal thermoacoustic instabilities. Journal of Fluid Mechanics. 2024;1001:A49. doi:10.1017/jfm.2024.1052
-</div>
-
-
----

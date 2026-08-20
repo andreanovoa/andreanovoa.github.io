@@ -36,16 +36,3 @@ The modularity of the framework naturally accommodates nonlinear compression and
 <figcaption style="text-align:center;">
 The LAMP pipeline. <b>Patch &amp; mask</b>: the flow snapshot is split into patches, of which only a small fraction is observed (the grey patches are masked). <b>Encode</b>: each patch is projected onto its POD basis $\mathbf{U}$, which gives the latent patch tokens. <b>Reconstruct</b>: a single attention layer combines the attention matrix $\mathbf{W}^{\mathrm{A}}$ with the pairwise predictions $\mathbf{W}^{\mathrm{V}}$ to infer the latent tokens of the masked patches from the observed ones. <b>Decode &amp; reshape</b>: the inferred tokens are mapped back to physical space with $\mathbf{U}^{\mathsf{T}}$ and reassembled into the full flow field.
 </br></br></figcaption>
-
-
-----
-
-#### Citation
-
-
-<div class="styled-quote">
-Eze, B., Magri, L., & Nóvoa, A. (2026). Latent attention on masked patches for flow reconstruction. In Computational Science – ICCS 2026 Workshops, Lecture Notes in Computer Science (pp. 181–188). Springer Nature Switzerland. doi: 10.1007/978-3-032-29915-4_15.  
-</div>
-
-
----

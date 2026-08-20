@@ -29,28 +29,3 @@ First, we design a data assimilation framework to perform combined state, parame
 
 
 <img src="inferring_unknowns_cover.gif" style="display: block; margin: 0 auto 1em;" alt="Conceptual illustration of unknown unknowns inference" width=1000px/>
-
-
-#### Citation
-
-
-<div class="styled-quote">
-Nóvoa, A., Racca, A., & Magri, L. (2024). Inferring unknown unknowns: Regularized bias-aware ensemble Kalman filter. Computer Methods in Applied Mechanics and Engineering, 418, 116502.
-</div>
-
-
-
-
-
-<!-- ```bibtex 
-@article{novoa_inferring_2023,
-  title={Inferring unknown unknowns: Regularized bias-aware ensemble Kalman filter},
-  author={N{\'o}voa, Andrea and Racca, Alberto and Magri, Luca},
-  journal={Computer Methods in Applied Mechanics and Engineering},
-  volume={418},
-  pages={116502},
-  year={2023},
-  publisher={Elsevier}
-}
-```
- -->
