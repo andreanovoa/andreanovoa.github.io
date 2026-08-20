@@ -1,8 +1,12 @@
 /* "Join the lab" call-out on the Students page. Mirrors the .cta box on the lab
    site (lab/assets/css/main.css), rebuilt on this site's palette tokens. */
+/* --main-width is a percentage, so the content column runs very wide on large
+   screens; the box is capped at a comfortable reading measure instead of
+   stretching with it. */
 .cta-box {
     margin: 1.5rem 0 2rem;
-    padding: 1.75rem;
+    padding: 1.5rem 1.75rem;
+    max-width: 38rem;
     border: 1px solid var(--border);
     border-radius: 10px;
     background: var(--entry);
@@ -11,7 +15,6 @@
 .cta-box p {
     margin: 0 0 1rem;
     color: var(--secondary);
-    max-width: 40rem;
 }
 
 /* .post-content a wins on specificity, so the button colour is set from a
