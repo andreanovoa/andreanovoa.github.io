@@ -805,3 +805,9 @@ body[data-topic] .page--narrow { max-width: 46rem; }
 /* cards sitting directly under the page lead need their own breathing room,
    since there is no heading above them any more */
 .scroller--lead { margin-top: 0.5rem; }
+
+/* topic chips close the summary page, centred under the citation. width:max-content
+   on .post-tags means auto margins centre the row while it fits and collapse to 0
+   once it overflows, so a long list still scrolls from its first chip. */
+.scroller--tags { margin-top: 2.25rem; }
+.scroller--tags .post-tags { margin-inline: auto; }
