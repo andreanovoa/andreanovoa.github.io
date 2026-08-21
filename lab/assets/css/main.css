@@ -394,7 +394,8 @@ body[data-topic] .page {
   gap: 1.25rem;
   overflow-x: auto;
   overflow-y: hidden;
-  scroll-snap-type: x proximity;
+  /* no scroll-snap: snapping made the strip feel like it caught on each card
+     instead of tracking the trackpad freely. */
   overscroll-behavior-x: contain;
   padding: 0.2rem 0 0.9rem;
   margin-bottom: 0.5rem;
@@ -407,7 +408,6 @@ body[data-topic] .page {
   width: 21rem;
   min-width: 21rem;
   flex: 0 0 21rem;
-  scroll-snap-align: start;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
