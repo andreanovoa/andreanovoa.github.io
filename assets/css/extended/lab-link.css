@@ -1,26 +1,25 @@
-/* Link to the lab site, sitting beside the profile's social icons. Deliberately
-   plain text rather than one of the round profileMode buttons. Colours track
-   .social-icons a so it reads as part of the same strip. The globe is inlined
-   because feather.replace() only runs on single pages, not the home page. */
-.profile-social .lab-link {
+/* Link to the lab site, sitting at the foot of the home profile card. Kept as
+   plain text rather than one of the round profileMode buttons. The globe is
+   inlined because feather.replace() only runs on single pages, not the home
+   page. Centring comes from the card's own flex column. */
+.lab-link {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
+    margin-top: 0.6rem;
     color: var(--secondary-hover);
     font-size: 0.85rem;
     font-weight: 500;
     white-space: nowrap;
-    padding: 8px 0;
-    margin-left: 0.4rem;
 }
 
-.profile-social .lab-link svg {
+.lab-link svg {
     width: 1.05rem;
     height: 1.05rem;
     flex-shrink: 0;
 }
 
-.profile-social .lab-link:hover {
+.lab-link:hover {
     color: var(--tertiary);
     text-decoration: none;
 }
