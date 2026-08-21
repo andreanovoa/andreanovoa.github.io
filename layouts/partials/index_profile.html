@@ -42,6 +42,9 @@
         
         <div class="profile-social" style="display: flex; align-items: center; gap: 0.1rem;">
           {{- partial "social_icons.html" -}}
+          {{- with site.Params.labSite }}
+          <a class="lab-link" href="{{ . }}" target="_blank" rel="noopener noreferrer">lab website&nbsp;&rarr;</a>
+          {{- end }}
         </div>
       </div> <!-- end row -->
 

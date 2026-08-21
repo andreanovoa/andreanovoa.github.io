@@ -31,6 +31,7 @@ menu:
           weight: 4
 
 params:
+    labSite: "https://sciml-da.github.io/"
     description: "This website hosts Andrea Nóvoa's research papers, course materials, data, curriculum vitae, and contact information."
     author: Andrea Nóvoa
     defaultTheme: dark
@@ -75,8 +76,6 @@ params:
               url: outreach/
             - name: Students
               url: students/
-            - name: Nóvoa Lab
-              url: https://sciml-da.github.io/
 
     socialIcons:
         - name: Cv

@@ -1,0 +1,16 @@
+/* Link to the lab site, sitting beside the profile's social icons. Deliberately
+   plain text rather than one of the round profileMode buttons. Colours track
+   .social-icons a so it reads as part of the same strip. */
+.profile-social .lab-link {
+    color: var(--secondary-hover);
+    font-size: 0.85rem;
+    font-weight: 500;
+    white-space: nowrap;
+    padding: 8px 0;
+    margin-left: 0.4rem;
+}
+
+.profile-social .lab-link:hover {
+    color: var(--tertiary);
+    text-decoration: none;
+}
