@@ -30,6 +30,7 @@ current:
     role: "UROP student"
     since: "2026"
     affiliation: "Aeronautics, Imperial College London"
+    photo: "img/people/lukas-campbell.jpg"
     project: "Autoencoder-based reduced-order modelling"
 
   - name: "Tarek Obegi"
