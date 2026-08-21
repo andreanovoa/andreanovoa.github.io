@@ -18,6 +18,7 @@ current:
     role: "PhD student"
     since: "2026"
     affiliation: "Aeronautics, Imperial College London"
+    photo: "img/people/ben-eze.jpg"
     project: "Interpretable scientific machine learning for real-time prediction of chaotic systems"
     funding: "President's PhD Scholarship"
     fundingUrl: "https://www.imperial.ac.uk/study/fees-and-funding/postgraduate-doctoral/grants-scholarships/presidents-phd/#how-to-apply"
@@ -41,6 +42,7 @@ current:
     role: "MSc student"
     since: "2026"
     affiliation: "MSc Advanced Aeronautical Engineering, Imperial College London"
+    photo: "img/people/konstantinos-barmpounis.jpg"
     project: "Real-time bias-aware data assimilation for turbulent wind farm wake estimation"
     cosupervisor: "Luca Magri"
 
@@ -48,6 +50,7 @@ current:
     role: "MSc student"
     since: "2026"
     affiliation: "MSc Advanced Aeronautical Engineering, Imperial College London"
+    photo: "img/people/salvatore-aloj.jpg"
     project: "Experimental investigation of time-resolved wake interactions in wind farms"
     cosupervisor: "George Rigas"
 
@@ -56,6 +59,7 @@ alumni:
     role: "MEng final-year project"
     years: "2025–26"
     affiliation: "Aeronautics, Imperial College London"
+    photo: "img/people/ben-eze.jpg"
     project: "Vision transformer masked autoencoders for restricted-domain flow reconstruction"
     cosupervisor: "Luca Magri"
     now: "PhD student in the group"

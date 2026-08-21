@@ -6,8 +6,6 @@ disableAnchoredHeadings: true
 hideAuthor: true    
 ---
 
-## Join the lab
-
 <div class="cta-box">
   <p>We are looking for PhD students, UROP and Erasmus+ students interested in data assimilation and scientific machine learning for fluids.</p>
   <a class="cta-button" href="https://sciml-da.github.io/join/" target="_blank" rel="noopener noreferrer">Openings and how to apply</a>
