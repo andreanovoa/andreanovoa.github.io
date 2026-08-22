@@ -52,7 +52,7 @@ current:
     since: "2026"
     affiliation: "MSc Advanced Aeronautical Engineering, Imperial College London"
     photo: "img/people/salvatore-aloj.jpg"
-    project: "Experimental investigation of time-resolved wake interactions in wind farms"
+    project: "Wake reconstruction from wind turbine load measurements using a nonlinear machine learning approach"
     cosupervisor: "George Rigas"
 
 alumni:
