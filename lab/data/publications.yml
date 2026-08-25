@@ -1,18 +1,20 @@
 # type: journal | proceedings | book | under-review
 - year: 2026
   type: under-review
-  title: "An interpretable reduced-order model for real-time estimation of near-wall turbulence"
+  title: "A wall-based, interpretable reduced-order model for real-time estimation of near-wall turbulence"
   bibtex: |-
     @article{perezcuadrado2026interpretable,
-      title = {An interpretable reduced-order model for real-time estimation of near-wall turbulence},
+      title = {A wall-based, interpretable reduced-order model for real-time estimation of near-wall turbulence},
       author = {Pérez Cuadrado, Miguel and Cavallazzi, Giorgio Maria and Nóvoa, Andrea and Pinelli, Alfredo},
       year = {2026},
       note = {Under review},
+      url = {https://www.researchsquare.com/article/rs-10550785/v1},
     }
   key: "perez-cuadrado-nearwall"
-  apa: "Pérez Cuadrado, M., Cavallazzi, G. M., Nóvoa, A., & Pinelli, A. (2026). <em>An interpretable reduced-order model for real-time estimation of near-wall turbulence</em> [Manuscript submitted for publication]."
+  apa: "Pérez Cuadrado, M., Cavallazzi, G. M., Nóvoa, A., & Pinelli, A. (2026). <em>A wall-based, interpretable reduced-order model for real-time estimation of near-wall turbulence</em> [Manuscript submitted for publication]."
   authors: "Pérez Cuadrado, Cavallazzi, Nóvoa and Pinelli"
   venue: "Under review"
+  arxiv: "https://www.researchsquare.com/article/rs-10550785/v1"
 
 - year: 2026
   type: under-review
