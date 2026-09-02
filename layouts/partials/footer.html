@@ -24,23 +24,35 @@
         <span aria-hidden="true">🔢</span>
         <span id="goatcounter-count"></span>
     </a>
-    <span id="goatcounter-raw" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;" aria-hidden="true"></span>
     <script data-goatcounter="https://{{ . }}.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
     <script>
-        var gcInit = setInterval(function () {
-            if (window.goatcounter && window.goatcounter.visit_count) {
-                clearInterval(gcInit)
-                window.goatcounter.visit_count({ append: '#goatcounter-raw' })
-                var gcRead = setInterval(function () {
-                    var raw = document.getElementById('goatcounter-raw')
-                    var match = raw && raw.textContent.match(/[\d,]+/)
-                    if (match) {
-                        clearInterval(gcRead)
-                        document.getElementById('goatcounter-count').textContent = match[0]
-                    }
-                }, 100)
+        /* GoatCounter's visit_count() widget draws into a cross-origin iframe,
+           so its number can be neither restyled nor read. Fetch the counter
+           endpoint directly and render just the digits. Site total first, the
+           current page as a fallback; if neither answers, the badge stays as
+           the icon alone. */
+        (function () {
+            var base = 'https://{{ . }}.goatcounter.com/counter/';
+            var el = document.getElementById('goatcounter-count');
+            function show(value) {
+                if (!el || value === undefined || value === null) return;
+                var digits = String(value).replace(/[^\d.,]/g, '');
+                if (digits) el.textContent = digits;
             }
-        }, 100)
+            function grab(url) {
+                return fetch(url).then(function (r) {
+                    if (!r.ok) throw new Error(r.status);
+                    return r.json();
+                });
+            }
+            grab(base + 'TOTAL.json')
+                .then(function (d) { show(d.count); })
+                .catch(function () {
+                    grab(base + encodeURIComponent(location.pathname) + '.json')
+                        .then(function (d) { show(d.count); })
+                        .catch(function () { /* counter unavailable: icon only */ });
+                });
+        })();
     </script>
     {{- end }}
 </footer>
