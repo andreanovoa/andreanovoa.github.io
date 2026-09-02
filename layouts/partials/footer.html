@@ -22,25 +22,26 @@
     {{- with site.Params.goatCounterCode }}
     <span class="muted goatcounter-badge" style="display:inline-flex;align-items:center;gap:0.3em;font-size:inherit;line-height:inherit;">
         <span aria-hidden="true">🔢</span>
-        <span id="goatcounter-visits"></span>
+        <span id="goatcounter-count"></span>
     </span>
+    <span id="goatcounter-raw" style="display:none" aria-hidden="true"></span>
     <script data-goatcounter="https://{{ . }}.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
     <script>
-        var goatcounterPoll = setInterval(function () {
+        var gcInit = setInterval(function () {
             if (window.goatcounter && window.goatcounter.visit_count) {
-                clearInterval(goatcounterPoll)
-                window.goatcounter.visit_count({ append: '#goatcounter-visits' })
+                clearInterval(gcInit)
+                window.goatcounter.visit_count({ append: '#goatcounter-raw' })
+                var gcRead = setInterval(function () {
+                    var raw = document.getElementById('goatcounter-raw')
+                    var match = raw && raw.textContent.match(/[\d,]+/)
+                    if (match) {
+                        clearInterval(gcRead)
+                        document.getElementById('goatcounter-count').textContent = match[0]
+                    }
+                }, 100)
             }
         }, 100)
     </script>
-    <style>
-        #goatcounter-visits img,
-        #goatcounter-visits svg { display: none !important; }
-        #goatcounter-visits, #goatcounter-visits * {
-            font-size: inherit !important;
-            line-height: inherit !important;
-        }
-    </style>
     {{- end }}
 </footer>
 {{- end }}
