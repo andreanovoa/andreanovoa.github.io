@@ -21,9 +21,7 @@
 
     {{- with site.Params.goatCounterCode }}
     <span class="muted goatcounter-badge">
-        <a href="https://{{ . }}.goatcounter.com/" rel="noopener noreferrer" target="_blank" title="Site visit stats">
-            <img src="https://{{ . }}.goatcounter.com/counter/TOTAL.svg" alt="site visits" loading="lazy" style="vertical-align:middle;height:1em;">
-        </a>
+        <a href="https://{{ . }}.goatcounter.com/" rel="noopener noreferrer" target="_blank" title="Site visit stats">🔢</a>
     </span>
     <script data-goatcounter="https://{{ . }}.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
     {{- end }}
