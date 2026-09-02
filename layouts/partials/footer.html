@@ -20,11 +20,11 @@
     </span> -->
 
     {{- with site.Params.goatCounterCode }}
-    <span class="muted goatcounter-badge" style="display:inline-flex;align-items:center;gap:0.3em;font-size:inherit;line-height:inherit;">
+    <a class="muted goatcounter-badge" href="https://{{ . }}.goatcounter.com/" rel="noopener noreferrer" target="_blank" title="Site visit stats" style="display:inline-flex;align-items:center;gap:0.3em;font-size:inherit;line-height:inherit;text-decoration:none;color:inherit;">
         <span aria-hidden="true">🔢</span>
         <span id="goatcounter-count"></span>
-    </span>
-    <span id="goatcounter-raw" style="display:none" aria-hidden="true"></span>
+    </a>
+    <span id="goatcounter-raw" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;" aria-hidden="true"></span>
     <script data-goatcounter="https://{{ . }}.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
     <script>
         var gcInit = setInterval(function () {
