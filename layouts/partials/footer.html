@@ -20,10 +20,16 @@
     </span> -->
 
     {{- with site.Params.goatCounterCode }}
-    <span class="muted goatcounter-badge">
-        <a href="https://{{ . }}.goatcounter.com/" rel="noopener noreferrer" target="_blank" title="Site visit stats">🔢</a>
-    </span>
+    <span class="muted goatcounter-badge" id="goatcounter-visits"></span>
     <script data-goatcounter="https://{{ . }}.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+    <script>
+        var goatcounterPoll = setInterval(function () {
+            if (window.goatcounter && window.goatcounter.visit_count) {
+                clearInterval(goatcounterPoll)
+                window.goatcounter.visit_count({ append: '#goatcounter-visits' })
+            }
+        }, 100)
+    </script>
     {{- end }}
 </footer>
 {{- end }}
