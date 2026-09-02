@@ -67,8 +67,6 @@ params:
           imageHeight: 200
           icon: "favicon-32x32.png"
           buttons:
-            - name: CV
-              url: cv/
             - name: Publications
               url: papers/
             - name: Talks
