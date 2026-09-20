@@ -33,13 +33,13 @@
     grid-column: 1 / -1;
 }
 
-/* Every figure is a Matplotlib plot or a schematic on white, with aspect
-   ratios from 1.5:1 to 6.6:1. A fixed white band with object-fit:contain
-   shows each one whole and keeps the cards aligned. */
+/* The figures are Matplotlib panels, an animation and two schematics, all on
+   white, with aspect ratios from 1.6:1 to 3.4:1. A fixed white band with
+   object-fit:contain shows each one whole and keeps the cards aligned. */
 .project-figure {
     display: block;
     width: 100%;
-    height: 150px;
+    height: 180px;
     padding: 0.5rem;
     object-fit: contain;
     background: #fff;

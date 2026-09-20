@@ -13,7 +13,7 @@ leaving this page, or follow the link to the full documentation.
 <div class="projects-grid">
 
 <div class="project">
-  <img class="project-figure" src="dynamodels.png" alt="Time evolution of the Lorenz 63 observables, with a zoomed window alongside" loading="lazy">
+  <img class="project-figure" src="dynamodels.svg" alt="The Model class, containing a HistoryTracker, an Integrator and an observation operator" loading="lazy">
   <div class="project-body">
     <h2 class="project-name">dynamodels</h2>
     <p class="project-desc">Dynamical-system models behind one interface. A <code>Model</code> couples a governing equation to a pre-allocated state history and a pluggable time integrator: three low-order oscillators, two spatially extended PDEs, and the Lorenz systems.</p>
@@ -29,7 +29,7 @@ leaving this page, or follow the link to the full documentation.
 </div>
 
 <div class="project">
-  <img class="project-figure" src="ntsa.png" alt="Eight diagnostic panels for a chaotic Lorenz 63 record: time series, power spectrum, delay portrait, return map, Poincare section, recurrence plot, MDS embedding and Lyapunov exponent" loading="lazy">
+  <img class="project-figure" src="ntsa.png" alt="Eight diagnostic panels for a chaotic Lorenz 63 record, in two rows: time series, power spectrum, delay portrait, return map, Poincare section, recurrence plot, MDS embedding and Lyapunov exponent" loading="lazy">
   <div class="project-body">
     <h2 class="project-name">ntsa</h2>
     <p class="project-desc">Nonlinear time-series analysis of a dynamical system from a single long trajectory: delay embedding, Lyapunov exponents, and classification of the dynamical regime. The same pipeline runs from measured data alone, with no model equations.</p>
@@ -45,7 +45,7 @@ leaving this page, or follow the link to the full documentation.
 </div>
 
 <div class="project">
-  <img class="project-figure" src="romda.png" alt="Schematic of the fidelity pyramid of physical models, with real-time bias-aware data assimilation joining experimental data and machine learning" loading="lazy">
+  <img class="project-figure" src="romda.gif" alt="Animation of bias-aware data assimilation: biased and unbiased forecasts and analyses converging on the truth as observations arrive" loading="lazy">
   <div class="project-body">
     <h2 class="project-name">romda</h2>
     <p class="project-desc">Real-time reduced-order modelling and bias-aware data assimilation: ensemble Kalman filters including the regularized bias-aware EnKF, physical and data-driven forecast models, bias estimators, and POD and SPOD decompositions.</p>
