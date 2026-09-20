@@ -1,0 +1,76 @@
+/* Projects page: one card per package, each with the package's own docs
+   tutorial embedded. The embed sits inside a <details> so the iframe is not
+   fetched until the reader opens it — loading="lazy" keeps a closed panel off
+   the network. No JavaScript is needed for any of this. */
+.project {
+    margin: 0 0 1.5rem;
+    padding: 1.25rem 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--entry);
+}
+
+.project-name {
+    margin: 0 0 0.35rem;
+    font-family: var(--font-mono, monospace);
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.project-desc {
+    margin: 0 0 0.9rem;
+    color: var(--secondary);
+}
+
+.project-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0 0 0.9rem;
+    padding: 0;
+    list-style: none;
+}
+
+/* .post-content a is specific enough to override a plain .project-links a. */
+.post-content .project-links a {
+    display: inline-block;
+    padding: 0.3rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--secondary);
+    font-size: 0.82rem;
+}
+
+.post-content .project-links a:hover {
+    color: var(--primary);
+    border-color: var(--secondary);
+    text-decoration: none;
+}
+
+.project-demo {
+    border-top: 1px solid var(--border);
+    padding-top: 0.8rem;
+}
+
+.project-demo + .project-demo {
+    margin-top: 0.5rem;
+}
+
+.project-demo > summary {
+    cursor: pointer;
+    color: var(--primary);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.project-embed {
+    width: 100%;
+    /* Tall enough for a tutorial page to be readable without the outer page
+       scrolling away underneath it. */
+    height: 70vh;
+    min-height: 460px;
+    margin-top: 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--theme);
+}
