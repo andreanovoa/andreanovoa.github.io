@@ -199,6 +199,14 @@ main.wrap { padding-top: 2.5rem; padding-bottom: 4rem; }
 /* Title-only cards need far less width: 11rem fits all five across the
    62rem wrap (5 x 11rem + 4 x 1rem gap = 59rem). */
 .cards--compact .card { flex-basis: 11rem; max-width: 11rem; }
+
+/* Below the point where two 11rem cards plus the gap and the page's side
+   padding stop fitting side by side, drop to a 2-up percentage basis so the
+   "What we work on" grid never collapses to one column per row. */
+@media (max-width: 34rem) {
+  .cards--compact .card { flex-basis: calc(50% - 0.5rem); max-width: calc(50% - 0.5rem); }
+}
+
 .card {
   /* Fixed width: no grow, no shrink, so every card is the same size whatever
      the row holds. 19rem fits three across the 62rem wrap. */
