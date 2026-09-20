@@ -22,9 +22,23 @@ repos:
     license: "MIT"
     description: "Nonlinear time-series analysis of dynamical systems from a single long trajectory: Lyapunov exponents, delay-embedding analysis, and classification of the dynamical regime (fixed point, limit cycle, quasiperiodicity, chaos), with diagnostic figures for each case. Works with any model following the dynamodels protocol."
 
+  - name: "romda"
+    org: andreanovoa
+    url: "https://github.com/andreanovoa/real-time-bias-aware-DA"
+    docs: "https://andreanovoa.github.io/real-time-bias-aware-DA/"
+    license: "MIT"
+    description: "Real-time reduced-order modelling and bias-aware data assimilation: ensemble Kalman filters including the regularized bias-aware EnKF, physical and data-driven forecast models (ESN, POD-ESN), bias estimators, and POD/SPOD decompositions, with tutorials building up to full real-data digital twins."
+
+  - name: "qlroms"
+    org: andreanovoa
+    url: "https://andreanovoa.github.io/qlroms/"
+    docs: "https://andreanovoa.github.io/qlroms/"
+    description: "Quantized-local reduced-order models: the state space is partitioned into charts by k-means, each chart gets its own local POD basis, and an exact shared atlas stitches them into one global coordinate system, with the local dynamics advanced by an intrusive Galerkin projection. Includes a live KS-1D demo."
+
   - name: "dynamodels"
     org: andreanovoa
     url: "https://github.com/andreanovoa/dynamodels"
+    docs: "https://andreanovoa.github.io/dynamodels/"
     doi: "10.5281/zenodo.21843588"
     version: "v0.1.0"
     date: "2026"

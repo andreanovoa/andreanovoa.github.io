@@ -29,6 +29,9 @@ menu:
         - name: Students
           url: students/
           weight: 4
+        - name: Projects
+          url: projects/
+          weight: 5
 
 params:
     labSite: "https://sciml-da.github.io/"
@@ -75,6 +78,8 @@ params:
               url: outreach/
             - name: Students
               url: students/
+            - name: Projects
+              url: projects/
 
     socialIcons:
         - name: Cv
