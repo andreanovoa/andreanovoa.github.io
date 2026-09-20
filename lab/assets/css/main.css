@@ -849,3 +849,20 @@ body[data-topic] .page--narrow { max-width: 46rem; }
    once it overflows, so a long list still scrolls from its first chip. */
 .scroller--tags { margin-top: 2.25rem; }
 .scroller--tags .post-tags { margin-inline: auto; }
+
+/* Figures drawn on a white canvas punch a bright hole in the dark theme.
+   .invert-dark flips their lightness there; hue-rotate undoes the hue flip that
+   invert introduces, so colour maps keep roughly the hues they were drawn with.
+   Opt in per figure — it is wrong for photographs and for anything whose
+   absolute colours carry meaning.
+   Same pattern as the palette above: the media query covers readers who have
+   not chosen a theme, the :root.dark rule covers the header toggle. */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) .invert-dark {
+    filter: invert(1) hue-rotate(180deg);
+  }
+}
+
+:root.dark .invert-dark {
+  filter: invert(1) hue-rotate(180deg);
+}
