@@ -16,22 +16,24 @@
 \definecolor{edge}{HTML}{C3CFE0}
 
 \begin{document}
+% The inner boxes are sized to fill most of the Model panel: wide, tall, with
+% tight gutters and a small inset, so the figure reads at card size.
 \begin{tikzpicture}[
-  box/.style={draw=edge, line width=0.8pt, rounded corners=2.5pt, fill=white,
-              text width=30mm, align=center, inner sep=2mm, minimum height=9mm,
-              text=ink, font=\bfseries}
+  box/.style={draw=edge, line width=0.9pt, rounded corners=3pt, fill=white,
+              text width=35mm, align=center, inner sep=2mm, minimum height=17mm,
+              text=ink, font=\bfseries\large}
 ]
 
 \node[box] (hist) {HistoryTracker};
-\node[box, right=3mm of hist] (int) {Integrator};
-\node[box, right=3mm of int] (obs) {Observations};
+\node[box, right=2.2mm of hist] (int) {Integrator};
+\node[box, right=2.2mm of int] (obs) {Observations};
 
-\node[anchor=west, text=ink, font=\bfseries\Large] (mtitle)
-  at ([yshift=8mm]hist.north west) {Model};
+\node[anchor=west, text=ink, font=\bfseries\LARGE] (mtitle)
+  at ([yshift=7.5mm]hist.north west) {Model};
 
 \begin{scope}[on background layer]
-  \node[fit=(mtitle)(hist)(int)(obs), draw=accent, line width=1.2pt,
-        rounded corners=4pt, fill=panel, inner sep=2.6mm] {};
+  \node[fit=(mtitle)(hist)(int)(obs), draw=accent, line width=1.4pt,
+        rounded corners=4pt, fill=panel, inner sep=2mm] {};
 \end{scope}
 
 \end{tikzpicture}
