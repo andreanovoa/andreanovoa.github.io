@@ -1,0 +1,38 @@
+% Compact version of the dynamodels Model schematic, for the Projects card on
+% andreanovoa.github.io. The detailed version lives in the dynamodels repo at
+% docs/img/model_structure.tex. Background is left transparent so the card's
+% dark-theme inversion blends it into the card.
+% Build: pdflatex compact.tex && pdftocairo -svg compact.pdf compact.svg
+\documentclass[border=2pt]{standalone}
+\usepackage{tikz}
+\usepackage[T1]{fontenc}
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+\usetikzlibrary{positioning,fit,backgrounds}
+
+\definecolor{accent}{HTML}{3B6FD4}
+\definecolor{ink}{HTML}{16233C}
+\definecolor{panel}{HTML}{F2F6FC}
+\definecolor{edge}{HTML}{C3CFE0}
+
+\begin{document}
+\begin{tikzpicture}[
+  box/.style={draw=edge, line width=0.8pt, rounded corners=2.5pt, fill=white,
+              text width=30mm, align=center, inner sep=2mm, minimum height=9mm,
+              text=ink, font=\bfseries}
+]
+
+\node[box] (hist) {HistoryTracker};
+\node[box, right=3mm of hist] (int) {Integrator};
+\node[box, right=3mm of int] (obs) {Observations};
+
+\node[anchor=west, text=ink, font=\bfseries\Large] (mtitle)
+  at ([yshift=8mm]hist.north west) {Model};
+
+\begin{scope}[on background layer]
+  \node[fit=(mtitle)(hist)(int)(obs), draw=accent, line width=1.2pt,
+        rounded corners=4pt, fill=panel, inner sep=2.6mm] {};
+\end{scope}
+
+\end{tikzpicture}
+\end{document}
