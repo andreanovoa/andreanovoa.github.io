@@ -225,17 +225,19 @@ main.wrap { padding-top: 2.5rem; padding-bottom: 4rem; }
 /* Position fallback. Cards always render in weight order, so nth-child agrees
    with the data-topic values below; wrapped in :where() to carry zero
    specificity, so the attribute rules win whenever the attribute is present. */
-:where(.cards .card:nth-child(5n + 1)) { --card-h: calc(var(--accent-h) - 60); }
-:where(.cards .card:nth-child(5n + 2)) { --card-h: calc(var(--accent-h) - 25); }
-:where(.cards .card:nth-child(5n + 3)) { --card-h: calc(var(--accent-h) + 10); }
-:where(.cards .card:nth-child(5n + 4)) { --card-h: calc(var(--accent-h) + 45); }
-:where(.cards .card:nth-child(5n + 5)) { --card-h: calc(var(--accent-h) + 80); }
+:where(.cards .card:nth-child(6n + 1)) { --card-h: calc(var(--accent-h) - 60); }
+:where(.cards .card:nth-child(6n + 2)) { --card-h: calc(var(--accent-h) - 25); }
+:where(.cards .card:nth-child(6n + 3)) { --card-h: calc(var(--accent-h) + 10); }
+:where(.cards .card:nth-child(6n + 4)) { --card-h: calc(var(--accent-h) + 45); }
+:where(.cards .card:nth-child(6n + 5)) { --card-h: calc(var(--accent-h) + 80); }
+:where(.cards .card:nth-child(6n + 6)) { --card-h: calc(var(--accent-h) + 115); }
 
 [data-topic="1"] { --card-h: calc(var(--accent-h) - 60); }
 [data-topic="2"] { --card-h: calc(var(--accent-h) - 25); }
 [data-topic="3"] { --card-h: calc(var(--accent-h) + 10); }
 [data-topic="4"] { --card-h: calc(var(--accent-h) + 45); }
 [data-topic="5"] { --card-h: calc(var(--accent-h) + 80); }
+[data-topic="6"] { --card-h: calc(var(--accent-h) + 115); }
 
 /* Inside a theme, tint the text panel in that theme's colour. The page around
    it stays --bg; only the article carries the wash. */
@@ -847,7 +849,16 @@ body[data-topic] .page--narrow { max-width: 46rem; }
 /* topic chips close the summary page, centred under the citation. width:max-content
    on .post-tags means auto margins centre the row while it fits and collapse to 0
    once it overflows, so a long list still scrolls from its first chip. */
-.scroller--tags { margin-top: 2.25rem; }
+/* .page .scroller above is two classes deep, so it beats a bare .scroller--tags
+   and flattened this gap to zero. Matched here at the same specificity, and
+   later in the file, so the chips sit clear of the citation. The rule mirrors
+   .citations, which makes the chips read as the page's closing block rather
+   than as a tail of the reference. */
+.page .scroller--tags {
+    margin-top: 2.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+}
 .scroller--tags .post-tags { margin-inline: auto; }
 
 /* Figures drawn on a white canvas punch a bright hole in the dark theme.
