@@ -36,7 +36,7 @@ window.POCHA_I18N = {
     undoRound: 'Deshacer ronda anterior',
     bidsMissing: 'Faltan apuestas por anotar',
     bidsSum: function (sum, cards) { return 'Apuestas: ' + sum + ' de ' + cards; },
-    bidsTie: function (cards) { return 'Las apuestas suman ' + cards + ', igual que las cartas de la mano. El repartidor tiene que cambiar su apuesta.'; },
+    bidsTie: function (cards) { return 'Las apuestas suman ' + cards + ', igual que las cartas de la mano. El repartidor tiene que cambiar su apuesta: la ronda no se puede guardar así.'; },
     tricksSum: function (sum, cards) { return 'bazas: ' + sum + ' de ' + cards; },
     tricksCheck: function (sum, cards) { return 'Revisa las bazas anotadas: suman ' + sum + ' y la mano tiene ' + cards + ' ' + (cards === 1 ? 'carta' : 'cartas') + '.'; },
 
@@ -74,7 +74,7 @@ window.POCHA_I18N = {
       { h2: 'Cómo se juega' },
       { p: 'La pocha se juega con la baraja española de 40 cartas, del 1 al 7 más sota, caballo y rey. En cada ronda se reparte el mismo número de cartas a cada jugador, cada uno apuesta cuántas bazas cree que va a ganar y después se juega la mano. El número máximo de cartas por mano es 40 dividido entre el número de jugadores, redondeado hacia abajo.' },
       { p: 'Las rondas suben de una carta hasta el máximo, se repite la mano larga tantas veces como jugadores menos uno, y después bajan de nuevo hasta una carta. La opción <em>repetir rondas largas</em> multiplica esas manos largas por el número de jugadores, de forma que cada jugador reparte una mano larga en cada vuelta.' },
-      { p: 'Quien reparte apuesta el último, y el total de las apuestas no puede coincidir con el número de cartas de la mano, así que al menos un jugador falla. Al anotar la última apuesta, el marcador avisa en rojo si la suma coincide. Con las bazas, avisa en ámbar si no suman las cartas de la mano, para que se revisen antes de guardar la ronda.' },
+      { p: 'Quien reparte apuesta el último, y el total de las apuestas no puede coincidir con el número de cartas de la mano, así que al menos un jugador falla. Al anotar la última apuesta, el marcador avisa en rojo si la suma coincide y no deja guardar la ronda, porque esa mano no puede darse. Con las bazas, avisa en ámbar si no suman las cartas de la mano, para que se revisen antes de guardar la ronda.' },
 
       { h2: 'Asistir, subir, fallar y ahorrar' },
       { p: 'Hay que asistir y subir. Si quien sale echa oros, tienes que echar un oro más grande; si no tienes ninguno más grande, echas un oro más pequeño; y si no tienes oros, echas triunfo, que es fallar la baza.' },
@@ -142,7 +142,7 @@ window.POCHA_I18N = {
     undoRound: 'Undo the previous round',
     bidsMissing: 'Some bids are still missing',
     bidsSum: function (sum, cards) { return 'Bids: ' + sum + ' of ' + cards; },
-    bidsTie: function (cards) { return 'The bids add up to ' + cards + ', the same as the cards in the hand. The dealer has to change their bid.'; },
+    bidsTie: function (cards) { return 'The bids add up to ' + cards + ', the same as the cards in the hand. The dealer has to change their bid: the round cannot be saved like this.'; },
     tricksSum: function (sum, cards) { return 'tricks: ' + sum + ' of ' + cards; },
     tricksCheck: function (sum, cards) { return 'Check the tricks entered: they add up to ' + sum + ' and the hand has ' + cards + ' ' + (cards === 1 ? 'card' : 'cards') + '.'; },
 
@@ -180,7 +180,7 @@ window.POCHA_I18N = {
       { h2: 'How the game works' },
       { p: 'Pocha is played with the Spanish deck of 40 cards, from 1 to 7 plus the knave, the knight and the king. Each round deals the same number of cards to every player, each player bids how many tricks they expect to win, and the hand is then played. The largest hand is 40 divided by the number of players, rounded down.' },
       { p: 'The rounds climb from one card up to that maximum, the long hand is repeated as many times as there are players minus one, and the rounds then come back down to one card. The option <em>repeat the long rounds</em> multiplies those long hands by the number of players, so that every player deals a long hand in each lap.' },
-      { p: 'The dealer bids last, and the bids cannot add up to the number of cards dealt, so at least one player fails. When the last bid is entered, the scoreboard flags in red that the bids add up to the hand. For the tricks, it flags in amber that they do not add up to the cards dealt, so that they are checked before the round is saved.' },
+      { p: 'The dealer bids last, and the bids cannot add up to the number of cards dealt, so at least one player fails. When the last bid is entered, the scoreboard flags in red that the bids add up to the hand and refuses to save the round, because that hand cannot happen. For the tricks, it flags in amber that they do not add up to the cards dealt, so that they are checked before the round is saved.' },
 
       { h2: 'Following suit, overtaking, trumping and saving' },
       { p: 'You have to follow suit and overtake. If the player who leads plays oros (coins), you have to play a higher oro; if you hold none that is higher, you play a lower oro; and if you hold no oros at all, you play a trump, which is called to trump the trick.' },

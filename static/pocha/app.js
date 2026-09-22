@@ -527,7 +527,9 @@
       alert.style.display = bidsTie || tricksOff ? 'block' : 'none';
 
       tally.className = 'tally' + (bidsDone && wonDone && !bidsTie && !tricksOff ? ' ok' : '');
-      confirmBtn.disabled = !(bidsDone && wonDone);
+      // una ronda con las apuestas casadas no existe, así que no se guarda
+      // a round whose bids match the hand cannot exist, so it is not saved
+      confirmBtn.disabled = !(bidsDone && wonDone) || bidsTie;
     }
 
     box.addEventListener('input', refresh);
