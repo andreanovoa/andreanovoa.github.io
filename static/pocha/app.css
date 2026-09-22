@@ -186,3 +186,25 @@
   background: var(--code-bg); border: 1px solid var(--border);
 }
 .pocha .seat-order .seat-arrow { color: var(--tertiary); }
+
+/* Dealer draw */
+.pocha .dealer-pick { display: flex; align-items: stretch; gap: 0.35rem; }
+.pocha .dealer-pick select { flex: 1 1 auto; }
+.pocha button.dice {
+  padding: 0.35rem 0.6rem;
+  font-size: 1.05rem;
+  line-height: 1;
+  border-radius: 8px;
+}
+.pocha button.dice.rolling { animation: pocha-roll 0.45s linear infinite; }
+.pocha .field.drawn select {
+  border-color: var(--tertiary);
+  box-shadow: 0 0 0 2px var(--tertiary);
+}
+@keyframes pocha-roll {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pocha button.dice.rolling { animation: none; }
+}

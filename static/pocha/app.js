@@ -129,8 +129,15 @@
 
     var dealerField = el('div', 'field');
     dealerField.appendChild(el('label', null, 'Reparte primero'));
+    var dealerPick = el('div', 'dealer-pick');
     var dealerSelect = el('select');
-    dealerField.appendChild(dealerSelect);
+    dealerPick.appendChild(dealerSelect);
+    var diceBtn = el('button', 'dice', '\uD83C\uDFB2');
+    diceBtn.type = 'button';
+    diceBtn.title = 'Sortear quién reparte';
+    diceBtn.setAttribute('aria-label', 'Sortear quién reparte');
+    dealerPick.appendChild(diceBtn);
+    dealerField.appendChild(dealerPick);
     topRow.appendChild(dealerField);
 
     var switchLabel = el('label', 'switch');
@@ -144,7 +151,7 @@
     card.appendChild(topRow);
 
     var seatHint = el('p', 'hint seat-hint',
-      'Escribe los nombres en el orden de la mesa, empezando por quien quieras y siguiendo hacia la derecha, en el sentido contrario a las agujas del reloj. Las rondas se anotan en ese mismo orden.');
+      'Escribe los nombres en el orden de la mesa, empezando por quien quieras y siguiendo hacia la derecha, en el sentido contrario a las agujas del reloj. Las rondas se anotan en ese mismo orden. El dado sortea quién reparte la primera mano.');
     seatHint.style.marginTop = '1rem';
     card.appendChild(seatHint);
 
@@ -260,6 +267,41 @@
       }
       syncDealer();
     }
+
+    function randomIndex(n) {
+      var crypto = window.crypto || window.msCrypto;
+      if (crypto && crypto.getRandomValues) {
+        var limit = Math.floor(4294967296 / n) * n;
+        var buf = new Uint32Array(1);
+        do { crypto.getRandomValues(buf); } while (buf[0] >= limit);
+        return buf[0] % n;
+      }
+      return Math.floor(Math.random() * n);
+    }
+
+    function drawDealer() {
+      var n = currentNames().length;
+      var winner = randomIndex(n);
+      var rolls = n * 2 + winner;
+      var step = 0;
+      diceBtn.disabled = true;
+      diceBtn.classList.add('rolling');
+      (function tick() {
+        dealerSelect.value = String(step % n);
+        step += 1;
+        if (step <= rolls) {
+          window.setTimeout(tick, 60 + 12 * step);
+        } else {
+          dealerSelect.value = String(winner);
+          diceBtn.disabled = false;
+          diceBtn.classList.remove('rolling');
+          dealerField.classList.add('drawn');
+          window.setTimeout(function () { dealerField.classList.remove('drawn'); }, 900);
+        }
+      })();
+    }
+
+    diceBtn.addEventListener('click', drawDealer);
 
     countInput.addEventListener('change', syncSlots);
     repeatInput.addEventListener('change', syncPreview);
