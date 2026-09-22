@@ -275,3 +275,19 @@
   .pocha .docs h2 { font-size: 1.15rem; }
   .pocha pre.docs-code { font-size: 0.72rem; }
 }
+
+/* Subpage switch */
+.pocha .top-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.7rem;
+}
+.pocha .top-bar .lang-bar { margin-bottom: 0; }
+.pocha .tabs { display: flex; gap: 0.2rem; }
+.pocha a.tab {
+  padding: 0.35rem 0.9rem; border-radius: 999px;
+  font-size: 0.9rem; font-weight: 600; text-decoration: none;
+  color: var(--secondary); border: 1px solid transparent;
+}
+.pocha a.tab:hover { color: var(--primary); border-color: var(--border); }
+.pocha a.tab.on { color: var(--primary); border-color: var(--border); background: var(--code-bg); }
+.pocha .docs > h2:first-child { margin-top: 0.5rem; }

@@ -54,11 +54,40 @@
     return value.apply(null, Array.prototype.slice.call(arguments, 1));
   }
 
+  var HASH = '#reglas';
+  var view = window.location.hash === HASH ? 'docs' : 'game';
+
+  function setView(next) {
+    if (next === view) return;
+    rememberSetup();
+    view = next;
+    if (window.history && window.history.replaceState) {
+      window.history.pushState(null, '', next === 'docs' ? HASH : window.location.pathname);
+    } else {
+      window.location.hash = next === 'docs' ? HASH : '';
+    }
+    render();
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }
+
+  window.addEventListener('hashchange', function () {
+    var next = window.location.hash === HASH ? 'docs' : 'game';
+    if (next === view) return;
+    rememberSetup();
+    view = next;
+    render();
+  });
+
   var captureSetup = null; // devuelto por la pantalla de configuración / set by the setup screen
+
+  // guarda lo escrito antes de rehacer la página / keeps what is typed before the page is rebuilt
+  function rememberSetup() {
+    if (captureSetup) save(LS.lineup, captureSetup());
+  }
 
   function setLang(next) {
     if (next === lang) return;
-    if (captureSetup) save(LS.lineup, captureSetup());
+    rememberSetup();
     lang = next;
     save(LS.lang, lang);
     document.documentElement.lang = lang;
@@ -148,8 +177,6 @@
   /* ---------- pantalla de configuración ---------- */
 
   function renderSetup() {
-    clear(root);
-    root.appendChild(langBar());
     var lineup = load(LS.lineup, { players: ['', '', '', ''], firstDealer: 0, repeatMiddle: false });
     var names = (lineup.players || []).slice();
     while (names.length < 3) names.push('');
@@ -247,14 +274,13 @@
     forgetBtn.addEventListener('click', function () {
       if (window.confirm(t('confirmForget'))) {
         drop(LS.roster);
-        renderSetup();
+        render();
       }
     });
     actions.appendChild(forgetBtn);
     card.appendChild(actions);
 
     root.appendChild(card);
-    root.appendChild(docsSection());
 
     captureSetup = function () {
       return {
@@ -402,16 +428,14 @@
       };
       draft = newDraft();
       persist();
-      renderGame();
+      render();
     });
   }
 
   /* ---------- pantalla de partida ---------- */
 
   function renderGame() {
-    clear(root);
     captureSetup = null;
-    root.appendChild(langBar());
     var roundIdx = game.results.length;
     var finished = roundIdx >= game.rounds.length;
     if (!draft) draft = newDraft();
@@ -422,7 +446,6 @@
     root.appendChild(standingsCard());
     root.appendChild(historyCard());
     root.appendChild(exportCard(finished));
-    root.appendChild(docsSection());
   }
 
   function roundCard(roundIdx) {
@@ -472,7 +495,7 @@
         var last = game.results.pop();
         persist();
         draft = { bids: last.bids.slice(), won: last.won.slice() };
-        renderGame();
+        render();
       });
       actions.appendChild(undoBtn);
     }
@@ -527,7 +550,7 @@
       });
       draft = newDraft();
       persist();
-      renderGame();
+      render();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
@@ -740,7 +763,7 @@
       drop(LS.game);
       game = null;
       draft = null;
-      renderSetup();
+      render();
     });
     actions.appendChild(newBtn);
 
@@ -789,6 +812,26 @@
   }
 
   /* ---------- barra de idioma / language bar ---------- */
+
+  function topBar() {
+    var bar = el('div', 'top-bar');
+
+    var tabs = el('nav', 'tabs');
+    [['game', 'tabGame', ''], ['docs', 'tabRules', HASH]].forEach(function (entry) {
+      var tab = el('a', 'tab' + (entry[0] === view ? ' on' : ''), t(entry[1]));
+      tab.href = entry[2] || window.location.pathname;
+      if (entry[0] === view) tab.setAttribute('aria-current', 'page');
+      tab.addEventListener('click', function (event) {
+        event.preventDefault();
+        setView(entry[0]);
+      });
+      tabs.appendChild(tab);
+    });
+    bar.appendChild(tabs);
+
+    bar.appendChild(langBar());
+    return bar;
+  }
 
   function langBar() {
     var bar = el('div', 'lang-bar');
@@ -860,6 +903,13 @@
 
   function render() {
     document.documentElement.lang = lang;
+    clear(root);
+    root.appendChild(topBar());
+    if (view === 'docs') {
+      captureSetup = null;
+      root.appendChild(docsSection());
+      return;
+    }
     if (game && game.players && game.rounds) renderGame();
     else renderSetup();
   }

@@ -3,6 +3,8 @@ window.POCHA_I18N = {
   es: {
     label: 'Español',
     switchTo: 'Ver la página en inglés',
+    tabGame: 'Partida',
+    tabRules: 'Instrucciones',
 
     /* configuración */
     newGame: 'Nueva partida',
@@ -75,7 +77,7 @@ window.POCHA_I18N = {
       { p: 'Las rondas suben de una carta hasta el máximo, se repite la mano larga tantas veces como jugadores menos uno, y después bajan de nuevo hasta una carta. La opción <em>repetir rondas largas</em> multiplica esas manos largas por el número de jugadores, de forma que cada jugador reparte una mano larga en cada vuelta.' },
       { p: 'Quien reparte apuesta el último y no puede casar la suma: el total de las apuestas no puede coincidir con el número de cartas de la mano, así que al menos un jugador falla. El marcador avisa cuando la suma cuadra, y no deja cerrar la ronda hasta que las bazas anotadas suman exactamente el número de cartas repartidas.' },
 
-      { h2: 'Asistir, subir y fallar' },
+      { h2: 'Asistir, subir, fallar y ahorrar' },
       { p: 'Hay que asistir y subir. Si quien sale echa oros, tienes que echar un oro más grande; si no tienes ninguno más grande, echas un oro más pequeño; y si no tienes oros, echas triunfo, que es fallar la baza.' },
       { p: 'Si la ronda ya va fallada, un jugador que no tiene el palo de salida y tiene triunfo, pero no puede superar al triunfo que está en la mesa, puede ahorrar, es decir, descartarse de otro palo en lugar de gastar el triunfo.' },
 
@@ -108,6 +110,8 @@ window.POCHA_I18N = {
   en: {
     label: 'English',
     switchTo: 'Read the page in Spanish',
+    tabGame: 'Game',
+    tabRules: 'Instructions',
 
     /* setup */
     newGame: 'New game',
@@ -180,9 +184,9 @@ window.POCHA_I18N = {
       { p: 'The rounds climb from one card up to that maximum, the long hand is repeated as many times as there are players minus one, and the rounds then come back down to one card. The option <em>repeat the long rounds</em> multiplies those long hands by the number of players, so that every player deals a long hand in each lap.' },
       { p: 'The dealer bids last and cannot match the hand: the bids cannot add up to the number of cards dealt, so at least one player fails. The scoreboard warns when the bids do add up, and it does not close a round until the tricks entered add up to exactly the number of cards dealt.' },
 
-      { h2: 'Following suit, overtaking and trumping' },
-      { p: 'You have to follow suit and overtake. If the player who leads plays oros (coins), you have to play a higher oro; if you hold none that is higher, you play a lower oro; and if you hold no oros at all, you play a trump, which is called fallar.' },
-      { p: 'When the trick has already been trumped, a player who holds none of the led suit and holds a trump, but cannot beat the trump on the table, may ahorrar, that is, discard from another suit instead of spending the trump.' },
+      { h2: 'Following suit, overtaking, trumping and saving' },
+      { p: 'You have to follow suit and overtake. If the player who leads plays oros (coins), you have to play a higher oro; if you hold none that is higher, you play a lower oro; and if you hold no oros at all, you play a trump, which is called to trump the trick.' },
+      { p: 'When the trick has already been trumped, a player who holds none of the led suit and holds a trump, but cannot beat the trump on the table, may save that trump, that is, discard from another suit instead of spending it.' },
 
       { h2: 'Scoring' },
       { table: { head: ['Outcome', 'Points'], rows: [['The bid is met', '10 + 5 × bid'], ['The bid is missed', '−5 × difference between bid and tricks']] } },
