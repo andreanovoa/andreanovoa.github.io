@@ -301,3 +301,33 @@
 }
 .pocha .round-alert span.bad { color: var(--pocha-bad); }
 .pocha .round-alert span.warn { color: var(--pocha-warn); }
+
+/* Full table */
+.pocha a.button-link {
+  display: inline-block; text-decoration: none;
+  font: inherit; font-weight: 600;
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 0.5rem 1rem; background: var(--code-bg); color: var(--content);
+}
+.pocha a.button-link:hover { box-shadow: 0 0 0 2px var(--tertiary); }
+.pocha a.button-link.primary { background: var(--primary); color: var(--theme); border-color: var(--primary); }
+
+.pocha table.full-table { font-size: 0.82rem; }
+.pocha table.full-table .cards-col {
+  position: sticky; left: 0; z-index: 1;
+  background: var(--entry); font-weight: 700; color: var(--secondary);
+}
+.pocha table.full-table tbody tr:hover .cards-col { background: var(--code-bg); }
+.pocha table.full-table tr.pending td { color: var(--secondary); opacity: 0.55; }
+.pocha table.full-table td.deals { color: var(--tertiary); }
+.pocha table.full-table tfoot td {
+  border-top: 2px solid var(--border); font-size: 1rem; padding-top: 0.5rem;
+}
+.pocha table.full-table tfoot .cards-col { font-size: 0.75rem; text-transform: uppercase; }
+
+@media print {
+  .pocha .top-bar, .pocha .actions, .pocha .hint { display: none; }
+  .pocha .card { border: none; box-shadow: none; padding: 0; }
+  .pocha .table-wrap { overflow: visible; }
+  .pocha table.full-table { font-size: 9pt; }
+}

@@ -4,7 +4,14 @@ window.POCHA_I18N = {
     label: 'Español',
     switchTo: 'Ver la página en inglés',
     tabGame: 'Partida',
+    tabTable: 'Tabla',
     tabRules: 'Instrucciones',
+    fullTable: 'Ver tabla completa',
+    roundsDone: function (played, total) { return played + ' de ' + total + (total === 1 ? ' ronda jugada' : ' rondas jugadas'); },
+    shortCards: 'Cartas',
+    fullTableLegend: 'Todas las rondas de la partida. Las que faltan aparecen en gris, con un punto en la columna de quien reparte. A: apuesta · B: bazas · Pts: puntos de la ronda · Tot: acumulado.',
+    backToGame: 'Volver a la partida',
+    printTable: 'Imprimir',
 
     /* configuración */
     newGame: 'Nueva partida',
@@ -110,7 +117,14 @@ window.POCHA_I18N = {
     label: 'English',
     switchTo: 'Read the page in Spanish',
     tabGame: 'Game',
+    tabTable: 'Table',
     tabRules: 'Instructions',
+    fullTable: 'See the full table',
+    roundsDone: function (played, total) { return played + ' of ' + total + (total === 1 ? ' round played' : ' rounds played'); },
+    shortCards: 'Cards',
+    fullTableLegend: 'Every round of the game. The rounds still to play are greyed out, with a dot in the column of the player who deals them. B: bid · T: tricks · Pts: points of the round · Tot: running total.',
+    backToGame: 'Back to the game',
+    printTable: 'Print',
 
     /* setup */
     newGame: 'New game',

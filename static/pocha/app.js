@@ -54,24 +54,36 @@
     return value.apply(null, Array.prototype.slice.call(arguments, 1));
   }
 
-  var HASH = '#reglas';
-  var view = window.location.hash === HASH ? 'docs' : 'game';
+  var HASHES = { docs: '#reglas', table: '#tabla' };
+
+  function viewOf(hash) {
+    for (var name in HASHES) {
+      if (HASHES[name] === hash) return name;
+    }
+    return 'game';
+  }
+
+  function hrefOf(name) {
+    return HASHES[name] || window.location.pathname;
+  }
+
+  var view = viewOf(window.location.hash);
 
   function setView(next) {
     if (next === view) return;
     rememberSetup();
     view = next;
-    if (window.history && window.history.replaceState) {
-      window.history.pushState(null, '', next === 'docs' ? HASH : window.location.pathname);
+    if (window.history && window.history.pushState) {
+      window.history.pushState(null, '', hrefOf(next));
     } else {
-      window.location.hash = next === 'docs' ? HASH : '';
+      window.location.hash = HASHES[next] || '';
     }
     render();
     window.scrollTo({ top: 0, behavior: 'auto' });
   }
 
   window.addEventListener('hashchange', function () {
-    var next = window.location.hash === HASH ? 'docs' : 'game';
+    var next = viewOf(window.location.hash);
     if (next === view) return;
     rememberSetup();
     view = next;
@@ -607,6 +619,9 @@
 
     if (!game.results.length) {
       card.appendChild(el('p', 'hint', t('noRounds')));
+      var empty = el('div', 'actions');
+      empty.appendChild(viewLink('button-link', t('fullTable'), 'table'));
+      card.appendChild(empty);
       return card;
     }
 
@@ -651,6 +666,10 @@
     wrap.appendChild(table);
     card.appendChild(wrap);
     card.appendChild(el('p', 'hint', t('tableLegend')));
+
+    var actions = el('div', 'actions');
+    actions.appendChild(viewLink('button-link', t('fullTable'), 'table'));
+    card.appendChild(actions);
     return card;
   }
 
@@ -805,26 +824,122 @@
     return card;
   }
 
+  /* ---------- tabla completa / full table ---------- */
+
+  function fullTableCard() {
+    var card = el('section', 'card');
+    var head = el('div', 'round-head');
+    head.appendChild(el('span', 'big', t('fullTable')));
+    var played = game.results.length;
+    head.appendChild(el('span', 'meta', t('roundsDone', played, game.rounds.length)));
+    card.appendChild(head);
+
+    var wrap = el('div', 'table-wrap');
+    var table = el('table', 'full-table');
+
+    var thead = el('thead');
+    var r1 = el('tr');
+    var corner = el('th', 'cards-col', t('shortCards'));
+    corner.rowSpan = 2;
+    r1.appendChild(corner);
+    game.players.forEach(function (name) {
+      var cell = el('th', 'group', name);
+      cell.colSpan = 4;
+      r1.appendChild(cell);
+    });
+    thead.appendChild(r1);
+    var r2 = el('tr');
+    game.players.forEach(function () {
+      [t('shortBid'), t('shortTricks'), t('shortPoints'), t('shortTotal')].forEach(function (label, i) {
+        r2.appendChild(el('th', i === 0 ? 'group' : null, label));
+      });
+    });
+    thead.appendChild(r2);
+    table.appendChild(thead);
+
+    var tbody = el('tbody');
+    var running = game.players.map(function () { return 0; });
+    game.rounds.forEach(function (cards, r) {
+      var res = game.results[r];
+      var tr = el('tr', res ? '' : 'pending');
+      var dealer = dealerOf(game, r);
+      var cell = el('td', 'cards-col', String(cards));
+      cell.title = t('dealsChip', game.players[dealer]);
+      tr.appendChild(cell);
+      game.players.forEach(function (name, p) {
+        if (!res) {
+          tr.appendChild(el('td', 'group' + (p === dealer ? ' deals' : ''), p === dealer ? '\u25CF' : ''));
+          tr.appendChild(el('td', null, ''));
+          tr.appendChild(el('td', null, ''));
+          tr.appendChild(el('td', null, ''));
+          return;
+        }
+        var pts = points(res.bids[p], res.won[p]);
+        running[p] += pts;
+        tr.appendChild(el('td', 'group' + (p === dealer ? ' deals' : ''), String(res.bids[p])));
+        tr.appendChild(el('td', null, String(res.won[p])));
+        tr.appendChild(el('td', pts >= 0 ? 'hit' : 'miss', (pts > 0 ? '+' : '') + pts));
+        tr.appendChild(el('td', 'total', String(running[p])));
+      });
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+
+    var tfoot = el('tfoot');
+    var tr = el('tr');
+    tr.appendChild(el('td', 'cards-col', t('shortTotal')));
+    game.players.forEach(function (name, p) {
+      var cell = el('td', 'group total');
+      cell.colSpan = 4;
+      cell.textContent = String(running[p]);
+      tr.appendChild(cell);
+    });
+    tfoot.appendChild(tr);
+    table.appendChild(tfoot);
+
+    wrap.appendChild(table);
+    card.appendChild(wrap);
+    card.appendChild(el('p', 'hint', t('fullTableLegend')));
+
+    var actions = el('div', 'actions');
+    actions.appendChild(viewLink('button-link primary', t('backToGame'), 'game'));
+    var printBtn = el('button', null, t('printTable'));
+    printBtn.type = 'button';
+    printBtn.addEventListener('click', function () { window.print(); });
+    actions.appendChild(printBtn);
+    card.appendChild(actions);
+
+    return card;
+  }
+
   /* ---------- barra de idioma / language bar ---------- */
 
   function topBar() {
     var bar = el('div', 'top-bar');
 
     var tabs = el('nav', 'tabs');
-    [['game', 'tabGame', ''], ['docs', 'tabRules', HASH]].forEach(function (entry) {
-      var tab = el('a', 'tab' + (entry[0] === view ? ' on' : ''), t(entry[1]));
-      tab.href = entry[2] || window.location.pathname;
-      if (entry[0] === view) tab.setAttribute('aria-current', 'page');
-      tab.addEventListener('click', function (event) {
-        event.preventDefault();
-        setView(entry[0]);
-      });
-      tabs.appendChild(tab);
+    var entries = [['game', 'tabGame']];
+    if (game && game.results) entries.push(['table', 'tabTable']);
+    entries.push(['docs', 'tabRules']);
+    entries.forEach(function (entry) {
+      tabs.appendChild(viewLink('tab' + (entry[0] === view ? ' on' : ''), t(entry[1]), entry[0]));
     });
     bar.appendChild(tabs);
 
     bar.appendChild(langBar());
     return bar;
+  }
+
+  function viewLink(className, label, name) {
+    var link = el('a', className, label);
+    link.href = hrefOf(name);
+    if (name === view) link.setAttribute('aria-current', 'page');
+    link.addEventListener('click', function (event) {
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) return;
+      event.preventDefault();
+      setView(name);
+    });
+    return link;
   }
 
   function langBar() {
@@ -902,6 +1017,11 @@
     if (view === 'docs') {
       captureSetup = null;
       root.appendChild(docsSection());
+      return;
+    }
+    if (view === 'table' && game && game.results) {
+      captureSetup = null;
+      root.appendChild(fullTableCard());
       return;
     }
     if (game && game.players && game.rounds) renderGame();
