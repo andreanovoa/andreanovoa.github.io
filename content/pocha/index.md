@@ -31,6 +31,10 @@ Quien reparte apuesta el último y no puede casar la suma: el total de las apues
 
 Acertar una apuesta de cero vale 10 puntos, y acertar una apuesta de tres vale 25. Gana la partida quien acumula más puntos después de la última ronda.
 
+## Orden de la mesa
+
+Los nombres se escriben en el orden en el que se sientan los jugadores, empezando por cualquiera de ellos y siguiendo hacia la derecha, es decir, en el sentido contrario a las agujas del reloj. La pantalla de configuración muestra ese orden mientras se escriben los nombres, y el marcador lo reutiliza en cada ronda: las filas aparecen en el orden de juego, desde la derecha del repartidor hasta el repartidor, que apuesta el último. Anotar en ese orden evita buscar a cada jugador en la lista.
+
 ## Nombres guardados
 
 Los nombres de los jugadores se guardan en el navegador de este dispositivo, junto con la última alineación y la partida en curso. Al volver a abrir la página aparecen como sugerencias y como botones de acceso rápido, y una partida a medias se recupera tal y como se dejó. El botón **borrar nombres guardados** elimina la lista.

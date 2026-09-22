@@ -143,8 +143,13 @@
 
     card.appendChild(topRow);
 
+    var seatHint = el('p', 'hint seat-hint',
+      'Escribe los nombres en el orden de la mesa, empezando por quien quieras y siguiendo hacia la derecha, en el sentido contrario a las agujas del reloj. Las rondas se anotan en ese mismo orden.');
+    seatHint.style.marginTop = '1rem';
+    card.appendChild(seatHint);
+
     var playersBox = el('div', 'players');
-    playersBox.style.marginTop = '1rem';
+    playersBox.style.marginTop = '0.6rem';
     card.appendChild(playersBox);
 
     var datalist = el('datalist');
@@ -173,6 +178,9 @@
       });
       card.appendChild(rosterBox);
     }
+
+    var seatOrder = el('p', 'seat-order');
+    card.appendChild(seatOrder);
 
     var preview = el('p', 'hint');
     card.appendChild(preview);
@@ -215,7 +223,16 @@
     }
 
     function syncPreview() {
-      var n = currentNames().length;
+      var names = currentNames();
+      var n = names.length;
+      clear(seatOrder);
+      seatOrder.appendChild(el('span', 'seat-label', 'Orden de la mesa'));
+      names.forEach(function (name, i) {
+        if (i > 0) seatOrder.appendChild(el('span', 'seat-arrow', '\u2192'));
+        seatOrder.appendChild(el('span', 'seat-name', name));
+      });
+      seatOrder.appendChild(el('span', 'seat-arrow', '\u21A9'));
+
       var rounds = buildRounds(n, repeatInput.checked);
       var maxCards = Math.floor(DECK / n);
       preview.textContent = n + ' jugadores, ' + maxCards + ' cartas como máximo por mano y ' +
@@ -293,6 +310,7 @@
     head.appendChild(el('span', 'big', 'Ronda ' + (roundIdx + 1) + ' de ' + game.rounds.length));
     head.appendChild(el('span', 'meta', cards + ' ' + plural(cards, 'carta', 'cartas') + ' por jugador'));
     head.appendChild(el('span', 'chip dealer', 'Reparte ' + game.players[dealer]));
+    head.appendChild(el('span', 'meta', 'Filas en orden de juego, desde la derecha del repartidor'));
     card.appendChild(head);
 
     var header = el('div', 'bids-head');
