@@ -999,6 +999,15 @@
         section.appendChild(wrap);
         return;
       }
+      if (block.ranks) {
+        var row = el('div', 'rank-row');
+        block.ranks.forEach(function (rank, i) {
+          if (i > 0) row.appendChild(el('span', 'rank-arrow', '>'));
+          row.appendChild(el('span', 'rank' + (i === 0 ? ' top' : ''), rank));
+        });
+        section.appendChild(row);
+        return;
+      }
       if (block.code) {
         var pre = el('pre', 'docs-code');
         pre.appendChild(el('code', null, DICT.snippets[block.code]));

@@ -83,6 +83,11 @@ window.POCHA_I18N = {
       { p: 'Las rondas suben de una carta hasta el máximo, se repite la mano larga tantas veces como jugadores menos uno, y después bajan de nuevo hasta una carta. La opción <em>repetir rondas largas</em> multiplica esas manos largas por el número de jugadores, de forma que cada jugador reparte una mano larga en cada vuelta.' },
       { p: 'Quien reparte apuesta el último, y el total de las apuestas no puede coincidir con el número de cartas de la mano, así que al menos un jugador falla. Al anotar la última apuesta, el marcador avisa en rojo si la suma coincide y no deja guardar la ronda, porque esa mano no puede darse. Con las bazas, avisa en ámbar si no suman las cartas de la mano, y tampoco deja guardar hasta que se corrijan.' },
 
+      { h2: 'Qué cartas mandan' },
+      { p: 'Dentro de un mismo palo, el orden de mayor a menor es el as, el tres, el rey, el caballo, la sota y después el siete, el seis, el cinco, el cuatro y el dos.' },
+      { ranks: ['As', '3', 'Rey', 'Caballo', 'Sota', '7', '6', '5', '4', '2'] },
+      { p: 'Así, el as gana a todas las cartas de su palo y el dos pierde con todas. El triunfo gana a cualquier carta de los demás palos, incluso a un as.' },
+
       { h2: 'Asistir, subir, fallar y ahorrar' },
       { p: 'Hay que asistir y subir. Si quien sale echa oros, tienes que echar un oro más grande; si no tienes ninguno más grande, echas un oro más pequeño; y si no tienes oros, echas triunfo, que es fallar la baza.' },
       { p: 'Si la ronda ya va fallada, un jugador que no tiene el palo de salida y tiene triunfo, pero no puede superar al triunfo que está en la mesa, puede ahorrar, es decir, descartarse de otro palo en lugar de gastar el triunfo.' },
@@ -195,6 +200,11 @@ window.POCHA_I18N = {
       { p: 'Pocha is played with the Spanish deck of 40 cards, from 1 to 7 plus the knave, the knight and the king. Each round deals the same number of cards to every player, each player bids how many tricks they expect to win, and the hand is then played. The largest hand is 40 divided by the number of players, rounded down.' },
       { p: 'The rounds climb from one card up to that maximum, the long hand is repeated as many times as there are players minus one, and the rounds then come back down to one card. The option <em>repeat the long rounds</em> multiplies those long hands by the number of players, so that every player deals a long hand in each lap.' },
       { p: 'The dealer bids last, and the bids cannot add up to the number of cards dealt, so at least one player fails. When the last bid is entered, the scoreboard flags in red that the bids add up to the hand and refuses to save the round, because that hand cannot happen. For the tricks, it flags in amber that they do not add up to the cards dealt, and it does not save the round until they are corrected either.' },
+
+      { h2: 'Which cards win' },
+      { p: 'Within a suit, the order from high to low is the ace, the three, the king, the knight, the knave and then the seven, the six, the five, the four and the two.' },
+      { ranks: ['Ace', '3', 'King', 'Knight', 'Knave', '7', '6', '5', '4', '2'] },
+      { p: 'So the ace beats every card of its suit and the two loses to all of them. A trump beats any card of the other suits, even an ace.' },
 
       { h2: 'Following suit, overtaking, trumping and saving' },
       { p: 'You have to follow suit and overtake. If the player who leads plays oros (coins), you have to play a higher oro; if you hold none that is higher, you play a lower oro; and if you hold no oros at all, you play a trump, which is called to trump the trick.' },

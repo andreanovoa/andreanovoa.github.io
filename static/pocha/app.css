@@ -331,3 +331,16 @@
   .pocha .table-wrap { overflow: visible; }
   .pocha table.full-table { font-size: 9pt; }
 }
+
+/* Card ranking */
+.pocha .rank-row {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem;
+  margin: 0 0 1rem;
+}
+.pocha .rank-row .rank {
+  padding: 0.3rem 0.65rem; border-radius: 8px;
+  background: var(--code-bg); border: 1px solid var(--border);
+  font-size: 0.9rem; font-weight: 600; white-space: nowrap;
+}
+.pocha .rank-row .rank.top { border-color: var(--tertiary); color: var(--tertiary); }
+.pocha .rank-row .rank-arrow { color: var(--secondary); font-size: 0.8rem; }
