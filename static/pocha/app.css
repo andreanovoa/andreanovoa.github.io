@@ -208,3 +208,29 @@
 @media (prefers-reduced-motion: reduce) {
   .pocha button.dice.rolling { animation: none; }
 }
+
+/* Language switch */
+.pocha .lang-bar { display: flex; justify-content: flex-end; gap: 0.3rem; margin-bottom: 0.5rem; }
+.pocha button.lang {
+  padding: 0.2rem 0.7rem; font-size: 0.82rem; font-weight: 500;
+  border-radius: 999px; color: var(--secondary); background: transparent;
+}
+.pocha button.lang.on { color: var(--theme); background: var(--primary); border-color: var(--primary); }
+
+/* Documentation */
+.pocha .docs { margin-top: 2rem; }
+.pocha .docs h2 { font-size: 1.3rem; margin: 1.8rem 0 0.6rem; }
+.pocha .docs p { margin: 0 0 0.9rem; line-height: 1.7; }
+.pocha .docs ol { margin: 0 0 0.9rem 1.2rem; line-height: 1.7; }
+.pocha .docs li { margin-bottom: 0.3rem; }
+.pocha .docs code {
+  background: var(--code-bg); border-radius: 4px; padding: 0.1rem 0.35rem; font-size: 0.9em;
+}
+.pocha table.docs-table { margin-bottom: 1rem; }
+.pocha table.docs-table td { text-align: left; }
+.pocha table.docs-table td:last-child { white-space: nowrap; }
+.pocha pre.docs-code {
+  background: var(--code-bg); border: 1px solid var(--border); border-radius: var(--pocha-radius);
+  padding: 0.9rem 1rem; overflow-x: auto; font-size: 0.8rem; line-height: 1.55; margin-bottom: 1rem;
+}
+.pocha pre.docs-code code { background: none; padding: 0; }

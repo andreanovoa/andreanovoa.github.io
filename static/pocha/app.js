@@ -1,4 +1,5 @@
-/* Pocha — marcador. Estado, reglas de puntuación e interfaz. */
+/* Pocha — marcador bilingüe. Estado, reglas de puntuación e interfaz. */
+/* Pocha — bilingual scoreboard. State, scoring rules and interface. */
 (function () {
   'use strict';
 
@@ -7,7 +8,8 @@
     roster: 'pocha:roster',
     lineup: 'pocha:lineup',
     game: 'pocha:game',
-    sheet: 'pocha:sheetUrl'
+    sheet: 'pocha:sheetUrl',
+    lang: 'pocha:lang'
   };
 
   /* ---------- almacenamiento local ---------- */
@@ -33,6 +35,34 @@
       if (n && roster.indexOf(n) === -1) roster.push(n);
     });
     save(LS.roster, roster.slice(-40));
+  }
+
+  /* ---------- idioma / language ---------- */
+
+  var DICT = window.POCHA_I18N;
+
+  function preferredLang() {
+    var stored = load(LS.lang, null);
+    return stored === 'en' ? 'en' : 'es';
+  }
+
+  var lang = preferredLang();
+
+  function t(key) {
+    var value = DICT[lang][key];
+    if (typeof value !== 'function') return value;
+    return value.apply(null, Array.prototype.slice.call(arguments, 1));
+  }
+
+  var captureSetup = null; // devuelto por la pantalla de configuración / set by the setup screen
+
+  function setLang(next) {
+    if (next === lang) return;
+    if (captureSetup) save(LS.lineup, captureSetup());
+    lang = next;
+    save(LS.lang, lang);
+    document.documentElement.lang = lang;
+    render();
   }
 
   /* ---------- reglas del juego ---------- */
@@ -85,8 +115,6 @@
 
   function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
 
-  function plural(n, one, many) { return n === 1 ? one : many; }
-
   /* ---------- estado de la aplicación ---------- */
 
   var root = document.getElementById('pocha-app');
@@ -108,17 +136,18 @@
 
   function renderSetup() {
     clear(root);
+    root.appendChild(langBar());
     var lineup = load(LS.lineup, { players: ['', '', '', ''], firstDealer: 0, repeatMiddle: false });
-    var names = lineup.players.slice();
-    if (names.length < 3) while (names.length < 4) names.push('');
+    var names = (lineup.players || []).slice();
+    while (names.length < 3) names.push('');
 
     var card = el('section', 'card');
-    card.appendChild(el('h2', 'card-title', 'Nueva partida'));
+    card.appendChild(el('h2', 'card-title', t('newGame')));
 
     var topRow = el('div', 'row');
 
     var countField = el('div', 'field');
-    countField.appendChild(el('label', null, 'Jugadores'));
+    countField.appendChild(el('label', null, t('playersLabel')));
     var countInput = el('input');
     countInput.type = 'number';
     countInput.min = '3';
@@ -128,14 +157,14 @@
     topRow.appendChild(countField);
 
     var dealerField = el('div', 'field');
-    dealerField.appendChild(el('label', null, 'Reparte primero'));
+    dealerField.appendChild(el('label', null, t('dealsFirst')));
     var dealerPick = el('div', 'dealer-pick');
     var dealerSelect = el('select');
     dealerPick.appendChild(dealerSelect);
     var diceBtn = el('button', 'dice', '\uD83C\uDFB2');
     diceBtn.type = 'button';
-    diceBtn.title = 'Sortear quién reparte';
-    diceBtn.setAttribute('aria-label', 'Sortear quién reparte');
+    diceBtn.title = t('drawDealer');
+    diceBtn.setAttribute('aria-label', t('drawDealer'));
     dealerPick.appendChild(diceBtn);
     dealerField.appendChild(dealerPick);
     topRow.appendChild(dealerField);
@@ -145,13 +174,12 @@
     repeatInput.type = 'checkbox';
     repeatInput.checked = !!lineup.repeatMiddle;
     switchLabel.appendChild(repeatInput);
-    switchLabel.appendChild(el('span', null, 'Repetir rondas largas'));
+    switchLabel.appendChild(el('span', null, t('repeatLong')));
     topRow.appendChild(switchLabel);
 
     card.appendChild(topRow);
 
-    var seatHint = el('p', 'hint seat-hint',
-      'Escribe los nombres en el orden de la mesa, empezando por quien quieras y siguiendo hacia la derecha, en el sentido contrario a las agujas del reloj. Las rondas se anotan en ese mismo orden. El dado sortea quién reparte la primera mano.');
+    var seatHint = el('p', 'hint seat-hint', t('seatHint'));
     seatHint.style.marginTop = '1rem';
     card.appendChild(seatHint);
 
@@ -170,7 +198,7 @@
 
     var roster = load(LS.roster, []);
     if (roster.length) {
-      card.appendChild(el('p', 'hint', 'Nombres guardados en este dispositivo. Pulsa uno para añadirlo al primer hueco libre.'));
+      card.appendChild(el('p', 'hint', t('rosterHint')));
       var rosterBox = el('div', 'roster');
       roster.forEach(function (n) {
         var b = el('button', null, n);
@@ -193,13 +221,13 @@
     card.appendChild(preview);
 
     var actions = el('div', 'actions');
-    var startBtn = el('button', 'primary', 'Empezar partida');
+    var startBtn = el('button', 'primary', t('start'));
     startBtn.type = 'button';
     actions.appendChild(startBtn);
-    var forgetBtn = el('button', 'ghost', 'Borrar nombres guardados');
+    var forgetBtn = el('button', 'ghost', t('forget'));
     forgetBtn.type = 'button';
     forgetBtn.addEventListener('click', function () {
-      if (window.confirm('¿Borrar los nombres guardados en este dispositivo?')) {
+      if (window.confirm(t('confirmForget'))) {
         drop(LS.roster);
         renderSetup();
       }
@@ -208,11 +236,22 @@
     card.appendChild(actions);
 
     root.appendChild(card);
+    root.appendChild(docsSection());
+
+    captureSetup = function () {
+      var typed = [];
+      playersBox.querySelectorAll('input').forEach(function (input) { typed.push(input.value.trim()); });
+      return {
+        players: typed,
+        firstDealer: parseInt(dealerSelect.value, 10) || 0,
+        repeatMiddle: repeatInput.checked
+      };
+    };
 
     function currentNames() {
       var out = [];
       playersBox.querySelectorAll('input').forEach(function (input, i) {
-        out.push(input.value.trim() || 'Jugador ' + (i + 1));
+        out.push(input.value.trim() || t('playerN', i + 1));
       });
       return out;
     }
@@ -233,7 +272,7 @@
       var names = currentNames();
       var n = names.length;
       clear(seatOrder);
-      seatOrder.appendChild(el('span', 'seat-label', 'Orden de la mesa'));
+      seatOrder.appendChild(el('span', 'seat-label', t('seatLabel')));
       names.forEach(function (name, i) {
         if (i > 0) seatOrder.appendChild(el('span', 'seat-arrow', '\u2192'));
         seatOrder.appendChild(el('span', 'seat-name', name));
@@ -242,8 +281,7 @@
 
       var rounds = buildRounds(n, repeatInput.checked);
       var maxCards = Math.floor(DECK / n);
-      preview.textContent = n + ' jugadores, ' + maxCards + ' cartas como máximo por mano y ' +
-        rounds.length + ' ' + plural(rounds.length, 'ronda', 'rondas') + ' en total.';
+      preview.textContent = t('preview', n, maxCards, rounds.length);
     }
 
     function syncSlots() {
@@ -258,7 +296,7 @@
         var input = el('input');
         input.type = 'text';
         input.setAttribute('list', 'pocha-roster');
-        input.placeholder = 'Jugador ' + (i + 1);
+        input.placeholder = t('playerN', i + 1);
         input.value = existing[i] !== undefined ? existing[i] : (names[i] || '');
         input.autocomplete = 'off';
         input.addEventListener('input', syncDealer);
@@ -331,6 +369,8 @@
 
   function renderGame() {
     clear(root);
+    captureSetup = null;
+    root.appendChild(langBar());
     var roundIdx = game.results.length;
     var finished = roundIdx >= game.rounds.length;
     if (!draft) draft = newDraft();
@@ -341,6 +381,7 @@
     root.appendChild(standingsCard());
     root.appendChild(historyCard());
     root.appendChild(exportCard(finished));
+    root.appendChild(docsSection());
   }
 
   function roundCard(roundIdx) {
@@ -349,16 +390,16 @@
     var card = el('section', 'card');
 
     var head = el('div', 'round-head');
-    head.appendChild(el('span', 'big', 'Ronda ' + (roundIdx + 1) + ' de ' + game.rounds.length));
-    head.appendChild(el('span', 'meta', cards + ' ' + plural(cards, 'carta', 'cartas') + ' por jugador'));
-    head.appendChild(el('span', 'chip dealer', 'Reparte ' + game.players[dealer]));
-    head.appendChild(el('span', 'meta', 'Filas en orden de juego, desde la derecha del repartidor'));
+    head.appendChild(el('span', 'big', t('roundOf', roundIdx + 1, game.rounds.length)));
+    head.appendChild(el('span', 'meta', t('cardsEach', cards)));
+    head.appendChild(el('span', 'chip dealer', t('dealsChip', game.players[dealer])));
+    head.appendChild(el('span', 'meta', t('rowOrder')));
     card.appendChild(head);
 
     var header = el('div', 'bids-head');
-    header.appendChild(el('span', null, 'Jugador'));
-    header.appendChild(el('span', null, 'Apuesta'));
-    header.appendChild(el('span', null, 'Bazas'));
+    header.appendChild(el('span', null, t('colPlayer')));
+    header.appendChild(el('span', null, t('colBid')));
+    header.appendChild(el('span', null, t('colTricks')));
     card.appendChild(header);
 
     var box = el('div', 'bids');
@@ -368,7 +409,7 @@
     order.forEach(function (p) {
       var row = el('div', 'bid-row' + (p === dealer ? ' is-dealer' : ''));
       var who = el('div', 'who', game.players[p]);
-      if (p === dealer) who.appendChild(el('small', null, 'reparte, no puede casar'));
+      if (p === dealer) who.appendChild(el('small', null, t('dealerNote')));
       row.appendChild(who);
       row.appendChild(numberInput(cards, draft.bids, p));
       row.appendChild(numberInput(cards, draft.won, p));
@@ -380,11 +421,11 @@
     card.appendChild(tally);
 
     var actions = el('div', 'actions');
-    var confirmBtn = el('button', 'primary', 'Guardar ronda');
+    var confirmBtn = el('button', 'primary', t('saveRound'));
     confirmBtn.type = 'button';
     actions.appendChild(confirmBtn);
     if (game.results.length > 0) {
-      var undoBtn = el('button', 'ghost', 'Deshacer ronda anterior');
+      var undoBtn = el('button', 'ghost', t('undoRound'));
       undoBtn.type = 'button';
       undoBtn.addEventListener('click', function () {
         var last = game.results.pop();
@@ -409,19 +450,19 @@
       var tone = 'tally';
 
       if (bidsDone) {
-        messages.push('Apuestas: ' + bidSum + ' de ' + cards);
+        messages.push(t('bidsSum', bidSum, cards));
         if (bidSum === cards) {
-          messages.push('la suma cuadra, el repartidor debe descuadrarla');
+          messages.push(t('bidsMatch'));
           tone = 'tally warn';
         }
       } else {
-        messages.push('Faltan apuestas por anotar');
+        messages.push(t('bidsMissing'));
       }
 
       if (wonDone) {
-        messages.push('bazas: ' + wonSum + ' de ' + cards);
+        messages.push(t('tricksSum', wonSum, cards));
         if (wonSum !== cards) {
-          messages.push('las bazas deben sumar ' + cards);
+          messages.push(t('tricksMustAdd', cards));
           tone = 'tally bad';
         } else if (tone === 'tally') {
           tone = 'tally ok';
@@ -472,7 +513,7 @@
 
   function standingsCard() {
     var card = el('section', 'card');
-    card.appendChild(el('h2', 'card-title', 'Clasificación'));
+    card.appendChild(el('h2', 'card-title', t('standings')));
     var box = el('div', 'standings');
     var order = ranking(game);
     order.forEach(function (entry, i) {
@@ -490,10 +531,10 @@
 
   function historyCard() {
     var card = el('section', 'card');
-    card.appendChild(el('h2', 'card-title', 'Rondas jugadas'));
+    card.appendChild(el('h2', 'card-title', t('playedRounds')));
 
     if (!game.results.length) {
-      card.appendChild(el('p', 'hint', 'Todavía no hay rondas anotadas.'));
+      card.appendChild(el('p', 'hint', t('noRounds')));
       return card;
     }
 
@@ -512,7 +553,7 @@
     thead.appendChild(r1);
     var r2 = el('tr');
     game.players.forEach(function () {
-      ['A', 'B', 'Pts', 'Tot'].forEach(function (label, i) {
+      [t('shortBid'), t('shortTricks'), t('shortPoints'), t('shortTotal')].forEach(function (label, i) {
         r2.appendChild(el('th', i === 0 ? 'group' : null, label));
       });
     });
@@ -537,7 +578,7 @@
     table.appendChild(tbody);
     wrap.appendChild(table);
     card.appendChild(wrap);
-    card.appendChild(el('p', 'hint', 'A: apuesta · B: bazas ganadas · Pts: puntos de la ronda · Tot: acumulado. El punto junto al número de cartas marca la mano que reparte.'));
+    card.appendChild(el('p', 'hint', t('tableLegend')));
     return card;
   }
 
@@ -546,7 +587,7 @@
     var order = ranking(game);
     card.appendChild(el('div', 'trophy', '🏆'));
     card.appendChild(el('div', 'nm', order[0].name));
-    card.appendChild(el('p', 'hint', 'Gana la partida con ' + order[0].total + ' puntos.'));
+    card.appendChild(el('p', 'hint', t('winsWith', order[0].total)));
     return card;
   }
 
@@ -570,9 +611,10 @@
   }
 
   function toCsv() {
+    var head = t('csvHeaders');
     var lines = [];
-    lines.push(['Ronda', 'Cartas', 'Reparte'].concat(game.players.map(function (n) {
-      return [n + ' apuesta', n + ' bazas', n + ' puntos', n + ' total'];
+    lines.push([head.round, head.cards, head.deals].concat(game.players.map(function (n) {
+      return [n + ' ' + head.bid, n + ' ' + head.tricks, n + ' ' + head.points, n + ' ' + head.total];
     }).reduce(function (a, b) { return a.concat(b); }, [])).join(','));
     var running = game.players.map(function () { return 0; });
     game.results.forEach(function (res, r) {
@@ -584,7 +626,7 @@
       });
       lines.push(row.join(','));
     });
-    lines.push(['Total', '', ''].concat(game.players.map(function (n, p) {
+    lines.push([head.totalRow, '', ''].concat(game.players.map(function (n, p) {
       return ['', '', '', running[p]];
     }).reduce(function (a, b) { return a.concat(b); }, [])).join(','));
     return lines.join('\n');
@@ -608,7 +650,7 @@
 
   function exportCard(finished) {
     var card = el('section', 'card');
-    card.appendChild(el('h2', 'card-title', 'Guardar y compartir'));
+    card.appendChild(el('h2', 'card-title', t('saveShare')));
 
     var status = el('div', 'banner');
     status.style.display = 'none';
@@ -622,7 +664,7 @@
 
     var actions = el('div', 'actions');
 
-    var csvBtn = el('button', null, 'Descargar CSV');
+    var csvBtn = el('button', null, t('downloadCsv'));
     csvBtn.type = 'button';
     csvBtn.disabled = !game.results.length;
     csvBtn.addEventListener('click', function () {
@@ -630,16 +672,16 @@
     });
     actions.appendChild(csvBtn);
 
-    var sheetBtn = el('button', finished ? 'primary' : '', 'Enviar a Google Sheets');
+    var sheetBtn = el('button', finished ? 'primary' : '', t('sendSheets'));
     sheetBtn.type = 'button';
     sheetBtn.disabled = !game.results.length;
     actions.appendChild(sheetBtn);
 
-    var newBtn = el('button', 'ghost', 'Partida nueva');
+    var newBtn = el('button', 'ghost', t('newGameBtn'));
     newBtn.type = 'button';
     newBtn.addEventListener('click', function () {
       if (game.results.length && !finished &&
-          !window.confirm('La partida está a medias. ¿Empezar otra?')) return;
+          !window.confirm(t('confirmNew'))) return;
       drop(LS.game);
       game = null;
       draft = null;
@@ -650,10 +692,10 @@
     card.appendChild(actions);
 
     var details = el('details', 'sync');
-    details.appendChild(el('summary', null, 'Conexión con Google Sheets'));
+    details.appendChild(el('summary', null, t('sheetsSection')));
     var field = el('div', 'field');
     field.style.marginTop = '0.6rem';
-    field.appendChild(el('label', null, 'URL de la aplicación web de Apps Script'));
+    field.appendChild(el('label', null, t('sheetsUrlLabel')));
     var urlInput = el('input');
     urlInput.type = 'url';
     urlInput.placeholder = 'https://script.google.com/macros/s/.../exec';
@@ -661,7 +703,7 @@
     urlInput.addEventListener('change', function () { save(LS.sheet, urlInput.value.trim()); });
     field.appendChild(urlInput);
     details.appendChild(field);
-    details.appendChild(el('p', 'hint', 'La URL se guarda en este dispositivo. Las instrucciones para crear la hoja están más abajo.'));
+    details.appendChild(el('p', 'hint', t('sheetsUrlHint')));
     card.appendChild(details);
 
     sheetBtn.addEventListener('click', function () {
@@ -669,20 +711,20 @@
       if (!url) {
         details.open = true;
         urlInput.focus();
-        report('Añade primero la URL de la aplicación web de Apps Script.', 'bad');
+        report(t('sheetsNeedUrl'), 'bad');
         return;
       }
       sheetBtn.disabled = true;
-      report('Enviando la partida…');
+      report(t('sheetsSending'));
       window.fetch(url, {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify(gamePayload())
       }).then(function () {
-        report('Partida enviada a la hoja de cálculo. Compruébala para confirmar que la fila aparece.', 'ok');
+        report(t('sheetsSent'), 'ok');
       }).catch(function () {
-        report('No se ha podido enviar la partida. Revisa la URL y la conexión; el CSV sigue disponible.', 'bad');
+        report(t('sheetsFailed'), 'bad');
       }).then(function () {
         sheetBtn.disabled = false;
       });
@@ -691,8 +733,81 @@
     return card;
   }
 
-  /* ---------- arranque ---------- */
+  /* ---------- barra de idioma / language bar ---------- */
 
-  if (game && game.players && game.rounds) renderGame();
-  else renderSetup();
+  function langBar() {
+    var bar = el('div', 'lang-bar');
+    ['es', 'en'].forEach(function (code) {
+      var btn = el('button', 'lang' + (code === lang ? ' on' : ''), DICT[code].label);
+      btn.type = 'button';
+      btn.lang = code;
+      if (code === lang) btn.setAttribute('aria-current', 'true');
+      btn.addEventListener('click', function () { setLang(code); });
+      bar.appendChild(btn);
+    });
+    return bar;
+  }
+
+  /* ---------- documentación / documentation ---------- */
+
+  function docsSection() {
+    var section = el('section', 'docs');
+    t('docs').forEach(function (block) {
+      if (block.h2) {
+        section.appendChild(el('h2', null, block.h2));
+        return;
+      }
+      if (block.p) {
+        var para = el('p');
+        para.innerHTML = block.p;
+        section.appendChild(para);
+        return;
+      }
+      if (block.ol) {
+        var list = el('ol');
+        block.ol.forEach(function (item) {
+          var li = el('li');
+          li.innerHTML = item;
+          list.appendChild(li);
+        });
+        section.appendChild(list);
+        return;
+      }
+      if (block.table) {
+        var wrap = el('div', 'table-wrap');
+        var table = el('table', 'docs-table');
+        var thead = el('thead');
+        var hr = el('tr');
+        block.table.head.forEach(function (h) { hr.appendChild(el('th', null, h)); });
+        thead.appendChild(hr);
+        table.appendChild(thead);
+        var tbody = el('tbody');
+        block.table.rows.forEach(function (row) {
+          var tr = el('tr');
+          row.forEach(function (cell) { tr.appendChild(el('td', null, cell)); });
+          tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+        wrap.appendChild(table);
+        section.appendChild(wrap);
+        return;
+      }
+      if (block.code) {
+        var pre = el('pre', 'docs-code');
+        pre.appendChild(el('code', null, DICT.snippets[block.code]));
+        section.appendChild(pre);
+      }
+    });
+    return section;
+  }
+
+  /* ---------- arranque / start ---------- */
+
+  function render() {
+    document.documentElement.lang = lang;
+    if (game && game.players && game.rounds) renderGame();
+    else renderSetup();
+  }
+
+  render();
 })();
