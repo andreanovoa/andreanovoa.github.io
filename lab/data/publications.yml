@@ -51,6 +51,7 @@
   key: "zighed-rom"
   apa: "Zighed, I., Nóvoa, A., Magri, L., & Sayadi, T. (2026). Efficient adaptation of ROMs for unsteady flows using data assimilation. <em>Computers & Fluids</em>, 107250."
   cover: "img/pubs/rom-adaptation.jpg"
+  invertDark: true
   blurb: "A parameterised variational autoencoder with a transformer latent propagator, retrained on sparse data to follow a flow into regimes it never saw."
   authors: "Zighed, Nóvoa, Magri and Sayadi"
   venue: "Computers & Fluids"

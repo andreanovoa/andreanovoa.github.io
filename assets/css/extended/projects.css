@@ -1,25 +1,76 @@
-/* Projects page: one card per package, each with the package's own docs
-   tutorial embedded. The embed sits inside a <details> so the iframe is not
-   fetched until the reader opens it — loading="lazy" keeps a closed panel off
-   the network. No JavaScript is needed for any of this. */
+/* Projects page: a two-column grid of package cards, each with a figure and
+   its docs tutorial embedded. The embed sits inside a <details> so the iframe
+   is not fetched until the reader opens it — loading="lazy" keeps a closed
+   panel off the network. No JavaScript is involved. */
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+    margin: 1.5rem 0;
+}
+
+@media (max-width: 46rem) {
+    .projects-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 .project {
-    margin: 0 0 1.5rem;
-    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    /* min-width:0 stops a wide figure from forcing the grid track open. */
+    min-width: 0;
+    padding: 0 0 1.1rem;
     border: 1px solid var(--border);
     border-radius: 10px;
     background: var(--entry);
 }
 
+/* An opened tutorial needs the full measure, so the card takes both columns
+   while it is open. Browsers without :has() simply leave it in its column. */
+.projects-grid:has(.project details[open]) .project:has(details[open]) {
+    grid-column: 1 / -1;
+}
+
+/* The figures are Matplotlib panels, an animation and two schematics, all drawn
+   on white by the packages' own docs, with aspect ratios from 1.6:1 to 3.4:1.
+   A fixed band with object-fit:contain shows each one whole and keeps the cards
+   aligned. */
+.project-figure {
+    display: block;
+    /* No fixed height: each figure fills the card's width at its own aspect
+       ratio, so nothing is letterboxed or cropped. The grid stretches the
+       cards in a row to match, so unequal figure heights do not misalign. */
+    width: 100%;
+    height: auto;
+    margin: 0 0 0.95rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+/* White backgrounds punch a hole in a dark card, so the figures are inverted
+   in the dark theme; hue-rotate returns the colours to roughly where they were.
+   ponytail: a filter, not redrawn figures — the sources live in other repos.
+   Regenerate them on a transparent canvas if the inversion ever misleads. */
+body.dark .project-figure {
+    filter: invert(1) hue-rotate(180deg);
+}
+
+.project-body {
+    padding: 1rem 1.3rem 0;
+}
+
 .project-name {
     margin: 0 0 0.35rem;
     font-family: var(--font-mono, monospace);
-    font-size: 1.25rem;
+    font-size: 1.15rem;
     font-weight: 600;
 }
 
 .project-desc {
     margin: 0 0 0.9rem;
     color: var(--secondary);
+    font-size: 0.92rem;
 }
 
 .project-links {
@@ -34,11 +85,11 @@
 /* .post-content a is specific enough to override a plain .project-links a. */
 .post-content .project-links a {
     display: inline-block;
-    padding: 0.3rem 0.75rem;
+    padding: 0.28rem 0.7rem;
     border: 1px solid var(--border);
     border-radius: 999px;
     color: var(--secondary);
-    font-size: 0.82rem;
+    font-size: 0.8rem;
 }
 
 .post-content .project-links a:hover {
@@ -49,17 +100,17 @@
 
 .project-demo {
     border-top: 1px solid var(--border);
-    padding-top: 0.8rem;
+    padding-top: 0.75rem;
 }
 
 .project-demo + .project-demo {
-    margin-top: 0.5rem;
+    margin-top: 0.4rem;
 }
 
 .project-demo > summary {
     cursor: pointer;
     color: var(--primary);
-    font-size: 0.9rem;
+    font-size: 0.86rem;
     font-weight: 500;
 }
 

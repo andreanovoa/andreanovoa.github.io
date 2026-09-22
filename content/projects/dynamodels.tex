@@ -1,0 +1,40 @@
+% Compact version of the dynamodels Model schematic, for the Projects card on
+% andreanovoa.github.io. The detailed version lives in the dynamodels repo at
+% docs/img/model_structure.tex. Background is left transparent so the card's
+% dark-theme inversion blends it into the card.
+% Build: pdflatex compact.tex && pdftocairo -svg compact.pdf compact.svg
+\documentclass[border=2pt]{standalone}
+\usepackage{tikz}
+\usepackage[T1]{fontenc}
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+\usetikzlibrary{positioning,fit,backgrounds}
+
+\definecolor{accent}{HTML}{3B6FD4}
+\definecolor{ink}{HTML}{16233C}
+\definecolor{panel}{HTML}{F2F6FC}
+\definecolor{edge}{HTML}{C3CFE0}
+
+\begin{document}
+% The inner boxes are sized to fill most of the Model panel: wide, tall, with
+% tight gutters and a small inset, so the figure reads at card size.
+\begin{tikzpicture}[
+  box/.style={draw=edge, line width=0.9pt, rounded corners=3pt, fill=white,
+              text width=35mm, align=center, inner sep=2mm, minimum height=17mm,
+              text=ink, font=\bfseries\large}
+]
+
+\node[box] (hist) {HistoryTracker};
+\node[box, right=2.2mm of hist] (int) {Integrator};
+\node[box, right=2.2mm of int] (obs) {Observations};
+
+\node[anchor=west, text=ink, font=\bfseries\LARGE] (mtitle)
+  at ([yshift=7.5mm]hist.north west) {Model};
+
+\begin{scope}[on background layer]
+  \node[fit=(mtitle)(hist)(int)(obs), draw=accent, line width=1.4pt,
+        rounded corners=4pt, fill=panel, inner sep=2mm] {};
+\end{scope}
+
+\end{tikzpicture}
+\end{document}
