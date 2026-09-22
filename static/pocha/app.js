@@ -651,11 +651,14 @@
     var running = game.players.map(function () { return 0; });
     game.results.forEach(function (res, r) {
       var tr = el('tr');
-      tr.appendChild(el('td', 'cards dealer-col', String(res.cards)));
+      var dealer = res.dealer;
+      var cardsCell = el('td', 'cards', String(res.cards));
+      cardsCell.title = t('dealsChip', game.players[dealer]);
+      tr.appendChild(cardsCell);
       game.players.forEach(function (name, p) {
         var pts = points(res.bids[p], res.won[p]);
         running[p] += pts;
-        tr.appendChild(el('td', 'group', String(res.bids[p])));
+        tr.appendChild(el('td', 'group' + (p === dealer ? ' deals' : ''), String(res.bids[p])));
         tr.appendChild(el('td', null, String(res.won[p])));
         tr.appendChild(el('td', pts >= 0 ? 'hit' : 'miss', (pts > 0 ? '+' : '') + pts));
         tr.appendChild(el('td', 'total', String(running[p])));
