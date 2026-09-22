@@ -98,10 +98,23 @@
   }
 
   function ranking(game) {
-    var totals = totalsAfter(game, game.results.length);
+    var played = game.results.length;
+    var totals = totalsAfter(game, played);
+    var last = played ? game.results[played - 1] : null;
     return game.players
-      .map(function (name, i) { return { name: name, index: i, total: totals[i] }; })
-      .sort(function (a, b) { return b.total - a.total; });
+      .map(function (name, i) {
+        var hits = 0;
+        game.results.forEach(function (res) { if (res.bids[i] === res.won[i]) hits += 1; });
+        return {
+          name: name,
+          index: i,
+          total: totals[i],
+          hits: hits,
+          played: played,
+          last: last ? points(last.bids[i], last.won[i]) : null
+        };
+      })
+      .sort(function (a, b) { return b.total - a.total || b.hits - a.hits; });
   }
 
   /* ---------- utilidades ---------- */
@@ -206,7 +219,12 @@
         b.addEventListener('click', function () {
           var slots = playersBox.querySelectorAll('input');
           for (var i = 0; i < slots.length; i++) {
-            if (!slots[i].value.trim()) { slots[i].value = n; syncDealer(); return; }
+            if (!slots[i].value.trim()) {
+              slots[i].value = n;
+              typed[i] = n;
+              syncDealer();
+              return;
+            }
           }
         });
         rosterBox.appendChild(b);
@@ -239,20 +257,33 @@
     root.appendChild(docsSection());
 
     captureSetup = function () {
-      var typed = [];
-      playersBox.querySelectorAll('input').forEach(function (input) { typed.push(input.value.trim()); });
       return {
-        players: typed,
+        players: currentNamesRaw(),
         firstDealer: parseInt(dealerSelect.value, 10) || 0,
         repeatMiddle: repeatInput.checked
       };
     };
 
+    // los nombres viven aquí, no en el DOM, para que no se pierdan al rehacer los huecos
+    // the names live here, not in the DOM, so that rebuilding the seats does not lose them
+    var typed = names.slice();
+
+    function currentNamesRaw() {
+      return typed.slice(0, seatCount()).map(function (name) { return (name || '').trim(); });
+    }
+
+    function seatCount() {
+      var n = parseInt(countInput.value, 10);
+      if (isNaN(n)) return typed.length;
+      return Math.max(3, Math.min(10, n));
+    }
+
     function currentNames() {
       var out = [];
-      playersBox.querySelectorAll('input').forEach(function (input, i) {
-        out.push(input.value.trim() || t('playerN', i + 1));
-      });
+      var seats = seatCount();
+      for (var i = 0; i < seats; i++) {
+        out.push((typed[i] || '').trim() || t('playerN', i + 1));
+      }
       return out;
     }
 
@@ -285,25 +316,31 @@
     }
 
     function syncSlots() {
-      var n = Math.max(3, Math.min(10, parseInt(countInput.value, 10) || 4));
-      countInput.value = String(n);
-      var existing = [];
-      playersBox.querySelectorAll('input').forEach(function (i) { existing.push(i.value); });
+      var n = seatCount();
+      while (typed.length < n) typed.push('');
+      if (playersBox.children.length === n) { syncDealer(); return; }
       clear(playersBox);
       for (var i = 0; i < n; i++) {
-        var slot = el('div', 'player-slot');
-        slot.appendChild(el('span', 'idx', String(i + 1)));
-        var input = el('input');
-        input.type = 'text';
-        input.setAttribute('list', 'pocha-roster');
-        input.placeholder = t('playerN', i + 1);
-        input.value = existing[i] !== undefined ? existing[i] : (names[i] || '');
-        input.autocomplete = 'off';
-        input.addEventListener('input', syncDealer);
-        slot.appendChild(input);
-        playersBox.appendChild(slot);
+        playersBox.appendChild(seatSlot(i));
       }
       syncDealer();
+    }
+
+    function seatSlot(i) {
+      var slot = el('div', 'player-slot');
+      slot.appendChild(el('span', 'idx', String(i + 1)));
+      var input = el('input');
+      input.type = 'text';
+      input.setAttribute('list', 'pocha-roster');
+      input.placeholder = t('playerN', i + 1);
+      input.value = typed[i] || '';
+      input.autocomplete = 'off';
+      input.addEventListener('input', function () {
+        typed[i] = input.value;
+        syncDealer();
+      });
+      slot.appendChild(input);
+      return slot;
     }
 
     function randomIndex(n) {
@@ -341,7 +378,11 @@
 
     diceBtn.addEventListener('click', drawDealer);
 
-    countInput.addEventListener('change', syncSlots);
+    countInput.addEventListener('input', syncSlots);
+    countInput.addEventListener('change', function () {
+      countInput.value = String(seatCount());
+      syncSlots();
+    });
     repeatInput.addEventListener('change', syncPreview);
     syncSlots();
     dealerSelect.value = String(Math.min(lineup.firstDealer || 0, names.length - 1));
@@ -517,15 +558,29 @@
     var box = el('div', 'standings');
     var order = ranking(game);
     order.forEach(function (entry, i) {
-      var item = el('div', 'standing' + (i === 0 && entry.total !== 0 ? ' lead' : ''));
-      var left = el('div');
-      left.appendChild(el('span', 'pos', (i + 1) + '.'));
-      left.appendChild(el('span', 'nm', entry.name));
-      item.appendChild(left);
-      item.appendChild(el('span', 'pts', String(entry.total)));
+      var item = el('div', 'standing' + (i === 0 && entry.played ? ' lead' : ''));
+
+      var head = el('div', 'standing-head');
+      head.appendChild(el('span', 'pos', (i + 1)));
+      head.appendChild(el('span', 'nm', entry.name));
+      if (entry.last !== null) {
+        head.appendChild(el('span', 'delta ' + (entry.last >= 0 ? 'up' : 'down'),
+          (entry.last > 0 ? '+' : '') + entry.last));
+      }
+      item.appendChild(head);
+
+      var foot = el('div', 'standing-foot');
+      var pts = el('span', 'pts');
+      pts.appendChild(el('strong', null, String(entry.total)));
+      pts.appendChild(el('span', 'pts-unit', t('pointsUnit')));
+      foot.appendChild(pts);
+      foot.appendChild(el('span', 'hits', t('hitsOf', entry.hits, entry.played)));
+      item.appendChild(foot);
+
       box.appendChild(item);
     });
     card.appendChild(box);
+    card.appendChild(el('p', 'hint', t('standingsLegend')));
     return card;
   }
 

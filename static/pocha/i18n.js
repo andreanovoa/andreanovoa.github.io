@@ -40,7 +40,10 @@ window.POCHA_I18N = {
     tricksMustAdd: function (cards) { return 'las bazas deben sumar ' + cards; },
 
     /* marcador */
-    standings: 'Clasificación',
+    standings: 'Marcador',
+    pointsUnit: ' pts',
+    hitsOf: function (hits, played) { return hits + ' de ' + played + (played === 1 ? ' ronda acertada' : ' rondas acertadas'); },
+    standingsLegend: 'Puntos acumulados, rondas acertadas y cambio de la última ronda.',
     playedRounds: 'Rondas jugadas',
     noRounds: 'Todavía no hay rondas anotadas.',
     shortBid: 'A',
@@ -142,7 +145,10 @@ window.POCHA_I18N = {
     tricksMustAdd: function (cards) { return 'the tricks have to add up to ' + cards; },
 
     /* scoreboard */
-    standings: 'Standings',
+    standings: 'Scoreboard',
+    pointsUnit: ' pts',
+    hitsOf: function (hits, played) { return hits + ' of ' + played + (played === 1 ? ' round hit' : ' rounds hit'); },
+    standingsLegend: 'Points accumulated, rounds hit and the change from the last round.',
     playedRounds: 'Rounds played',
     noRounds: 'No rounds scored yet.',
     shortBid: 'B',
