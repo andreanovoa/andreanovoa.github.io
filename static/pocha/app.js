@@ -472,9 +472,7 @@
 
     order.forEach(function (p) {
       var row = el('div', 'bid-row' + (p === dealer ? ' is-dealer' : ''));
-      var who = el('div', 'who', game.players[p]);
-      if (p === dealer) who.appendChild(el('small', null, t('dealerNote')));
-      row.appendChild(who);
+      row.appendChild(el('div', 'who', game.players[p]));
       row.appendChild(numberInput(cards, draft.bids, p));
       row.appendChild(numberInput(cards, draft.won, p));
       box.appendChild(row);
@@ -483,6 +481,10 @@
 
     var tally = el('p', 'tally');
     card.appendChild(tally);
+
+    var alert = el('div', 'round-alert');
+    alert.style.display = 'none';
+    card.appendChild(alert);
 
     var actions = el('div', 'actions');
     var confirmBtn = el('button', 'primary', t('saveRound'));
@@ -510,32 +512,22 @@
       var wonDone = draft.won.every(function (v) { return v !== null; });
       var bidSum = sum(draft.bids);
       var wonSum = sum(draft.won);
-      var messages = [];
-      var tone = 'tally';
+      var counts = [];
 
-      if (bidsDone) {
-        messages.push(t('bidsSum', bidSum, cards));
-        if (bidSum === cards) {
-          messages.push(t('bidsMatch'));
-          tone = 'tally warn';
-        }
-      } else {
-        messages.push(t('bidsMissing'));
-      }
+      counts.push(bidsDone ? t('bidsSum', bidSum, cards) : t('bidsMissing'));
+      if (wonDone) counts.push(t('tricksSum', wonSum, cards));
+      tally.textContent = counts.join(' · ') + '.';
 
-      if (wonDone) {
-        messages.push(t('tricksSum', wonSum, cards));
-        if (wonSum !== cards) {
-          messages.push(t('tricksMustAdd', cards));
-          tone = 'tally bad';
-        } else if (tone === 'tally') {
-          tone = 'tally ok';
-        }
-      }
+      // las apuestas sólo casan cuando está anotada la última / the bids can only match once the last one is in
+      var bidsTie = bidsDone && bidSum === cards;
+      var tricksOff = wonDone && wonSum !== cards;
+      clear(alert);
+      if (bidsTie) alert.appendChild(el('span', 'bad', t('bidsTie', cards)));
+      if (tricksOff) alert.appendChild(el('span', 'warn', t('tricksCheck', wonSum, cards)));
+      alert.style.display = bidsTie || tricksOff ? 'block' : 'none';
 
-      tally.className = tone;
-      tally.textContent = messages.join(' · ') + '.';
-      confirmBtn.disabled = !(bidsDone && wonDone && wonSum === cards);
+      tally.className = 'tally' + (bidsDone && wonDone && !bidsTie && !tricksOff ? ' ok' : '');
+      confirmBtn.disabled = !(bidsDone && wonDone);
     }
 
     box.addEventListener('input', refresh);

@@ -291,3 +291,13 @@
 .pocha a.tab:hover { color: var(--primary); border-color: var(--border); }
 .pocha a.tab.on { color: var(--primary); border-color: var(--border); background: var(--code-bg); }
 .pocha .docs > h2:first-child { margin-top: 0.5rem; }
+
+/* Round alerts */
+.pocha .round-alert { margin-top: 0.5rem; display: grid; gap: 0.4rem; }
+.pocha .round-alert span {
+  display: block; padding: 0.5rem 0.7rem; border-radius: 8px;
+  font-size: 0.88rem; line-height: 1.45;
+  border: 1px solid currentColor; background: var(--code-bg);
+}
+.pocha .round-alert span.bad { color: var(--pocha-bad); }
+.pocha .round-alert span.warn { color: var(--pocha-warn); }
