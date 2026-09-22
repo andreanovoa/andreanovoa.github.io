@@ -9,7 +9,7 @@ window.POCHA_I18N = {
     fullTable: 'Ver tabla completa',
     roundsDone: function (played, total) { return played + ' de ' + total + (total === 1 ? ' ronda jugada' : ' rondas jugadas'); },
     shortCards: 'Cartas',
-    fullTableLegend: 'Todas las rondas de la partida. Las que faltan aparecen en gris, con un punto en la columna de quien reparte. A: apuesta · B: bazas · Pts: puntos de la ronda · Tot: acumulado.',
+    fullTableLegend: 'Todas las rondas de la partida. La apuesta de quien reparte va en color, y las rondas que faltan aparecen en gris con un punto en esa misma columna. A: apuesta · B: bazas · Pts: puntos de la ronda · Tot: acumulado.',
     backToGame: 'Volver a la partida',
     printTable: 'Imprimir',
 
@@ -58,7 +58,7 @@ window.POCHA_I18N = {
     shortTricks: 'B',
     shortPoints: 'Pts',
     shortTotal: 'Tot',
-    tableLegend: 'A: apuesta · B: bazas ganadas · Pts: puntos de la ronda · Tot: acumulado. El punto junto al número de cartas marca la mano que reparte.',
+    tableLegend: 'A: apuesta · B: bazas ganadas · Pts: puntos de la ronda · Tot: acumulado. La apuesta de quien reparte cada ronda va en color.',
     winsWith: function (points) { return 'Gana la partida con ' + points + ' puntos.'; },
 
     /* exportación */
@@ -81,7 +81,13 @@ window.POCHA_I18N = {
       { h2: 'Cómo se juega' },
       { p: 'La pocha se juega con la baraja española de 40 cartas, del 1 al 7 más sota, caballo y rey. En cada ronda se reparte el mismo número de cartas a cada jugador, cada uno apuesta cuántas bazas cree que va a ganar y después se juega la mano. El número máximo de cartas por mano es 40 dividido entre el número de jugadores, redondeado hacia abajo.' },
       { p: 'Las rondas suben de una carta hasta el máximo, se repite la mano larga tantas veces como jugadores menos uno, y después bajan de nuevo hasta una carta. La opción <em>repetir rondas largas</em> multiplica esas manos largas por el número de jugadores, de forma que cada jugador reparte una mano larga en cada vuelta.' },
+      { p: 'Empieza la ronda el jugador que está a la derecha del repartidor: es el primero en apostar y el primero en salir. Las apuestas y las bazas siguen desde ahí el orden de la mesa, y el repartidor cierra la vuelta.' },
       { p: 'Quien reparte apuesta el último, y el total de las apuestas no puede coincidir con el número de cartas de la mano, así que al menos un jugador falla. Al anotar la última apuesta, el marcador avisa en rojo si la suma coincide y no deja guardar la ronda, porque esa mano no puede darse. Con las bazas, avisa en ámbar si no suman las cartas de la mano, y tampoco deja guardar hasta que se corrijan.' },
+
+      { h2: 'Qué cartas mandan' },
+      { p: 'Dentro de un mismo palo, el orden de mayor a menor es el as, el tres, el rey, el caballo, la sota y después el siete, el seis, el cinco, el cuatro y el dos.' },
+      { ranks: ['As', '3', 'Rey', 'Caballo', 'Sota', '7', '6', '5', '4', '2'] },
+      { p: 'Así, el as gana a todas las cartas de su palo y el dos pierde con todas. El triunfo gana a cualquier carta de los demás palos, incluso a un as.' },
 
       { h2: 'Asistir, subir, fallar y ahorrar' },
       { p: 'Hay que asistir y subir. Si quien sale echa oros, tienes que echar un oro más grande; si no tienes ninguno más grande, echas un oro más pequeño; y si no tienes oros, echas triunfo, que es fallar la baza.' },
@@ -122,7 +128,7 @@ window.POCHA_I18N = {
     fullTable: 'See the full table',
     roundsDone: function (played, total) { return played + ' of ' + total + (total === 1 ? ' round played' : ' rounds played'); },
     shortCards: 'Cards',
-    fullTableLegend: 'Every round of the game. The rounds still to play are greyed out, with a dot in the column of the player who deals them. B: bid · T: tricks · Pts: points of the round · Tot: running total.',
+    fullTableLegend: 'Every round of the game. The bid of whoever deals is coloured, and the rounds still to play are greyed out, with a dot in that same column. B: bid · T: tricks · Pts: points of the round · Tot: running total.',
     backToGame: 'Back to the game',
     printTable: 'Print',
 
@@ -171,7 +177,7 @@ window.POCHA_I18N = {
     shortTricks: 'T',
     shortPoints: 'Pts',
     shortTotal: 'Tot',
-    tableLegend: 'B: bid · T: tricks won · Pts: points of the round · Tot: running total. The dot next to the number of cards marks the hand that deals.',
+    tableLegend: 'B: bid · T: tricks won · Pts: points of the round · Tot: running total. The bid of whoever deals each round is coloured.',
     winsWith: function (points) { return 'Wins the game with ' + points + ' points.'; },
 
     /* export */
@@ -194,7 +200,13 @@ window.POCHA_I18N = {
       { h2: 'How the game works' },
       { p: 'Pocha is played with the Spanish deck of 40 cards, from 1 to 7 plus the knave, the knight and the king. Each round deals the same number of cards to every player, each player bids how many tricks they expect to win, and the hand is then played. The largest hand is 40 divided by the number of players, rounded down.' },
       { p: 'The rounds climb from one card up to that maximum, the long hand is repeated as many times as there are players minus one, and the rounds then come back down to one card. The option <em>repeat the long rounds</em> multiplies those long hands by the number of players, so that every player deals a long hand in each lap.' },
+      { p: 'The round starts with the player to the right of the dealer, who bids first and leads the first card. The bids and the tricks then follow the seating order from there, and the dealer closes the lap.' },
       { p: 'The dealer bids last, and the bids cannot add up to the number of cards dealt, so at least one player fails. When the last bid is entered, the scoreboard flags in red that the bids add up to the hand and refuses to save the round, because that hand cannot happen. For the tricks, it flags in amber that they do not add up to the cards dealt, and it does not save the round until they are corrected either.' },
+
+      { h2: 'Which cards win' },
+      { p: 'Within a suit, the order from high to low is the ace, the three, the king, the knight, the knave and then the seven, the six, the five, the four and the two.' },
+      { ranks: ['Ace', '3', 'King', 'Knight', 'Knave', '7', '6', '5', '4', '2'] },
+      { p: 'So the ace beats every card of its suit and the two loses to all of them. A trump beats any card of the other suits, even an ace.' },
 
       { h2: 'Following suit, overtaking, trumping and saving' },
       { p: 'You have to follow suit and overtake. If the player who leads plays oros (coins), you have to play a higher oro; if you hold none that is higher, you play a lower oro; and if you hold no oros at all, you play a trump, which is called to trump the trick.' },

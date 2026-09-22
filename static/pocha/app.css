@@ -157,7 +157,8 @@
 .pocha thead th { position: sticky; top: 0; background: var(--entry); color: var(--secondary); font-size: 0.75rem; text-transform: uppercase; }
 .pocha tbody tr:hover { background: var(--code-bg); }
 .pocha td.cards { font-weight: 700; color: var(--secondary); }
-.pocha td.cards.dealer-col::after { content: " \25CF"; color: var(--tertiary); font-size: 0.7em; }
+/* la misma franja que marca al repartidor en el panel de la ronda */
+.pocha td.deals { color: var(--tertiary); box-shadow: inset 2px 0 0 var(--tertiary); }
 .pocha td.hit { color: var(--pocha-ok); }
 .pocha td.miss { color: var(--pocha-bad); }
 .pocha td.total { font-weight: 700; }
@@ -319,7 +320,6 @@
 }
 .pocha table.full-table tbody tr:hover .cards-col { background: var(--code-bg); }
 .pocha table.full-table tr.pending td { color: var(--secondary); opacity: 0.55; }
-.pocha table.full-table td.deals { color: var(--tertiary); }
 .pocha table.full-table tfoot td {
   border-top: 2px solid var(--border); font-size: 1rem; padding-top: 0.5rem;
 }
@@ -331,3 +331,16 @@
   .pocha .table-wrap { overflow: visible; }
   .pocha table.full-table { font-size: 9pt; }
 }
+
+/* Card ranking */
+.pocha .rank-row {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem;
+  margin: 0 0 1rem;
+}
+.pocha .rank-row .rank {
+  padding: 0.3rem 0.65rem; border-radius: 8px;
+  background: var(--code-bg); border: 1px solid var(--border);
+  font-size: 0.9rem; font-weight: 600; white-space: nowrap;
+}
+.pocha .rank-row .rank.top { border-color: var(--tertiary); color: var(--tertiary); }
+.pocha .rank-row .rank-arrow { color: var(--secondary); font-size: 0.8rem; }
