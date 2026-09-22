@@ -81,6 +81,7 @@ window.POCHA_I18N = {
       { h2: 'Cómo se juega' },
       { p: 'La pocha se juega con la baraja española de 40 cartas, del 1 al 7 más sota, caballo y rey. En cada ronda se reparte el mismo número de cartas a cada jugador, cada uno apuesta cuántas bazas cree que va a ganar y después se juega la mano. El número máximo de cartas por mano es 40 dividido entre el número de jugadores, redondeado hacia abajo.' },
       { p: 'Las rondas suben de una carta hasta el máximo, se repite la mano larga tantas veces como jugadores menos uno, y después bajan de nuevo hasta una carta. La opción <em>repetir rondas largas</em> multiplica esas manos largas por el número de jugadores, de forma que cada jugador reparte una mano larga en cada vuelta.' },
+      { p: 'Empieza la ronda el jugador que está a la derecha del repartidor: es el primero en apostar y el primero en salir. Las apuestas y las bazas siguen desde ahí el orden de la mesa, y el repartidor cierra la vuelta.' },
       { p: 'Quien reparte apuesta el último, y el total de las apuestas no puede coincidir con el número de cartas de la mano, así que al menos un jugador falla. Al anotar la última apuesta, el marcador avisa en rojo si la suma coincide y no deja guardar la ronda, porque esa mano no puede darse. Con las bazas, avisa en ámbar si no suman las cartas de la mano, y tampoco deja guardar hasta que se corrijan.' },
 
       { h2: 'Qué cartas mandan' },
@@ -199,6 +200,7 @@ window.POCHA_I18N = {
       { h2: 'How the game works' },
       { p: 'Pocha is played with the Spanish deck of 40 cards, from 1 to 7 plus the knave, the knight and the king. Each round deals the same number of cards to every player, each player bids how many tricks they expect to win, and the hand is then played. The largest hand is 40 divided by the number of players, rounded down.' },
       { p: 'The rounds climb from one card up to that maximum, the long hand is repeated as many times as there are players minus one, and the rounds then come back down to one card. The option <em>repeat the long rounds</em> multiplies those long hands by the number of players, so that every player deals a long hand in each lap.' },
+      { p: 'The round starts with the player to the right of the dealer, who bids first and leads the first card. The bids and the tricks then follow the seating order from there, and the dealer closes the lap.' },
       { p: 'The dealer bids last, and the bids cannot add up to the number of cards dealt, so at least one player fails. When the last bid is entered, the scoreboard flags in red that the bids add up to the hand and refuses to save the round, because that hand cannot happen. For the tricks, it flags in amber that they do not add up to the cards dealt, and it does not save the round until they are corrected either.' },
 
       { h2: 'Which cards win' },
