@@ -29,7 +29,7 @@ We further show that, for the dynamical system considered, the dominant source o
 
 
 #### Schematic of the parameterized VAE-transformer ROM. 
-<img src="abstract.jpg" width=1000px alt="Schematic of the parameterized VAE-transformer ROM" style="display: block; margin: 0 auto 1em;background:var(--gray);padding:0.5rem;border-radius:4px;"/>
+<img src="abstract.jpg" class="invert-dark" width=1000px alt="Schematic of the parameterized VAE-transformer ROM" style="display: block; margin: 0 auto 1em;background:var(--gray);padding:0.5rem;border-radius:4px;"/>
 <figcaption style="text-align:center;">
 The variational encoder $\mathcal{E}$ compresses the velocity field $(U_t, V_t)$, together with the parameter $\xi$, into the mean $\mu$ and variance $\sigma^2$ of the latent distribution. Sampling $\epsilon \sim \mathcal{N}(0, I)$ yields an ensemble of latent states $z_{i,t}$, which the decoder $\mathcal{D}$ maps back to an ensemble of full-state trajectories $\psi \in \mathbb{R}^{N,T,D}$. On the right, the ensemble mean $\bar{\psi}$ and the ensemble spread $\tilde{\psi}$ of the flow past a cylinder are shown at increasing times $t$; the spread grows as the forecast departs from the observations, which provides the uncertainty estimate that the ensemble Kalman filter exploits.
 </br></br></figcaption>

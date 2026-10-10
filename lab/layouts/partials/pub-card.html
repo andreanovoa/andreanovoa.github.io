@@ -5,7 +5,7 @@
   {{- with .cover }}
   <div class="pub-card-cover">
     {{- if $href }}<a href="{{ $href }}">{{ end }}
-    <img src="{{ . | relURL }}" alt="{{ $.title }}" loading="lazy">
+    <img src="{{ . | relURL }}"{{ if $.invertDark }} class="invert-dark"{{ end }} alt="{{ $.title }}" loading="lazy">
     {{- if $href }}</a>{{ end }}
   </div>
   {{- end }}

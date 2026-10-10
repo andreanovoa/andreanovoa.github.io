@@ -33,6 +33,7 @@ repos:
     org: andreanovoa
     url: "https://andreanovoa.github.io/qlroms/"
     docs: "https://andreanovoa.github.io/qlroms/"
+    license: "MIT"
     description: "Quantized-local reduced-order models: the state space is partitioned into charts by k-means, each chart gets its own local POD basis, and an exact shared atlas stitches them into one global coordinate system, with the local dynamics advanced by an intrusive Galerkin projection. Includes a live KS-1D demo."
 
   - name: "dynamodels"

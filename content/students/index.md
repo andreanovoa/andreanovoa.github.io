@@ -60,18 +60,6 @@ hideAuthor: true
       <td><strong>Bidirectional digital twins for the control of chaotic systems</strong></td>
       <td>2026</td>
     </tr>
-    <tr>
-      <td>Konstantinos Barmpounis</td>
-      <td>MSc Advanced Aeronautical Engineering<br><sub>Aeronautics, Imperial</sub></td>
-      <td><strong>Real-time bias-aware data assimilation for turbulent wind farm wake estimation</strong><br><span class="cv-note"><span class="cv-note-label">Co-supervisor</span> Luca Magri</span></td>
-      <td>2026</td>
-    </tr>
-    <tr>
-      <td>Salvatore Aloj</td>
-      <td>MSc Advanced Aeronautical Engineering<br><sub>Aeronautics, Imperial</sub></td>
-      <td><strong>Wake reconstruction from wind turbine load measurements using a nonlinear machine learning approach</strong><br><span class="cv-note"><span class="cv-note-label">Co-supervisor</span> George Rigas</span></td>
-      <td>2026</td>
-    </tr>
   </tbody>
 </table>
 
@@ -87,6 +75,18 @@ hideAuthor: true
     </tr>
   </thead>
   <tbody>
+    <tr>
+      <td>Konstantinos Barmpounis</td>
+      <td>MSc Advanced Aeronautical Engineering<br><sub>Aeronautics, Imperial</sub></td>
+      <td><strong>Real-time bias-aware data assimilation for turbulent wind farm wake estimation</strong><br><span class="cv-note"><span class="cv-note-label">Co-supervisor</span> Luca Magri</span></td>
+      <td>2026</td>
+    </tr>
+    <tr>
+      <td>Salvatore Aloj</td>
+      <td>MSc Advanced Aeronautical Engineering<br><sub>Aeronautics, Imperial</sub></td>
+      <td><strong>Wake reconstruction from wind turbine load measurements using a nonlinear machine learning approach</strong><br><span class="cv-note"><span class="cv-note-label">Co-supervisor</span> George Rigas</span></td>
+      <td>2026</td>
+    </tr>
     <tr>
       <td>Ben Eze</td>
       <td>MEng Aeronautical Engineering (FYP)<br><sub>Aeronautics, Imperial</sub></td>
