@@ -39,9 +39,10 @@ current:
     affiliation: "Aeronautics, Imperial College London"
     project: "Bidirectional digital twins for the control of chaotic systems"
 
+alumni:
   - name: "Konstantinos Barmpounis"
     role: "MSc student"
-    since: "2026"
+    years: "2026"
     affiliation: "MSc Advanced Aeronautical Engineering, Imperial College London"
     photo: "img/people/konstantinos-barmpounis.jpg"
     project: "Real-time bias-aware data assimilation for turbulent wind farm wake estimation"
@@ -49,13 +50,12 @@ current:
 
   - name: "Salvatore Aloj"
     role: "MSc student"
-    since: "2026"
+    years: "2026"
     affiliation: "MSc Advanced Aeronautical Engineering, Imperial College London"
     photo: "img/people/salvatore-aloj.jpg"
     project: "Wake reconstruction from wind turbine load measurements using a nonlinear machine learning approach"
     cosupervisor: "George Rigas"
 
-alumni:
   - name: "Ben Eze"
     role: "MEng final-year project"
     years: "2025–26"
