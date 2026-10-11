@@ -7,8 +7,8 @@ hideAuthor: true
 ---
 
 Four Python packages, each with its own documentation and executed tutorial
-notebooks. The tutorials are embedded below: open one to work through it without
-leaving this page, or follow the link to the full documentation.
+notebooks. qlroms also has a live demo, embedded below: open it to try the method
+without leaving this page.
 
 <div class="projects-grid">
 
@@ -21,10 +21,6 @@ leaving this page, or follow the link to the full documentation.
       <li><a href="https://andreanovoa.github.io/dynamodels/" target="_blank" rel="noopener noreferrer">Documentation</a></li>
       <li><a href="https://github.com/andreanovoa/dynamodels" target="_blank" rel="noopener noreferrer">GitHub</a></li>
     </ul>
-    <details class="project-demo">
-      <summary>Interactive tutorial</summary>
-      <iframe class="project-embed" src="https://andreanovoa.github.io/dynamodels/tutorials/" loading="lazy" title="dynamodels tutorials"></iframe>
-    </details>
   </div>
 </div>
 
@@ -37,10 +33,6 @@ leaving this page, or follow the link to the full documentation.
       <li><a href="https://andreanovoa.github.io/ntsa/" target="_blank" rel="noopener noreferrer">Documentation</a></li>
       <li><a href="https://github.com/andreanovoa/ntsa" target="_blank" rel="noopener noreferrer">GitHub</a></li>
     </ul>
-    <details class="project-demo">
-      <summary>Interactive tutorial</summary>
-      <iframe class="project-embed" src="https://andreanovoa.github.io/ntsa/tutorials/" loading="lazy" title="ntsa tutorials"></iframe>
-    </details>
   </div>
 </div>
 
@@ -53,10 +45,6 @@ leaving this page, or follow the link to the full documentation.
       <li><a href="https://andreanovoa.github.io/real-time-bias-aware-DA/" target="_blank" rel="noopener noreferrer">Documentation</a></li>
       <li><a href="https://github.com/andreanovoa/real-time-bias-aware-DA" target="_blank" rel="noopener noreferrer">GitHub</a></li>
     </ul>
-    <details class="project-demo">
-      <summary>Interactive tutorial</summary>
-      <iframe class="project-embed" src="https://andreanovoa.github.io/real-time-bias-aware-DA/tutorials/" loading="lazy" title="romda tutorials"></iframe>
-    </details>
   </div>
 </div>
 
