@@ -340,6 +340,7 @@ body[data-topic] .page {
 
 /* ---------- people ---------- */
 .group-heading { font-size: 1.35rem; margin: 2.5rem 0 0.75rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border); }
+.group-count { color: var(--muted); font-weight: 400; }
 .people { list-style: none; margin: 0; padding: 0; }
 .person { display: grid; grid-template-columns: 5rem 1fr; gap: 1.25rem; padding: 1.25rem 0; border-bottom: 1px solid var(--border); }
 .person-avatar { width: 5rem; height: 5rem; border-radius: 50%; overflow: hidden; background: var(--brand-soft); display: flex; align-items: center; justify-content: center; }

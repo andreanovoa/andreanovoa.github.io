@@ -5,7 +5,7 @@
   {{ with .Params.lead }}<p class="lead">{{ . }}</p>{{ end }}
   <div class="prose">{{ .Content }}</div>
 
-  <h2 class="group-heading" id="current">Current group</h2>
+  <h2 class="group-heading" id="current">Current group <span class="group-count">({{ len $people.current }})</span></h2>
   <ul class="people">
     {{- range $people.current }}
     {{- partial "person.html" . }}
@@ -13,7 +13,7 @@
   </ul>
 
   {{- with $people.alumni }}
-  <h2 class="group-heading" id="alumni">Alumni</h2>
+  <h2 class="group-heading" id="alumni">Alumni <span class="group-count">({{ len . }})</span></h2>
   <ul class="people">
     {{- range . }}
     {{- partial "person.html" . }}
