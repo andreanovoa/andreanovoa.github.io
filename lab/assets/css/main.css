@@ -361,6 +361,17 @@ body[data-topic] .page {
 .repo:last-child { border-bottom: 1px solid var(--border); }
 .repo-name { margin: 0; font-size: 1rem; font-family: var(--sans); font-weight: 600; }
 .repo-desc { margin: 0.3rem 0 0; font-size: 0.9rem; color: var(--muted); max-width: 46rem; }
+/* A graphical abstract beside the description. The figure is taken out of the
+   flow so it only fills the height the text already takes: rows stay as tall as
+   they were without it. 12rem plus the gap leaves the 46rem description as wide
+   as before at full page width. */
+.repo--fig { display: grid; grid-template-columns: minmax(0, 1fr) 12rem; gap: 1.25rem; }
+.repo-figure { position: relative; }
+.repo-figure img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+@media (max-width: 40rem) {
+  .repo--fig { display: block; }
+  .repo-figure { display: none; }
+}
 .repo-links { margin: 0.35rem 0 0; font-size: 0.82rem; }
 
 /* ---------- footer ---------- */

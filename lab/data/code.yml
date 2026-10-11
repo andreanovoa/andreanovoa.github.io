@@ -10,9 +10,12 @@ orgs:
     blurb: "The PI's repositories: core methods, tutorials and general-purpose tooling for dynamical systems."
 
 # Software packages released with a citable DOI. `doi` is the concept DOI,
-# which always resolves to the latest version.
+# which always resolves to the latest version. `figure` is an optional graphical
+# abstract shown beside the description; `invertDark` flips it in the dark theme.
 repos:
   - name: "ntsa"
+    figure: "img/code/ntsa.png"
+    invertDark: true
     org: andreanovoa
     url: "https://github.com/andreanovoa/ntsa"
     docs: "https://andreanovoa.github.io/ntsa/"
@@ -23,6 +26,8 @@ repos:
     description: "Nonlinear time-series analysis of dynamical systems from a single long trajectory: Lyapunov exponents, delay-embedding analysis, and classification of the dynamical regime (fixed point, limit cycle, quasiperiodicity, chaos), with diagnostic figures for each case. Works with any model following the dynamodels protocol."
 
   - name: "romda"
+    figure: "img/code/romda.gif"
+    invertDark: true
     org: andreanovoa
     url: "https://github.com/andreanovoa/real-time-bias-aware-DA"
     docs: "https://andreanovoa.github.io/real-time-bias-aware-DA/"
@@ -30,6 +35,8 @@ repos:
     description: "Real-time reduced-order modelling and bias-aware data assimilation: ensemble Kalman filters including the regularized bias-aware EnKF, physical and data-driven forecast models (ESN, POD-ESN), bias estimators, and POD/SPOD decompositions, with tutorials building up to full real-data digital twins."
 
   - name: "qlroms"
+    figure: "img/code/qlroms.png"
+    invertDark: true
     org: andreanovoa
     url: "https://andreanovoa.github.io/qlroms/"
     docs: "https://andreanovoa.github.io/qlroms/"
@@ -37,6 +44,8 @@ repos:
     description: "Quantized-local reduced-order models: the state space is partitioned into charts by k-means, each chart gets its own local POD basis, and an exact shared atlas stitches them into one global coordinate system, with the local dynamics advanced by an intrusive Galerkin projection. Includes a live KS-1D demo."
 
   - name: "dynamodels"
+    figure: "img/code/dynamodels.svg"
+    invertDark: true
     org: andreanovoa
     url: "https://github.com/andreanovoa/dynamodels"
     docs: "https://andreanovoa.github.io/dynamodels/"
@@ -57,6 +66,7 @@ datasets:
   - title: "A real-time digital twin of azimuthal thermoacoustic instabilities"
     url: "https://doi.org/10.5281/zenodo.15609831"
     doi: "10.5281/zenodo.15609831"
+    figure: "img/pubs/digital-twin.webp"
     date: "2024"
     license: "CC BY 4.0"
     size: "1.5 GB"

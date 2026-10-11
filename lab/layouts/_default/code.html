@@ -28,7 +28,8 @@
   <h2 class="group-heading" id="{{ $org.key }}"><a href="{{ $org.url }}">{{ $org.name }}</a></h2>
   <ul class="repos">
     {{- range $repo := . }}
-    <li class="repo">
+    <li class="repo{{ with $repo.figure }} repo--fig{{ end }}">
+      <div class="repo-body">
       <h3 class="repo-name"><a class="icon-link" href="{{ $repo.url }}"><span data-feather="github" aria-hidden="true"></span> {{ $repo.name }}</a></h3>
       <p class="dataset-meta">
         <span class="tag">Software</span>
@@ -48,6 +49,10 @@
         {{- end }}
       </ul>
       {{- end }}
+      </div>
+      {{- with $repo.figure }}
+      <div class="repo-figure"><img src="{{ . | relURL }}"{{ if $repo.invertDark }} class="invert-dark"{{ end }} alt="{{ $repo.name }}" loading="lazy"></div>
+      {{- end }}
     </li>
     {{- end }}
   </ul>
@@ -58,7 +63,8 @@
   <h2 class="group-heading" id="data">Data</h2>
   <ul class="repos">
     {{- range $set := . }}
-    <li class="repo dataset">
+    <li class="repo dataset{{ with $set.figure }} repo--fig{{ end }}">
+      <div class="repo-body">
       <h3 class="repo-name"><a class="icon-link" href="{{ $set.url }}"><span data-feather="database" aria-hidden="true"></span> {{ $set.title }}</a></h3>
       <p class="dataset-meta">
         <span class="tag">Dataset</span>
@@ -72,6 +78,10 @@
       <ul class="link-boxes">
         <li><a class="link-box" href="{{ . }}" target="_blank" rel="noopener noreferrer"><span data-feather="book-open" aria-hidden="true"></span> {{ with $set.paperTitle }}{{ . }}{{ else }}Paper{{ end }}</a></li>
       </ul>
+      {{- end }}
+      </div>
+      {{- with $set.figure }}
+      <div class="repo-figure"><img src="{{ . | relURL }}"{{ if $set.invertDark }} class="invert-dark"{{ end }} alt="{{ $set.title }}" loading="lazy"></div>
       {{- end }}
     </li>
     {{- end }}
