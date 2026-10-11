@@ -14,6 +14,11 @@ Two things make this a working tool rather than a diagnostic afterthought. The l
 
 The canonical systems this is built against are the ones the rest of the group's work also uses: Lorenz 63 and 96, the Van der Pol oscillator, the Rijke tube and annular thermoacoustic low-order models, and the Kuramoto–Sivashinsky equation in one and two dimensions.
 
+<figure class="figure">
+  <video src="/img/research/lorenz-ergodic.mp4" poster="/img/research/lorenz-ergodic.jpg" autoplay loop muted playsinline preload="metadata" aria-label="Trajectories of the Lorenz 63 system from several initial conditions settling onto the same attractor"></video>
+  <figcaption>Lorenz 63 in <a href="https://andreanovoa.github.io/dynamodels/">dynamodels</a>: trajectories started from different initial conditions all settle onto, and fill, the same attractor. Time is in Lyapunov times (LT).</figcaption>
+</figure>
+
 ## Software
 
 Both packages are open source and archived with a citable DOI.

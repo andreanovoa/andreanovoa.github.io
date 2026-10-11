@@ -147,6 +147,9 @@ main.wrap { padding-top: 2.5rem; padding-bottom: 4rem; }
 .prose { max-width: 44rem; }
 .prose h2 { font-size: 1.3rem; margin: 2rem 0 0.6rem; }
 .prose h3 { font-size: 1.05rem; margin: 1.5rem 0 0.4rem; }
+.figure { margin: 1.75rem 0; }
+.figure img, .figure video { display: block; width: 100%; max-width: 32rem; margin: 0 auto; border-radius: 4px; }
+.figure figcaption { margin: 0.6rem auto 0; max-width: 32rem; font-size: 0.83rem; color: var(--muted); }
 .prose ul { padding-left: 1.1rem; }
 .prose li { margin: 0.3rem 0; }
 
