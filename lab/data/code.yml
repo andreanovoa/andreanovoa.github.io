@@ -13,6 +13,18 @@ orgs:
 # which always resolves to the latest version. `figure` is an optional graphical
 # abstract shown beside the description; `invertDark` flips it in the dark theme.
 repos:
+  - name: "echostatenetwork"
+    figure: "img/code/echostatenetwork.png"
+    invertDark: true
+    org: andreanovoa
+    url: "https://github.com/andreanovoa/EchoStateNetwork"
+    docs: "https://andreanovoa.github.io/EchoStateNetwork/"
+    doi: "10.5281/zenodo.23266679"
+    version: "v0.2.3"
+    date: "2026"
+    license: "MIT"
+    description: "Echo state networks in pure numpy: ridge-regression training with chaotic recycle validation, parametric inputs, Bayesian hyperparameter search, closed-loop prediction, and Jacobians for data assimilation, with a parallel layout of one reservoir per patch for spatially extended systems. The reservoir core behind qlroms and romda. Includes a live demo that builds a network from your choices."
+
   - name: "ntsa"
     figure: "img/code/ntsa.png"
     invertDark: true

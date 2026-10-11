@@ -6,11 +6,28 @@ disableAnchoredHeadings: true
 hideAuthor: true
 ---
 
-Four Python packages, each with its own documentation and executed tutorial
-notebooks. qlroms also has a live demo, embedded below: open it to try the method
-without leaving this page.
+Five Python packages, each with its own documentation and executed tutorial
+notebooks. echostatenetwork and qlroms also have live demos, embedded below: open
+one to try the method without leaving this page.
 
 <div class="projects-grid">
+
+<div class="project">
+  <div class="project-body">
+    <h2 class="project-name">echostatenetwork</h2>
+    <p class="project-desc">Echo state networks in pure numpy: ridge-regression training with chaotic recycle validation, parametric inputs, Bayesian hyperparameter search, closed-loop prediction, and Jacobians for data assimilation. A parallel layout runs one reservoir per patch of a spatially extended system. It is the reservoir core behind qlroms and romda.</p>
+    <img class="project-figure" src="echostatenetwork.png" alt="An echo state network unrolled in time: (a) open loop, driven by the data at each step; (b) closed loop, fed back its own prediction" loading="lazy">
+    <ul class="project-links">
+      <li><a href="https://andreanovoa.github.io/EchoStateNetwork/" target="_blank" rel="noopener noreferrer">Documentation</a></li>
+      <li><a href="https://github.com/andreanovoa/EchoStateNetwork" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+      <li><a href="https://andreanovoa.github.io/EchoStateNetwork/demo/esn/" target="_blank" rel="noopener noreferrer">Live demo</a></li>
+    </ul>
+    <details class="project-demo">
+      <summary>Live demo: choose the data, the architecture and the hyperparameter search, and get the code that builds the network</summary>
+      <iframe class="project-embed" src="https://andreanovoa.github.io/EchoStateNetwork/demo/esn/" loading="lazy" title="echostatenetwork live demo"></iframe>
+    </details>
+  </div>
+</div>
 
 <div class="project">
   <div class="project-body">
