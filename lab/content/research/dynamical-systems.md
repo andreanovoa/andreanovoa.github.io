@@ -16,7 +16,7 @@ The canonical systems this is built against are the ones the rest of the group's
 
 <figure class="figure">
   <video src="/img/research/lorenz-ergodic.mp4" poster="/img/research/lorenz-ergodic.jpg" autoplay loop muted playsinline preload="metadata" aria-label="Trajectories of the Lorenz 63 system from several initial conditions settling onto the same attractor"></video>
-  <figcaption>Lorenz 63 in <a href="https://andreanovoa.github.io/dynamodels/">dynamodels</a>: trajectories started from different initial conditions all settle onto, and fill, the same attractor. Time is in Lyapunov times (LT).</figcaption>
+  <figcaption>Ergodicity: trajectories started from different initial conditions all settle onto, and fill, the same attractor. Lorenz 63, simulated with <a href="https://andreanovoa.github.io/dynamodels/">dynamodels</a>; time is in Lyapunov times (LT).</figcaption>
 </figure>
 
 ## Software
