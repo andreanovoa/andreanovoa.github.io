@@ -14,7 +14,7 @@ orgs:
 # abstract shown beside the description; `invertDark` flips it in the dark theme.
 repos:
   - name: "echostatenetwork"
-    figure: "img/code/echostatenetwork.png"
+    figure: "img/code/echostatenetwork.svg"
     invertDark: true
     org: andreanovoa
     url: "https://github.com/andreanovoa/EchoStateNetwork"
@@ -38,7 +38,7 @@ repos:
     description: "Nonlinear time-series analysis of dynamical systems from a single long trajectory: Lyapunov exponents, delay-embedding analysis, and classification of the dynamical regime (fixed point, limit cycle, quasiperiodicity, chaos), with diagnostic figures for each case. Works with any model following the dynamodels protocol."
 
   - name: "romda"
-    figure: "img/code/romda.gif"
+    figure: "img/code/romda.png"
     invertDark: true
     org: andreanovoa
     url: "https://github.com/andreanovoa/real-time-bias-aware-DA"
@@ -56,7 +56,7 @@ repos:
     description: "Quantized-local reduced-order models: the state space is partitioned into charts by k-means, each chart gets its own local POD basis, and an exact shared atlas stitches them into one global coordinate system, with the local dynamics advanced by an intrusive Galerkin projection. Includes a live KS-1D demo."
 
   - name: "dynamodels"
-    figure: "img/code/dynamodels.svg"
+    figure: "img/code/lorenz63.png"
     invertDark: true
     org: andreanovoa
     url: "https://github.com/andreanovoa/dynamodels"

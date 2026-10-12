@@ -365,12 +365,17 @@ body[data-topic] .page {
 .repo-name { margin: 0; font-size: 1rem; font-family: var(--sans); font-weight: 600; }
 .repo-desc { margin: 0.3rem 0 0; font-size: 0.9rem; color: var(--muted); max-width: 46rem; }
 /* A graphical abstract beside the description. The figure is taken out of the
-   flow so it only fills the height the text already takes: rows stay as tall as
-   they were without it. 12rem plus the gap leaves the 46rem description as wide
-   as before at full page width. */
-.repo--fig { display: grid; grid-template-columns: minmax(0, 1fr) 12rem; gap: 1.25rem; }
-.repo-figure { position: relative; }
-.repo-figure img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+   flow so it only fills the height the text already takes; every figure gets
+   the same column width. */
+.repo--fig { display: grid; grid-template-columns: minmax(0, 1fr) 18rem; gap: 1.25rem; }
+.repo-figure { position: relative; border: 1px solid var(--border); border-radius: 4px; background: #fff; }
+/* The figures are drawn on white and .invert-dark turns that black, so the box
+   matches: white in the light theme, black in the dark one. */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) .repo-figure { background: #000; }
+}
+:root.dark .repo-figure { background: #000; }
+.repo-figure img { position: absolute; inset: 0.35rem; width: calc(100% - 0.7rem); height: calc(100% - 0.7rem); object-fit: contain; }
 @media (max-width: 40rem) {
   .repo--fig { display: block; }
   .repo-figure { display: none; }
