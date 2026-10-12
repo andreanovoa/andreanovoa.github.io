@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="../theme.js"></script>
 <title>Bisection Method</title>
 <style>
 @font-face{font-family:"CMU Sans Serif";src:url("fonts/cmunss.woff2") format("woff2");font-weight:400 600;font-display:swap}
@@ -16,25 +17,29 @@ body{margin:0;background:var(--bg);color:var(--navy);font-family:"CMU Sans Serif
 .wrap{max-width:1440px;margin:0 auto;padding:14px 16px 40px}
 header.top{display:flex;flex-wrap:wrap;align-items:center;gap:6px 20px;margin-bottom:12px}
 header.top h1{font-size:1.9rem;line-height:1.15;margin:0;font-weight:750;letter-spacing:-0.01em}
-.back{color:var(--navy);text-decoration:none;font-weight:600;font-size:.95rem;padding:6px 12px;border:2px solid var(--soft);border-radius:999px;background:var(--soft)}
-.back:hover{border-color:var(--grey)}
 .lede{margin:0;flex-basis:100%;font-size:1.05rem;opacity:.85}
-.layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;grid-template-areas:"plot side" "table side";gap:16px 22px;align-items:start}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"side side" "controls controls" "plot table";gap:16px 22px;align-items:start}
 .plotcard{grid-area:plot;min-width:0}
 .side{grid-area:side;min-width:0}
-.tablewrap{grid-area:table;min-width:0}
-.formula{font-size:1.2rem;line-height:1.5;min-height:3.3em;padding:10px 14px;background:var(--soft);border-radius:10px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.controls{grid-area:controls}
+.results-card{grid-area:table;min-width:0}
+.tablewrap{min-width:0}
+.formula{display:grid;grid-template-rows:repeat(3,1fr);gap:0;height:calc(4.5em + 20px);margin:6px 0 0;font-size:1.2rem;line-height:1.5;padding:10px 14px;background:var(--soft);border-radius:10px;font-variant-numeric:tabular-nums;overflow:hidden}
 .formula b{font-weight:750}
-.formula .line2{display:block;font-size:1.05rem}
+.formula .line1,.formula .line2,.formula .line3{display:block;min-width:0;min-height:0;overflow-x:auto;overflow-y:hidden;white-space:nowrap;scrollbar-width:thin}
+.formula .line2,.formula .line3{font-size:1.05rem}
 .status{margin:8px 2px 0;font-size:1.15rem;font-weight:700;min-height:1.5em}
 .status.ok{color:var(--teal)}
 .status.bad{color:var(--orange)}
 .status.info{color:var(--navy);font-weight:500;opacity:.75}
-svg.plot{display:block;width:100%;height:auto;margin-top:6px;user-select:none;-webkit-user-select:none}
+svg.plot{display:block;width:100%;height:auto;margin-top:6px;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+svg.plot:active{cursor:grabbing}
 svg.plot text{font-family:"CMU Sans Serif",system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
-.side{background:var(--soft);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:14px}
-.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-button{font:inherit;font-size:1.05rem;font-weight:700;padding:10px 8px;min-height:50px;border-radius:9px;border:2px solid var(--navy);background:#fff;color:var(--navy);cursor:pointer;touch-action:manipulation}
+.side{background:var(--soft);border-radius:12px;padding:12px;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));align-items:end;gap:10px}
+.controls.btns{display:grid;grid-template-columns:repeat(6,max-content);justify-content:start;gap:8px}
+.zoom-option{display:flex;align-items:center;gap:6px;margin-left:8px;font-size:.85rem;white-space:nowrap}
+.zoom-option input{width:auto}
+button{font:inherit;font-size:.9rem;font-weight:700;padding:6px 9px;min-height:38px;border-radius:9px;border:2px solid var(--navy);background:#fff;color:var(--navy);cursor:pointer;touch-action:manipulation}
 button.primary{background:var(--navy);color:#fff}
 button:active{transform:translateY(1px)}
 button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
@@ -44,11 +49,20 @@ input[type=text]{font-family:ui-monospace,Menlo,Consolas,monospace}
 .numslide{display:grid;grid-template-columns:96px minmax(0,1fr);gap:10px;align-items:center}
 input[type=range]{width:100%;min-width:0;accent-color:var(--orange);height:28px}
 .pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.hint{margin:0;font-size:.85rem;opacity:.75}
+.side>.pair{grid-column:1/-1}
+.side>.hint{grid-column:1/-1;margin:0;font-size:.85rem;opacity:.75}
 .err{color:var(--orange);font-size:.9rem;font-weight:600;min-height:0}
-.tablewrap{overflow:auto;max-height:46vh;border:2px solid var(--soft);border-radius:10px;-webkit-overflow-scrolling:touch}
+.tablewrap{overflow-x:auto;overflow-y:visible;max-height:none;border:2px solid var(--soft);border-radius:10px;-webkit-overflow-scrolling:touch}
 table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:1rem}
 th,td{padding:7px 12px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--soft)}
+#tbl{table-layout:fixed;width:100%;font-size:.85rem}
+#tbl th,#tbl td{overflow-wrap:anywhere}
+#tbl th,#tbl td{padding:5px 6px}
+#tbl th:nth-child(1),#tbl td:nth-child(1){width:6%;font-size:.75rem}
+#tbl th:nth-child(2),#tbl td:nth-child(2),#tbl th:nth-child(3),#tbl td:nth-child(3),#tbl th:nth-child(4),#tbl td:nth-child(4){width:11%}
+#tbl th:nth-child(5),#tbl td:nth-child(5){width:12%}
+#tbl th:nth-child(6),#tbl td:nth-child(6){width:25%}
+#tbl th:nth-child(7),#tbl td:nth-child(7){width:24%}
 th{position:sticky;top:0;background:var(--soft);font-weight:700;z-index:1}
 th:first-child,td:first-child{text-align:center}
 tr.cur td{background:rgba(228,87,46,.13);font-weight:750}
@@ -56,38 +70,35 @@ tr.cur td{background:rgba(228,87,46,.13);font-weight:750}
 .badge.teal{background:var(--teal)}.badge.orange{background:var(--orange)}.badge.grey{background:var(--grey)}
 .chip{display:inline-block;margin-right:14px;white-space:nowrap}
 @media (max-width:980px){
-  .layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"plot" "side" "table"}
+  .layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"side" "controls" "plot" "table"}
+  .side{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .controls.btns{grid-template-columns:repeat(6,max-content)}
 }
 @media (max-width:600px){
   html{font-size:16px}
+  .side{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .controls.btns{grid-template-columns:repeat(3,max-content)}
   header.top h1{font-size:1.5rem}
   .formula{font-size:1.02rem}
-  .formula .line2{font-size:.95rem}
+  .formula .line2,.formula .line3{font-size:.95rem}
   th,td{padding:6px 8px}
 }
 
 </style>
+<link rel="stylesheet" href="../theme.css">
 </head>
 <body>
 <div class="wrap">
 <header class="top">
-  <a class="back" href="index.html">&larr; All demos</a>
   <h1>Bisection</h1>
   <p class="lede">Keep the half of the bracket where f changes sign: the bracket halves every step.</p>
 </header>
 <main class="layout">
   <section class="plotcard">
-    <div class="formula" id="formula">&nbsp;</div>
-    <div class="status" id="status">&nbsp;</div>
     <svg class="plot" id="plot" role="img" aria-label="Bisection plot"></svg>
+    <p class="hint plot-hint">Drag to pan · scroll to zoom</p>
   </section>
   <aside class="side">
-    <div class="btns">
-      <button id="btnBack" type="button" title="Back (left arrow)">&larr; Back</button>
-      <button id="btnStep" type="button" class="primary" title="Step (right arrow)">Step &rarr;</button>
-      <button id="btnPlay" type="button" title="Play / pause (p)">Play</button>
-      <button id="btnReset" type="button" title="Reset (r)">Reset</button>
-    </div>
     <label class="field">f(x)<select id="fsel"></select></label>
     <div id="customBox" class="field" hidden>
       <input id="custom" type="text" value="x^2 - 2x - 3" spellcheck="false" autocomplete="off" aria-label="Custom f(x)">
@@ -96,17 +107,30 @@ tr.cur td{background:rgba(228,87,46,.13);font-weight:750}
     <div class="field"><label for="a">a (left end)</label><div class="numslide"><input id="a" type="number" step="0.1"><input id="aR" type="range" aria-label="a slider"></div></div>
     <div class="field"><label for="b">b (right end)</label><div class="numslide"><input id="b" type="number" step="0.1"><input id="bR" type="range" aria-label="b slider"></div></div>
     <label class="field">Tolerance<select id="tol"></select></label>
-    <div class="pair"><label class="field">x min<input id="xmin" type="number" step="0.5"></label><label class="field">x max<input id="xmax" type="number" step="0.5"></label></div>
     <p class="hint">Keys: &rarr; step, &larr; back, p play, r reset</p>
   </aside>
-  <div class="tablewrap"><table id="tbl"></table></div>
+  <div class="controls btns">
+    <button id="btnBack" type="button" title="Back (left arrow)">&larr; Back</button>
+    <button id="btnStep" type="button" class="primary" title="Step (right arrow)">Step &rarr;</button>
+    <button id="btnPlay" type="button" title="Play / pause (p)">Play</button>
+    <button id="btnReset" type="button" title="Reset (r)">Reset</button>
+    <button id="btnResetView" type="button" title="Restore the original graph view">Reset view</button>
+    <label class="zoom-option"><input id="zoomWithIterations" type="checkbox"> Zoom in with iterations</label>
+  </div>
+  <section class="results-card">
+    <div class="formula" id="formula">&nbsp;</div>
+    <div class="status" id="status">&nbsp;</div>
+    <div class="tablewrap"><table id="tbl"></table></div>
+  </section>
 </main>
+<footer style="margin-top:1rem;color:var(--grey);font-size:.8rem">© Andrea Nóvoa</footer>
 </div>
 <script>
 "use strict";
 /* ---------- shared core (identical in every demo page) ---------- */
 // Okabe-Ito colour-blind-safe palette, same as the slides and notes
-const COL={navy:'#1A1A1A',curve:'#0072B2',orange:'#D55E00',teal:'#009E73',grey:'#767676',soft:'#F2F4F7'};
+const palette=getComputedStyle(document.documentElement);
+const COL={navy:palette.getPropertyValue('--navy').trim(),curve:palette.getPropertyValue('--curve').trim(),orange:palette.getPropertyValue('--orange').trim(),teal:palette.getPropertyValue('--teal').trim(),grey:palette.getPropertyValue('--grey').trim(),soft:palette.getPropertyValue('--soft').trim()};
 const $=id=>document.getElementById(id);
 const num=id=>parseFloat($(id).value);
 
@@ -275,10 +299,10 @@ function renderTable(id,head,rows,cur){const t=$(id);
 function fillSelect(id,list){$(id).innerHTML=list.map(p=>`<option value="${p.id}">${p.label}</option>`).join('');}
 function fillTol(id,def){const opts=[0.1,0.01,0.001,1e-4,1e-6,1e-8];$(id).innerHTML=opts.map(v=>`<option value="${v}"${v===def?' selected':''}>${fmt(v)}</option>`).join('');}
 /* number box + slider pair */
-function linkSlider(numId,rangeId,cb){const n=$(numId),r=$(rangeId);
-  n.addEventListener('input',()=>{const v=parseFloat(n.value);if(isFinite(v)){r.value=v;cb();}});
+function linkSlider(numId,rangeId,cb,constrain=()=>{}){const n=$(numId),r=$(rangeId);
+  n.addEventListener('input',()=>{const v=parseFloat(n.value);if(isFinite(v)){constrain();r.value=n.value;cb();}});
   n.addEventListener('keydown',e=>{if(e.key==='Enter')n.blur();});
-  r.addEventListener('input',()=>{n.value=+(+r.value).toFixed(6);cb();});
+  r.addEventListener('input',()=>{n.value=+(+r.value).toFixed(6);constrain();r.value=n.value;cb();});
   r.addEventListener('change',()=>r.blur());}
 function setSliderRange(rangeId,lo,hi){const r=$(rangeId);const st=niceStep(hi-lo,200);r.min=Math.floor(lo/st)*st;r.max=Math.ceil(hi/st)*st;r.step=st;}
 function setVal(numId,v){$(numId).value=+(+v).toFixed(6);const r=$(numId+'R');if(r)r.value=v;}
@@ -289,9 +313,17 @@ function getFunc(selId,list,customId){const id=$(selId).value;
   catch(e){return{error:e.message};}}
 /* step / back / reset / play controller with keyboard (clicker friendly) */
 function Stepper(render){
-  const S={k:0,last:0,timer:null,delay:1100};const pb=$('btnPlay');
-  S.show=()=>render(S.k);
-  S.set=k=>{S.k=Math.max(0,Math.min(S.last,k));render(S.k);};
+  const S={k:0,last:0,timer:null,delay:1800,zoomK:0,zoomTimer:null,zoomFrame:null};const pb=$('btnPlay');
+  S.show=()=>render(S.k,S.zoomK);
+  S.set=k=>{S.k=Math.max(0,Math.min(S.last,k));clearTimeout(S.zoomTimer);S.zoomTimer=null;if(S.zoomFrame)cancelAnimationFrame(S.zoomFrame);S.zoomFrame=null;
+    if(!$('zoomWithIterations').checked||S.k<=S.zoomK)S.zoomK=S.k;
+    render(S.k,S.zoomK);
+    if($('zoomWithIterations').checked&&S.k>S.zoomK){const target=S.k;S.zoomTimer=setTimeout(()=>{if(!$('zoomWithIterations').checked||S.k!==target)return;
+      const start=S.zoomK,started=performance.now(),duration=700;
+      const animate=now=>{if(!$('zoomWithIterations').checked||S.k!==target){S.zoomFrame=null;return;}
+        const t=Math.min(1,(now-started)/duration),ease=t*t*(3-2*t);S.zoomK=start+(target-start)*ease;render(S.k,S.zoomK);
+        if(t<1)S.zoomFrame=requestAnimationFrame(animate);else S.zoomFrame=null;};
+      S.zoomFrame=requestAnimationFrame(animate);},600);}};
   S.pause=()=>{if(S.timer)clearInterval(S.timer);S.timer=null;pb.textContent='Play';pb.classList.remove('primary');};
   S.step=()=>{if(S.k<S.last)S.set(S.k+1);};
   S.back=()=>{S.pause();S.set(S.k-1);};
@@ -314,7 +346,6 @@ function Stepper(render){
   let rt=null;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(S.show,80);});
   return S;}
 /* x-range inputs */
-function readRange(){const a=num('xmin'),b=num('xmax');return(isFinite(a)&&isFinite(b)&&b>a)?[a,b]:null;}
 function onSelectChange(id,cb){$(id).addEventListener('change',()=>{$(id).blur();cb();});}
 function debounce(fn,ms){let t=null;return()=>{clearTimeout(t);t=setTimeout(fn,ms);};}
 /* ---------- end shared core ---------- */
@@ -344,7 +375,7 @@ function bisect(f,a,b,tol,max){
 }
 
 const plot=new Plot($('plot'));
-let F=null,R=null,XR=[-2,5];
+let F=null,R=null,XR=[-2,5],viewXR=null,viewYR=null;
 const sgn=v=>v>0?'+':v<0?'−':'0';
 
 /* points a, (c), b: dashed drop lines, dots, axis labels and f-sign badges, spread so they never overlap */
@@ -360,8 +391,10 @@ function marks(list,badgeCol){const p=plot,top=p.m.t+8,y0=p.Y(0);
       if(Math.abs(XB[i]-X[i])>2)p.L.front.push(`<line x1="${XB[i]}" y1="${top+h}" x2="${X[i]}" y2="${top+h+14}" stroke="${c}" stroke-width="2"/>`);
       p.L.front.push(`<rect x="${XB[i]-bw/2}" y="${top}" width="${bw}" height="${h}" rx="${h/2}" fill="${c}"/><text x="${XB[i]}" y="${top+h/2+p.fs*0.36}" fill="#fff" font-size="${p.fs}" font-weight="800" text-anchor="middle">f(${nm}) ${sgn(fx)}</text>`);}});
 }
-function render(k){
-  plot.begin(XR,F&&!F.error?autoY([F.f],XR[0],XR[1]):[-1,1]);plot.axes();
+function render(k,zoomK=k){
+  const autoZoom=$('zoomWithIterations').checked,mid=(XR[0]+XR[1])/2,at=n=>n<=0?mid:(R&&R.steps.length?R.steps[Math.min(n-1,R.steps.length-1)].c:mid),z=Math.min(Math.max(0,zoomK),R?R.steps.length:0),lo=Math.floor(z),center=at(lo)+(at(Math.min(lo+1,R?R.steps.length:0))-at(lo))*(z-lo),span=(XR[1]-XR[0])*Math.max(0.0125,Math.pow(0.6,z));
+  const xr=autoZoom?[center-span/2,center+span/2]:(viewXR||XR),yr=autoZoom&&F&&!F.error?autoY([F.f],xr[0],xr[1]):(viewYR||(F&&!F.error?autoY([F.f],xr[0],xr[1]):[-1,1]));
+  plot.begin(xr,yr);plot.axes({xlabel:'x'});
   if(!F||F.error){plot.end();setFormula('');setStatus('bad',F?F.error:'');renderTable('tbl',[],[],-1);return;}
   plot.curve(F.f,{c:COL.curve,w:3.5});
   const p=plot;
@@ -369,20 +402,21 @@ function render(k){
     const a=R.a0,b=R.b0,fa=R.fa0,fb=R.fb0,ok=!R.status||!R.status.nb;
     if(ok)p.band(a,b,COL.teal,0.2);
     marks([[a,fa,'a',COL.teal],[b,fb,'b',COL.teal]],ok?null:COL.orange);
-    setFormula(`Start: [a, b] = [${fmt(a)}, ${fmt(b)}]<span class="line2">f(a) = ${fmt(fa)} (${sgn(fa)}), &nbsp; f(b) = ${fmt(fb)} (${sgn(fb)}) &nbsp;&rarr;&nbsp; ${ok?'signs differ: a root lies inside':'same sign: no guaranteed root'}</span>`);
+    setFormula(`<span class="line1">Start: [a, b] = [${fmt(a)}, ${fmt(b)}]</span><span class="line2">f(a) = ${fmt(fa)} (${sgn(fa)}), &nbsp; f(b) = ${fmt(fb)} (${sgn(fb)}) &nbsp;&rarr;&nbsp; ${ok?'signs differ: a root lies inside':'same sign: no guaranteed root'}</span>`);
   }else{
     const s=R.steps[k-1];
     for(let j=0;j<k-1;j++)p.dot(R.steps[j].c,0,5,COL.grey,'mid',COL.grey);
     p.band(s.a,s.b,COL.teal,0.12);
     if(s.left)p.band(s.a,s.c,COL.teal,0.25);else p.band(s.c,s.b,COL.teal,0.25);
     marks([[s.a,s.fa,'a',COL.teal],[s.c,s.fc,'c',COL.orange],[s.b,s.fb,'b',COL.teal]]);
-    setFormula(`${sb('c',k)} = (a + b)/2 = (${P(s.a)} + ${P(s.b)})/2 = <b>${fmt(s.c)}</b>`+
-      `<span class="line2">f(c) = ${fmt(s.fc)} &nbsp;&rarr;&nbsp; root in ${s.fc===0?'c':s.left?'[a, c]':'[c, b]'} &nbsp;&nbsp; error bound (b₀ − a₀)/2<sup>${k}</sup> = ${fmt(R.b0-R.a0)}/${Math.pow(2,k)} = ${fmt(s.bound)}</span>`);
+    setFormula(`<span class="line1">${sb('c',k)} = (a + b)/2 = (${P(s.a)} + ${P(s.b)})/2 = <b>${fmt(s.c)}</b></span>`+
+      `<span class="line2">f(c) = ${fmt(s.fc)} &nbsp;&rarr;&nbsp; root in ${s.fc===0?'c':s.left?'[a, c]':'[c, b]'}</span>`+
+      `<span class="line3">error bound (b₀ − a₀)/2<sup>${k}</sup> = ${fmt(R.b0-R.a0)}/${Math.pow(2,k)} = ${fmt(s.bound)}</span>`);
   }
   const done=k===R.last;
   if(done&&R.status.ok&&R.steps.length){const c=R.steps[R.last-1].c;p.dot(c,0,10,COL.teal,'top');p.text(c,0,fmt(c),{dy:-18,c:COL.teal,weight:800});}
   p.end();
-  if(done)setStatus(R.status.ok?'ok':'bad',R.status.msg);else setStatus('info','Press Step (&rarr;) for the next midpoint');
+  if(done)setStatus(R.status.ok?'ok':'bad',R.status.msg);else setStatus('','');
   const rows=[[0,fmt(R.a0,7),fmt(R.b0,7),'','','','']];
   for(let j=0;j<k;j++){const s=R.steps[j];rows.push([s.n,fmt(s.a,7),fmt(s.b,7),fmt(s.c,7),fmt(s.fc,4),s.dc===null?'':fmt(s.dc,4),fmt(s.bound,4)]);}
   renderTable('tbl',['n','a','b',sb('c','n'),'f('+sb('c','n')+')','|'+sb('c','n')+' − '+sb('c','n−1')+'|','(b₀ − a₀)/2<sup>n</sup>'],rows,k);
@@ -397,15 +431,41 @@ function recompute(resetK){
   R=F.error?null:bisect(F.f,a,b,tol,60);S.last=R?R.last:0;S.pause();S.set(resetK?0:S.k);
 }
 function applyPreset(){const pr=PRESETS.find(p=>p.id===$('fsel').value);$('customBox').hidden=pr.id!=='custom';
-  if(pr.id!=='custom'){XR=pr.range.slice();setVal('xmin',XR[0]);setVal('xmax',XR[1]);setVal('a',pr.bis[0]);setVal('b',pr.bis[1]);}
+  viewXR=null;viewYR=null;$('zoomWithIterations').checked=false;
+  if(pr.id!=='custom'){XR=pr.range.slice();setVal('a',pr.bis[0]);setVal('b',pr.bis[1]);}
   updateSliders();recompute(true);}
 fillSelect('fsel',PRESETS);fillTol('tol',0.1);
 onSelectChange('fsel',applyPreset);
 onSelectChange('tol',()=>recompute(false));
 $('custom').addEventListener('input',debounce(()=>recompute(true),300));
-linkSlider('a','aR',()=>recompute(true));linkSlider('b','bR',()=>recompute(true));
-for(const id of ['xmin','xmax'])$(id).addEventListener('input',()=>{const r=readRange();if(r){XR=r;updateSliders();S.show();}});
+linkSlider('a','aR',()=>recompute(true),()=>{if(num('a')>=num('b'))setVal('a',num('b')-0.1);});
+linkSlider('b','bR',()=>recompute(true),()=>{if(num('b')<=num('a'))setVal('b',num('a')+0.1);});
 applyPreset();
+
+let drag=null;
+$('plot').addEventListener('pointerdown',e=>{
+  const rect=$('plot').getBoundingClientRect();
+  const x=(e.clientX-rect.left)*plot.W/rect.width,y=(e.clientY-rect.top)*plot.H/rect.height;
+  if(x<plot.m.l||x>plot.m.l+plot.pw||y<plot.m.t||y>plot.m.t+plot.ph)return;
+  $('zoomWithIterations').checked=false;drag={id:e.pointerId,x:e.clientX,y:e.clientY,xr:[plot.x0,plot.x1],yr:[plot.y0,plot.y1]};
+  $('plot').setPointerCapture(e.pointerId);
+});
+$('plot').addEventListener('pointermove',e=>{
+  if(!drag||drag.id!==e.pointerId)return;
+  const rect=$('plot').getBoundingClientRect(),dx=(e.clientX-drag.x)*plot.W/rect.width,dy=(e.clientY-drag.y)*plot.H/rect.height;
+  const sx=-dx/plot.pw*(drag.xr[1]-drag.xr[0]),sy=dy/plot.ph*(drag.yr[1]-drag.yr[0]);
+  viewXR=[drag.xr[0]+sx,drag.xr[1]+sx];viewYR=[drag.yr[0]+sy,drag.yr[1]+sy];S.show();
+});
+for(const type of ['pointerup','pointercancel'])$('plot').addEventListener(type,e=>{if(drag?.id===e.pointerId)drag=null;});
+$('plot').addEventListener('wheel',e=>{
+  e.preventDefault();$('zoomWithIterations').checked=false;
+  const rect=$('plot').getBoundingClientRect(),x=(e.clientX-rect.left)*plot.W/rect.width,y=(e.clientY-rect.top)*plot.H/rect.height;
+  const fx=(x-plot.m.l)/plot.pw,fy=(plot.m.t+plot.ph-y)/plot.ph,factor=e.deltaY<0?0.85:1/0.85;
+  const zoom=(range,f)=>{const center=range[0]+f*(range[1]-range[0]),span=(range[1]-range[0])*factor;return[center-f*span,center+(1-f)*span];};
+  viewXR=zoom([plot.x0,plot.x1],fx);viewYR=zoom([plot.y0,plot.y1],fy);S.show();
+},{passive:false});
+$('zoomWithIterations').addEventListener('change',()=>{viewXR=null;viewYR=null;if($('zoomWithIterations').checked)S.zoomK=0;S.set(S.k);});
+$('btnResetView').addEventListener('click',()=>{$('zoomWithIterations').checked=false;viewXR=null;viewYR=null;S.show();});
 </script>
 </body>
 </html>

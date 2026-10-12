@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="../theme.js"></script>
 <title>Compare Root Finders</title>
 <style>
 @font-face{font-family:"CMU Sans Serif";src:url("fonts/cmunss.woff2") format("woff2");font-weight:400 600;font-display:swap}
@@ -16,25 +17,40 @@ body{margin:0;background:var(--bg);color:var(--navy);font-family:"CMU Sans Serif
 .wrap{max-width:1440px;margin:0 auto;padding:14px 16px 40px}
 header.top{display:flex;flex-wrap:wrap;align-items:center;gap:6px 20px;margin-bottom:12px}
 header.top h1{font-size:1.9rem;line-height:1.15;margin:0;font-weight:750;letter-spacing:-0.01em}
-.back{color:var(--navy);text-decoration:none;font-weight:600;font-size:.95rem;padding:6px 12px;border:2px solid var(--soft);border-radius:999px;background:var(--soft)}
-.back:hover{border-color:var(--grey)}
 .lede{margin:0;flex-basis:100%;font-size:1.05rem;opacity:.85}
-.layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;grid-template-areas:"plot side" "table side";gap:16px 22px;align-items:start}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"side side" "controls controls" "plot table";gap:16px 22px;align-items:start}
 .plotcard{grid-area:plot;min-width:0}
 .side{grid-area:side;min-width:0}
-.tablewrap{grid-area:table;min-width:0}
+.results-card{grid-area:table;min-width:0}
+.tablewrap{min-width:0}
 .formula{font-size:1.2rem;line-height:1.5;min-height:3.3em;padding:10px 14px;background:var(--soft);border-radius:10px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .formula b{font-weight:750}
 .formula .line2{display:block;font-size:1.05rem}
+.compare-progress{display:grid;grid-template-columns:minmax(150px,.8fr) minmax(0,1.2fr);gap:14px;align-items:start}
+.compare-progress-main,.compare-progress-methods{display:grid;gap:6px}
+.compare-method{display:grid;grid-template-columns:minmax(90px,.8fr) minmax(0,1.2fr);gap:8px;align-items:start}
 .status{margin:8px 2px 0;font-size:1.15rem;font-weight:700;min-height:1.5em}
 .status.ok{color:var(--teal)}
 .status.bad{color:var(--orange)}
 .status.info{color:var(--navy);font-weight:500;opacity:.75}
 svg.plot{display:block;width:100%;height:auto;margin-top:6px;user-select:none;-webkit-user-select:none}
 svg.plot text{font-family:"CMU Sans Serif",system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
-.side{background:var(--soft);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:14px}
-.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-button{font:inherit;font-size:1.05rem;font-weight:700;padding:10px 8px;min-height:50px;border-radius:9px;border:2px solid var(--navy);background:#fff;color:var(--navy);cursor:pointer;touch-action:manipulation}
+.side{background:var(--soft);border-radius:12px;padding:12px;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(240px,.75fr);align-items:start;gap:12px}
+.method-settings{display:flex;flex-direction:column;gap:12px;min-width:0}
+.function-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;align-items:end}
+.method-options{display:grid;grid-template-columns:1fr;gap:8px}
+.method-option{display:grid;grid-template-columns:130px minmax(0,1fr);align-items:center;gap:12px;width:fit-content;max-width:100%;justify-self:start;min-width:0;padding:10px;border:1px solid var(--border);border-radius:9px;background:var(--entry)}
+.method-option h2{margin:0;font-size:1rem}
+.method-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));align-items:end;gap:8px}
+.method-option .pair{margin:0}
+.method-option .hint{margin-top:8px}
+.method-option:has(#gsel) .method-fields{grid-template-columns:repeat(2,minmax(170px,220px))}
+.method-option:has(#gsel) #customGBox{grid-column:1/-1}
+.function-preview{min-width:0;padding:10px;border:1px solid var(--border);border-radius:9px;background:var(--entry)}
+.function-preview h2{margin:0 0 8px;font-size:1rem}
+svg.function-plot{display:block;width:100%;height:auto;user-select:none}
+.controls.btns{grid-area:controls;display:grid;grid-template-columns:repeat(5,max-content);justify-content:start;gap:8px}
+button{font:inherit;font-size:.9rem;font-weight:700;padding:6px 9px;min-height:38px;border-radius:9px;border:2px solid var(--navy);background:#fff;color:var(--navy);cursor:pointer;touch-action:manipulation}
 button.primary{background:var(--navy);color:#fff}
 button:active{transform:translateY(1px)}
 button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
@@ -44,9 +60,9 @@ input[type=text]{font-family:ui-monospace,Menlo,Consolas,monospace}
 .numslide{display:grid;grid-template-columns:96px minmax(0,1fr);gap:10px;align-items:center}
 input[type=range]{width:100%;min-width:0;accent-color:var(--orange);height:28px}
 .pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.hint{margin:0;font-size:.85rem;opacity:.75}
+.side>.hint{margin:0;font-size:.85rem;opacity:.75}
 .err{color:var(--orange);font-size:.9rem;font-weight:600;min-height:0}
-.tablewrap{overflow:auto;max-height:46vh;border:2px solid var(--soft);border-radius:10px;-webkit-overflow-scrolling:touch}
+.tablewrap{overflow-x:auto;overflow-y:visible;max-height:none;border:2px solid var(--soft);border-radius:10px;-webkit-overflow-scrolling:touch}
 table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:1rem}
 th,td{padding:7px 12px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--soft)}
 th{position:sticky;top:0;background:var(--soft);font-weight:700;z-index:1}
@@ -56,63 +72,112 @@ tr.cur td{background:rgba(228,87,46,.13);font-weight:750}
 .badge.teal{background:var(--teal)}.badge.orange{background:var(--orange)}.badge.grey{background:var(--grey)}
 .chip{display:inline-block;margin-right:14px;white-space:nowrap}
 @media (max-width:980px){
-  .layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"plot" "side" "table"}
+  .layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"side" "controls" "plot" "table"}
 }
+@media (max-width:720px){.side{grid-template-columns:1fr}}
+@media (max-width:720px){.method-option{grid-template-columns:1fr;gap:6px}.method-fields{grid-template-columns:repeat(auto-fit,minmax(145px,1fr))}}
 @media (max-width:600px){
+  .compare-progress{grid-template-columns:1fr;gap:8px}
   html{font-size:16px}
   header.top h1{font-size:1.5rem}
   .formula{font-size:1.02rem}
   .formula .line2{font-size:.95rem}
-  th,td{padding:6px 8px}
 }
+@media (max-width:420px){.method-fields{grid-template-columns:1fr}}
 
-.summary{margin-top:14px}
+.summary-wrap{margin-top:14px}
 .summary td:first-child,.summary th:first-child{text-align:left}
+#sum,#tbl{table-layout:fixed}
+#sum th,#sum td,#tbl th,#tbl td{white-space:normal;overflow-wrap:anywhere}
+#sum th:nth-child(1),#sum td:nth-child(1){width:16%}
+#sum th:nth-child(2),#sum td:nth-child(2){width:18%}
+#sum th:nth-child(3),#sum td:nth-child(3){width:16%}
+#sum th:nth-child(4),#sum td:nth-child(4){width:20%}
+#sum th:nth-child(5),#sum td:nth-child(5){width:30%}
+#tbl th:first-child,#tbl td:first-child{width:8%}
+#tbl th:not(:first-child),#tbl td:not(:first-child){width:23%}
 .swatch{display:inline-block;width:28px;height:0;border-top:4px solid;vertical-align:middle;margin-right:8px}
-.layout{grid-template-areas:"plot side" "table side" "iter side"}
-.iterwrap{grid-area:iter}
-@media (max-width:980px){.layout{grid-template-areas:"plot" "side" "table" "iter"}}
 </style>
+<link rel="stylesheet" href="../theme.css">
 </head>
 <body>
 <div class="wrap">
 <header class="top">
-  <a class="back" href="index.html">&larr; All demos</a>
   <h1>Compare the four methods</h1>
   <p class="lede">Error on a log scale: a straight line is linear convergence, a line that bends down ever faster is quadratic.</p>
 </header>
 <main class="layout">
   <section class="plotcard">
-    <div class="formula" id="formula">&nbsp;</div>
-    <div class="status" id="status">&nbsp;</div>
     <svg class="plot" id="plot" role="img" aria-label="Error versus iteration, log scale"></svg>
+    <div class="tablewrap summary-wrap"><table id="sum" class="summary"></table></div>
   </section>
   <aside class="side">
-    <div class="btns">
-      <button id="btnBack" type="button" title="Back (left arrow)">&larr; Back</button>
-      <button id="btnStep" type="button" class="primary" title="Step (right arrow)">Step &rarr;</button>
-      <button id="btnPlay" type="button" title="Play / pause (p)">Play</button>
-      <button id="btnReset" type="button" title="Reset (r)">Reset</button>
+    <div class="method-settings">
+    <div class="function-options">
+      <label class="field">Function f(x)<select id="fsel"></select></label>
+      <div id="customFBox" class="field" hidden>
+        <label for="customF">Custom f(x)</label>
+        <input id="customF" type="text" value="x^2 - 2x - 3" spellcheck="false" autocomplete="off">
+        <div id="customFErr" class="err"></div>
+      </div>
     </div>
-    <button id="btnEnd" type="button" title="Show all (End)">Show all</button>
-    <label class="field">f(x)<select id="fsel"></select></label>
-    <div class="pair"><label class="field">Bisection a<input id="a" type="number" step="0.1"></label><label class="field">Bisection b<input id="b" type="number" step="0.1"></label></div>
-    <label class="field"><span>Newton x<sub>0</sub></span><input id="nx0" type="number" step="0.1"></label>
-    <div class="pair"><label class="field"><span>Secant x<sub>0</sub></span><input id="sx0" type="number" step="0.1"></label><label class="field"><span>Secant x<sub>1</sub></span><input id="sx1" type="number" step="0.1"></label></div>
-    <label class="field">Fixed point g(x)<select id="gsel"></select></label>
-    <label class="field"><span>Fixed point x<sub>0</sub></span><input id="gx0" type="number" step="0.1"></label>
-    <label class="field">Tolerance (for the table)<select id="tol"></select></label>
+    <div class="method-options" aria-label="Starting options for each method">
+      <section class="method-option">
+        <h2>Bisection</h2>
+        <div class="method-fields"><div class="pair"><label class="field">a<input id="a" type="number" step="0.1"></label><label class="field">b<input id="b" type="number" step="0.1"></label></div></div>
+      </section>
+      <section class="method-option">
+        <h2>Newton</h2>
+        <div class="method-fields"><label class="field"><span>Starting value x<sub>0</sub></span><input id="nx0" type="number" step="0.1"></label></div>
+      </section>
+      <section class="method-option">
+        <h2>Secant</h2>
+        <div class="method-fields"><div class="pair"><label class="field"><span>x<sub>0</sub></span><input id="sx0" type="number" step="0.1"></label><label class="field"><span>x<sub>1</sub></span><input id="sx1" type="number" step="0.1"></label></div></div>
+      </section>
+      <section class="method-option">
+        <h2>Fixed point</h2>
+        <div class="method-fields">
+          <label class="field">g(x)<select id="gsel"></select></label>
+          <div id="customGBox" class="field" hidden>
+            <label for="customG">Custom g(x)</label>
+            <input id="customG" type="text" value="sqrt(2x + 3)" spellcheck="false" autocomplete="off">
+            <p class="hint">Choose g so its fixed point is a root of f(x).</p>
+            <div id="customGErr" class="err"></div>
+          </div>
+          <label class="field"><span>Starting value x<sub>0</sub></span><input id="gx0" type="number" step="0.1"></label>
+        </div>
+      </section>
+    </div>
+    <label class="field">Tolerance exponent n for 10<sup>n</sup><input id="tol" type="number" step="1" value="-6"></label>
     <p class="hint">Keys: &rarr; step, &larr; back, p play, r reset, End show all</p>
+    </div>
+    <section class="function-preview">
+      <h2>Selected function</h2>
+      <svg class="function-plot" id="functionPlot" role="img" aria-label="Graph of selected f(x)"></svg>
+      <p class="err" id="functionPlotError" hidden></p>
+    </section>
   </aside>
-  <div class="tablewrap"><table id="sum" class="summary"></table></div>
-  <div class="tablewrap iterwrap"><table id="tbl"></table></div>
+  <div class="controls btns">
+    <button id="btnBack" type="button" title="Back (left arrow)">&larr; Back</button>
+    <button id="btnStep" type="button" class="primary" title="Step (right arrow)">Step &rarr;</button>
+    <button id="btnPlay" type="button" title="Play / pause (p)">Play</button>
+    <button id="btnReset" type="button" title="Reset (r)">Reset</button>
+    <button id="btnEnd" type="button" title="Show all (End)">Show all</button>
+  </div>
+  <section class="results-card">
+    <div class="formula" id="formula">&nbsp;</div>
+    <div class="status" id="status">&nbsp;</div>
+    <div class="tablewrap iterwrap"><table id="tbl"></table></div>
+  </section>
 </main>
+<footer style="margin-top:1rem;color:var(--grey);font-size:.8rem">© Andrea Nóvoa</footer>
 </div>
 <script>
 "use strict";
 /* ---------- shared core (identical in every demo page) ---------- */
 // Okabe-Ito colour-blind-safe palette, same as the slides and notes
-const COL={navy:'#1A1A1A',curve:'#0072B2',orange:'#D55E00',teal:'#009E73',grey:'#767676',soft:'#F2F4F7'};
+const palette=getComputedStyle(document.documentElement);
+const COL={navy:palette.getPropertyValue('--navy').trim(),curve:palette.getPropertyValue('--curve').trim(),orange:palette.getPropertyValue('--orange').trim(),teal:palette.getPropertyValue('--teal').trim(),yellow:palette.getPropertyValue('--yellow').trim(),grey:palette.getPropertyValue('--grey').trim(),soft:palette.getPropertyValue('--soft').trim()};
 const $=id=>document.getElementById(id);
 const num=id=>parseFloat($(id).value);
 
@@ -332,7 +397,7 @@ const METHODS=[
   {id:'bis',name:'Bisection',c:COL.teal,dash:null,rate:'linear: error halves'},
   {id:'new',name:'Newton',c:COL.orange,dash:null,rate:'quadratic: digits double'},
   {id:'sec',name:'Secant',c:COL.curve,dash:null,rate:'superlinear (order ≈ 1.62)'},
-  {id:'fp',name:'Fixed point',c:COL.grey,dash:'10 8',rate:'linear: error × |g′|'}
+  {id:'fp',name:'Fixed point',c:COL.yellow,dash:'10 8',rate:'linear: error × |g′|'}
 ];
 const close=(u,v)=>Math.abs(u-v)<=1e-15*Math.max(1,Math.abs(v));
 function seqBis(f,a,b){const o={pts:[],fail:null};if(a>b){const t=a;a=b;b=t;}let fa=f(a),fb=f(b);
@@ -349,17 +414,37 @@ function seqFP(g,x){const o={pts:[{n:0,x}],fail:null};
 function polish(f,df,L){for(let i=0;i<8;i++){const d=df(L);if(!(Math.abs(d)>1e-300))break;const y=L-f(L)/d;if(!isFinite(y)||Math.abs(y-L)>1e-6*Math.max(1,Math.abs(L)))break;L=y;}return L;}
 
 const plot=new Plot($('plot'));
-let F=null,RES=[],LAST=0,YR=[FLOOR,10];
+const functionPlot=new Plot($('functionPlot'));
+let F=null,RES=[],LAST=0,YR=[FLOOR,10],INPUT_ERROR='';
+
+function renderFunctionPreview(){
+  const range=F?.preset?.range||[-5,5],bad=F?.error;
+  functionPlot.begin(range,bad?[-1,1]:autoY([F.f],range[0],range[1]));
+  functionPlot.axes({xlabel:'x'});
+  if(!bad&&F)functionPlot.curve(F.f,{c:COL.curve,w:3});
+  functionPlot.end();
+  $('functionPlotError').textContent=bad||'';
+  $('functionPlotError').hidden=!bad;
+}
 
 function compute(){
-  const pr=PRESETS.find(p=>p.id===$('fsel').value);F=pr;
-  const g=GPRESETS.find(q=>q.id===$('gsel').value);
-  const seqs=[seqBis(pr.f,num('a'),num('b')),seqNewton(pr.f,pr.df,num('nx0')),seqSecant(pr.f,num('sx0'),num('sx1')),seqFP(g.f,num('gx0'))];
+  F=getFunc('fsel',PRESETS,'customF');$('customFErr').textContent=F.error||'';
+  renderFunctionPreview();
+  const gPreset=GPRESETS.find(q=>q.id===$('gsel').value);
+  let g=gPreset;
+  if(gPreset.id==='custom'){
+    try{g={...gPreset,f:compileExpr($('customG').value)};$('customGErr').textContent='';}
+    catch(e){g={error:e.message};$('customGErr').textContent=e.message;}
+  }else $('customGErr').textContent='';
+  const exponent=$('tol').value.trim(),tol=10**Number(exponent);
+  INPUT_ERROR=F.error?`f(x): ${F.error}`:g.error?`g(x): ${g.error}`:(!exponent||!Number.isFinite(Number(exponent))||!(tol>0&&isFinite(tol)))?'Enter a finite exponent for tolerance':'';
+  if(INPUT_ERROR){RES=[];LAST=0;S.last=LAST;return;}
+  const f=F.f,df=F.df;
+  const seqs=[seqBis(f,num('a'),num('b')),seqNewton(f,df,num('nx0')),seqSecant(f,num('sx0'),num('sx1')),seqFP(g.f,num('gx0'))];
   /* each converging method is measured against its own limit (polished with Newton) */
   let ref=null;
-  seqs.forEach(s=>{if(!s.fail&&s.pts.length){const L=polish(pr.f,pr.df,s.pts[s.pts.length-1].x);if(Math.abs(pr.f(L))<1e-6){s.L=L;if(ref===null)ref=L;}else s.fail=s.fail||'did not reach a root';}});
+  seqs.forEach(s=>{if(!s.fail&&s.pts.length){const L=polish(f,df,s.pts[s.pts.length-1].x);if(Math.abs(f(L))<1e-6){s.L=L;if(ref===null)ref=L;}else s.fail=s.fail||'did not reach a root';}});
   seqs.forEach(s=>{const L=s.L!==undefined?s.L:ref;s.ref=L;s.pts.forEach(q=>{q.e=L===null?NaN:Math.abs(q.x-L);});});
-  const tol=+$('tol').value;
   seqs.forEach((s,i)=>{s.N=null;for(let j=1;j<s.pts.length;j++){if(Math.abs(s.pts[j].x-s.pts[j-1].x)<tol){s.N=j;break;}}
     if(s.N!==null){s.iters=METHODS[i].id==='sec'?s.pts[s.N].n-1:s.pts[s.N].n;}});
   RES=seqs;
@@ -370,8 +455,15 @@ function compute(){
 }
 
 function render(k){
+  if(INPUT_ERROR){
+    plot.begin([0,8],YR,{log:true});plot.axes({noYaxis:true});plot.end();
+    setFormula('');setStatus('bad',INPUT_ERROR);
+    renderTable('sum',['Method','iterations to tol','x at stop','|error| at stop','convergence'],[],-1);
+    renderTable('tbl',['n','Bisection '+sb('c','n'),'Newton '+sb('x','n'),'Secant '+sb('x','n'),'Fixed point '+sb('x','n')],[],-1);
+    return;
+  }
   const p=plot;const XMAX=Math.max(8,k);p.begin([0,XMAX],YR,{log:true});p.axes({noYaxis:true});
-  const tol=+$('tol').value;
+  const tol=10**Number($('tol').value);
   p.hline(tol,{c:COL.grey,w:2,dash:'3 6'});p.text(0,tol,'tol',{dx:6,dy:-8,anchor:'start',c:COL.grey,weight:700,size:p.fs-2});
   const labels=[];
   RES.forEach((s,i)=>{const M=METHODS[i];
@@ -389,10 +481,10 @@ function render(k){
   for(const L of labels)p.ptext(L.X,L.Y,L.t,{anchor:L.right?'end':'start',c:L.c,weight:800});
   p.end();
   /* error chips for the current n */
-  setFormula(`iteration n = <b>${k}</b> &nbsp; error |${sb('x','n')} − root|:<span class="line2">`+RES.map((s,i)=>{const q=s.pts.find(t=>t.n===k);
+  setFormula(`<div class="compare-progress"><div class="compare-progress-main"><div>iteration n = <b>${k}</b></div><div>error |${sb('x','n')} − root|</div></div><div class="compare-progress-methods">`+RES.map((s,i)=>{const q=s.pts.find(t=>t.n===k);
     const lastN=s.pts.length?s.pts[s.pts.length-1].n:-1;
-    const val=q&&isFinite(q.e)?fmt(q.e,3):(k>lastN&&lastN>=0&&!s.fail?'done at n = '+lastN:'–');
-    return `<span class="chip" style="color:${METHODS[i].c}"><b>${METHODS[i].name}</b> ${val}</span>`;}).join('')+'</span>');
+    const val=q&&isFinite(q.e)?fmt(q.e,3):(k>lastN&&lastN>=0&&s.N!==null?'done at n = '+s.iters:'–');
+    return `<div class="compare-method" style="color:${METHODS[i].c}"><b>${METHODS[i].name}</b><span>${val}</span></div>`;}).join('')+'</div></div>');
   if(k===LAST){const ok=RES.filter(s=>s.N!==null),bad=RES.map((s,i)=>s.fail?METHODS[i].name+': '+s.fail:null).filter(Boolean);
     setStatus(bad.length||ok.length<4?'bad':'ok',(bad.length?'Diverged / failed: '+bad.join('; '):(ok.length===4?'Converged: all four methods reached tol':'Not all methods reached tol within '+NMAX+' iterations'))+'');}
   else setStatus('info','Press Step (&rarr;) or Play to race the methods');
@@ -402,21 +494,27 @@ function render(k){
     if(s.N===null)return[sw,`<span style="color:${COL.orange}">${s.fail||'not reached'}</span>`,'','',M.rate];
     const q=s.pts[s.N];return[sw,'<b>'+s.iters+'</b>',fmt(q.x,10),fmt(q.e,3),M.rate];}),-1);
   /* iteration table (values of x_n) */
-  const rows=[];for(let n=0;n<=k;n++){rows.push([n,...RES.map(s=>{const q=s.pts.find(t=>t.n===n);return q?fmt(q.x,10):'';})]);}
+  const rows=[];for(let n=0;n<=k;n++){rows.push([n,...RES.map(s=>{const q=s.pts.find(t=>t.n===n),last=s.pts[s.pts.length-1];return q?fmt(q.x,10):!s.fail&&last&&n>last.n?fmt(last.x,10):'';})]);}
   renderTable('tbl',['n','Bisection '+sb('c','n'),'Newton '+sb('x','n'),'Secant '+sb('x','n'),'Fixed point '+sb('x','n')],rows,k);
+  if(window.parent!==window)window.parent.postMessage({type:'module-demo-resize'},location.origin);
 }
 
 const S=Stepper(render);S.delay=700;
 function recompute(resetK){compute();S.pause();S.set(resetK?0:S.k);}
-function fillG(){const ids=GFOR[$('fsel').value];fillSelect('gsel',GPRESETS.filter(q=>ids.includes(q.id)));applyG();}
-function applyG(){const g=GPRESETS.find(q=>q.id===$('gsel').value);setVal('gx0',g.x0);}
-function applyPreset(){const pr=PRESETS.find(p=>p.id===$('fsel').value);
-  setVal('a',pr.bis[0]);setVal('b',pr.bis[1]);setVal('nx0',pr.nx0);setVal('sx0',pr.sec[0]);setVal('sx1',pr.sec[1]);fillG();recompute(true);}
-fillSelect('fsel',PRESETS.filter(p=>p.id!=='custom'));fillTol('tol',1e-6);
+function fillG(){const ids=GFOR[$('fsel').value]||[];fillSelect('gsel',GPRESETS.filter(q=>q.id==='custom'||ids.includes(q.id)));applyG();}
+function applyG(){const g=GPRESETS.find(q=>q.id===$('gsel').value),isCustom=g.id==='custom';$('customGBox').hidden=!isCustom;if(!isCustom)setVal('gx0',g.x0);}
+function applyPreset(){const pr=PRESETS.find(p=>p.id===$('fsel').value),isCustom=pr.id==='custom';$('customFBox').hidden=!isCustom;
+  if(isCustom){setVal('a',1);setVal('b',4);setVal('nx0',2);setVal('sx0',1);setVal('sx1',4);setVal('gx0',4);}
+  else{setVal('a',pr.bis[0]);setVal('b',pr.bis[1]);setVal('nx0',pr.nx0);setVal('sx0',pr.sec[0]);setVal('sx1',pr.sec[1]);}
+  fillG();recompute(true);}
+fillSelect('fsel',PRESETS);
 onSelectChange('fsel',applyPreset);
 onSelectChange('gsel',()=>{applyG();recompute(true);});
-onSelectChange('tol',()=>recompute(false));
+$('tol').addEventListener('input',debounce(()=>recompute(false),150));
 for(const id of ['a','b','nx0','sx0','sx1','gx0']){$(id).addEventListener('input',()=>{if(isFinite(num(id)))recompute(true);});$(id).addEventListener('keydown',e=>{if(e.key==='Enter')e.target.blur();});}
+$('customF').addEventListener('input',debounce(()=>recompute(true),250));
+$('customG').addEventListener('input',debounce(()=>recompute(true),250));
+window.addEventListener('resize',debounce(renderFunctionPreview,100));
 $('btnEnd').onclick=S.end;
 applyPreset();
 </script>

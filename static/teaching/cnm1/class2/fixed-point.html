@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="../theme.js"></script>
 <title>Fixed-Point Iteration</title>
 <style>
 @font-face{font-family:"CMU Sans Serif";src:url("fonts/cmunss.woff2") format("woff2");font-weight:400 600;font-display:swap}
@@ -16,13 +17,12 @@ body{margin:0;background:var(--bg);color:var(--navy);font-family:"CMU Sans Serif
 .wrap{max-width:1440px;margin:0 auto;padding:14px 16px 40px}
 header.top{display:flex;flex-wrap:wrap;align-items:center;gap:6px 20px;margin-bottom:12px}
 header.top h1{font-size:1.9rem;line-height:1.15;margin:0;font-weight:750;letter-spacing:-0.01em}
-.back{color:var(--navy);text-decoration:none;font-weight:600;font-size:.95rem;padding:6px 12px;border:2px solid var(--soft);border-radius:999px;background:var(--soft)}
-.back:hover{border-color:var(--grey)}
 .lede{margin:0;flex-basis:100%;font-size:1.05rem;opacity:.85}
-.layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;grid-template-areas:"plot side" "table side";gap:16px 22px;align-items:start}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"side side" "controls controls" "plot table";gap:16px 22px;align-items:start}
 .plotcard{grid-area:plot;min-width:0}
 .side{grid-area:side;min-width:0}
-.tablewrap{grid-area:table;min-width:0}
+.results-card{grid-area:table;min-width:0}
+.tablewrap{min-width:0}
 .formula{font-size:1.2rem;line-height:1.5;min-height:3.3em;padding:10px 14px;background:var(--soft);border-radius:10px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .formula b{font-weight:750}
 .formula .line2{display:block;font-size:1.05rem}
@@ -32,9 +32,11 @@ header.top h1{font-size:1.9rem;line-height:1.15;margin:0;font-weight:750;letter-
 .status.info{color:var(--navy);font-weight:500;opacity:.75}
 svg.plot{display:block;width:100%;height:auto;margin-top:6px;user-select:none;-webkit-user-select:none}
 svg.plot text{font-family:"CMU Sans Serif",system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
-.side{background:var(--soft);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:14px}
-.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-button{font:inherit;font-size:1.05rem;font-weight:700;padding:10px 8px;min-height:50px;border-radius:9px;border:2px solid var(--navy);background:#fff;color:var(--navy);cursor:pointer;touch-action:manipulation}
+.side{background:var(--soft);border-radius:12px;padding:12px;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));align-items:end;gap:10px}
+.controls.btns{grid-area:controls;display:grid;grid-template-columns:repeat(6,max-content);justify-content:start;gap:8px}
+.zoom-option{display:flex;align-items:center;gap:6px;margin-left:8px;font-size:.85rem;white-space:nowrap}
+.zoom-option input{width:auto}
+button{font:inherit;font-size:.9rem;font-weight:700;padding:6px 9px;min-height:38px;border-radius:9px;border:2px solid var(--navy);background:#fff;color:var(--navy);cursor:pointer;touch-action:manipulation}
 button.primary{background:var(--navy);color:#fff}
 button:active{transform:translateY(1px)}
 button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
@@ -44,9 +46,9 @@ input[type=text]{font-family:ui-monospace,Menlo,Consolas,monospace}
 .numslide{display:grid;grid-template-columns:96px minmax(0,1fr);gap:10px;align-items:center}
 input[type=range]{width:100%;min-width:0;accent-color:var(--orange);height:28px}
 .pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.hint{margin:0;font-size:.85rem;opacity:.75}
+.side>.hint{grid-column:1/-1;margin:0;font-size:.85rem;opacity:.75}
 .err{color:var(--orange);font-size:.9rem;font-weight:600;min-height:0}
-.tablewrap{overflow:auto;max-height:46vh;border:2px solid var(--soft);border-radius:10px;-webkit-overflow-scrolling:touch}
+.tablewrap{overflow-x:auto;overflow-y:visible;max-height:none;border:2px solid var(--soft);border-radius:10px;-webkit-overflow-scrolling:touch}
 table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:1rem}
 th,td{padding:7px 12px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--soft)}
 th{position:sticky;top:0;background:var(--soft);font-weight:700;z-index:1}
@@ -56,10 +58,13 @@ tr.cur td{background:rgba(228,87,46,.13);font-weight:750}
 .badge.teal{background:var(--teal)}.badge.orange{background:var(--orange)}.badge.grey{background:var(--grey)}
 .chip{display:inline-block;margin-right:14px;white-space:nowrap}
 @media (max-width:980px){
-  .layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"plot" "side" "table"}
+  .layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"side" "controls" "plot" "table"}
+  .side{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
 @media (max-width:600px){
   html{font-size:16px}
+  .side{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .controls.btns{grid-template-columns:repeat(6,max-content)}
   header.top h1{font-size:1.5rem}
   .formula{font-size:1.02rem}
   .formula .line2{font-size:.95rem}
@@ -67,27 +72,20 @@ tr.cur td{background:rgba(228,87,46,.13);font-weight:750}
 }
 
 </style>
+<link rel="stylesheet" href="../theme.css">
 </head>
 <body>
 <div class="wrap">
 <header class="top">
-  <a class="back" href="index.html">&larr; All demos</a>
   <h1>Fixed-point iteration</h1>
   <p class="lede">Iterate x<sub>n+1</sub> = g(x<sub>n</sub>): up to the curve, across to y = x, repeat. The slope g&prime; decides the outcome.</p>
 </header>
 <main class="layout">
   <section class="plotcard">
-    <div class="formula" id="formula">&nbsp;</div>
-    <div class="status" id="status">&nbsp;</div>
     <svg class="plot" id="plot" role="img" aria-label="Cobweb diagram"></svg>
+    <p class="hint plot-hint">Drag to pan · scroll to zoom</p>
   </section>
   <aside class="side">
-    <div class="btns">
-      <button id="btnBack" type="button" title="Back (left arrow)">&larr; Back</button>
-      <button id="btnStep" type="button" class="primary" title="Step (right arrow)">Step &rarr;</button>
-      <button id="btnPlay" type="button" title="Play / pause (p)">Play</button>
-      <button id="btnReset" type="button" title="Reset (r)">Reset</button>
-    </div>
     <label class="field">g(x)<select id="fsel"></select></label>
     <div id="customBox" class="field" hidden>
       <input id="custom" type="text" value="sqrt(2x + 3)" spellcheck="false" autocomplete="off" aria-label="Custom g(x)">
@@ -95,18 +93,27 @@ tr.cur td{background:rgba(228,87,46,.13);font-weight:750}
     </div>
     <div class="field"><label for="x0">Starting value x<sub>0</sub></label><div class="numslide"><input id="x0" type="number" step="0.1"><input id="x0R" type="range" aria-label="x0 slider"></div></div>
     <label class="field">Tolerance<select id="tol"></select></label>
-    <div class="pair"><label class="field">x min<input id="xmin" type="number" step="0.5"></label><label class="field">x max<input id="xmax" type="number" step="0.5"></label></div>
     <div class="field">Slope near the current iterate<div id="slope" style="font-weight:500">&nbsp;</div></div>
     <p class="hint">Keys: &rarr; step, &larr; back, p play, r reset</p>
   </aside>
-  <div class="tablewrap"><table id="tbl"></table></div>
+  <div class="controls btns">
+    <button id="btnBack" type="button" title="Back (left arrow)">&larr; Back</button>
+    <button id="btnStep" type="button" class="primary" title="Step (right arrow)">Step &rarr;</button>
+    <button id="btnPlay" type="button" title="Play / pause (p)">Play</button>
+    <button id="btnReset" type="button" title="Reset (r)">Reset</button>
+    <button id="btnResetView" type="button" title="Restore the original graph view">Reset view</button>
+    <label class="zoom-option"><input id="zoomWithIterations" type="checkbox"> Zoom in with iterations</label>
+  </div>
+  <section class="results-card"><div class="formula" id="formula">&nbsp;</div><div class="status" id="status">&nbsp;</div><div class="tablewrap"><table id="tbl"></table></div></section>
 </main>
+<footer style="margin-top:1rem;color:var(--grey);font-size:.8rem">© Andrea Nóvoa</footer>
 </div>
 <script>
 "use strict";
 /* ---------- shared core (identical in every demo page) ---------- */
 // Okabe-Ito colour-blind-safe palette, same as the slides and notes
-const COL={navy:'#1A1A1A',curve:'#0072B2',orange:'#D55E00',teal:'#009E73',grey:'#767676',soft:'#F2F4F7'};
+const palette=getComputedStyle(document.documentElement);
+const COL={navy:palette.getPropertyValue('--navy').trim(),curve:palette.getPropertyValue('--curve').trim(),orange:palette.getPropertyValue('--orange').trim(),teal:palette.getPropertyValue('--teal').trim(),grey:palette.getPropertyValue('--grey').trim(),soft:palette.getPropertyValue('--soft').trim()};
 const $=id=>document.getElementById(id);
 const num=id=>parseFloat($(id).value);
 
@@ -289,9 +296,17 @@ function getFunc(selId,list,customId){const id=$(selId).value;
   catch(e){return{error:e.message};}}
 /* step / back / reset / play controller with keyboard (clicker friendly) */
 function Stepper(render){
-  const S={k:0,last:0,timer:null,delay:1100};const pb=$('btnPlay');
-  S.show=()=>render(S.k);
-  S.set=k=>{S.k=Math.max(0,Math.min(S.last,k));render(S.k);};
+  const S={k:0,last:0,timer:null,delay:1800,zoomK:0,zoomTimer:null,zoomFrame:null};const pb=$('btnPlay');
+  S.show=()=>render(S.k,S.zoomK);
+  S.set=k=>{S.k=Math.max(0,Math.min(S.last,k));clearTimeout(S.zoomTimer);S.zoomTimer=null;if(S.zoomFrame)cancelAnimationFrame(S.zoomFrame);S.zoomFrame=null;
+    if(!$('zoomWithIterations').checked||S.k<=S.zoomK)S.zoomK=S.k;
+    render(S.k,S.zoomK);
+    if($('zoomWithIterations').checked&&S.k>S.zoomK){const target=S.k;S.zoomTimer=setTimeout(()=>{if(!$('zoomWithIterations').checked||S.k!==target)return;
+      const start=S.zoomK,started=performance.now(),duration=700;
+      const animate=now=>{if(!$('zoomWithIterations').checked||S.k!==target){S.zoomFrame=null;return;}
+        const t=Math.min(1,(now-started)/duration),ease=t*t*(3-2*t);S.zoomK=start+(target-start)*ease;render(S.k,S.zoomK);
+        if(t<1)S.zoomFrame=requestAnimationFrame(animate);else S.zoomFrame=null;};
+      S.zoomFrame=requestAnimationFrame(animate);},600);}};
   S.pause=()=>{if(S.timer)clearInterval(S.timer);S.timer=null;pb.textContent='Play';pb.classList.remove('primary');};
   S.step=()=>{if(S.k<S.last)S.set(S.k+1);};
   S.back=()=>{S.pause();S.set(S.k-1);};
@@ -314,7 +329,6 @@ function Stepper(render){
   let rt=null;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(S.show,80);});
   return S;}
 /* x-range inputs */
-function readRange(){const a=num('xmin'),b=num('xmax');return(isFinite(a)&&isFinite(b)&&b>a)?[a,b]:null;}
 function onSelectChange(id,cb){$(id).addEventListener('change',()=>{$(id).blur();cb();});}
 function debounce(fn,ms){let t=null;return()=>{clearTimeout(t);t=setTimeout(fn,ms);};}
 /* ---------- end shared core ---------- */
@@ -342,18 +356,20 @@ function classify(d){
 }
 
 const plot=new Plot($('plot'));
-let G=null,R=null,XR=[-2,5];
+let G=null,R=null,XR=[-2,5],viewRange=null;
 
-function render(k){
-  plot.begin(XR,XR,{});plot.axes();
+function render(k,zoomK=k){
+  const autoZoom=$('zoomWithIterations').checked,zoomPts=R&&R.pts,base=(XR[0]+XR[1])/2,z=Math.min(Math.max(0,zoomK),zoomPts?zoomPts.length-1:0),at=n=>n<=0?base:(zoomPts?zoomPts[Math.min(n,zoomPts.length-1)].x:base),lo=Math.floor(z),center=at(lo)+(at(Math.min(lo+1,zoomPts?zoomPts.length-1:0))-at(lo))*(z-lo),span=(XR[1]-XR[0])*Math.max(0.0125,Math.pow(0.6,z));
+  const range=autoZoom?[center-span/2,center+span/2]:(viewRange||XR);
+  plot.begin(range,range);plot.axes({xlabel:'x',ylabel:'y'});
   if(!G||G.error){plot.end();setFormula('');setStatus('bad',G?G.error:'');$('slope').innerHTML='&nbsp;';renderTable('tbl',[],[],-1);return;}
   const p=plot,pts=R.pts,g=G.f;
-  p.seg(XR[0],XR[0],XR[1],XR[1],{c:COL.grey,w:3});
+  p.seg(range[0],range[0],range[1],range[1],{c:COL.grey,w:3});
   p.curve(g,{c:COL.curve,w:3.5});
-  p.text(XR[0]+(XR[1]-XR[0])*0.04,XR[0]+(XR[1]-XR[0])*0.04,'y = x',{dx:14,dy:4,anchor:'start',c:COL.grey,weight:700});
+  p.text(range[0]+(range[1]-range[0])*0.04,range[0]+(range[1]-range[0])*0.04,'y = x',{dx:14,dy:4,anchor:'start',c:COL.grey,weight:700});
   /* label g curve at a visible point near the right */
-  for(let i=0;i<40;i++){const x=XR[1]-(XR[1]-XR[0])*(0.06+i*0.02),y=g(x);
-    if(isFinite(y)&&y>XR[0]&&y<XR[1]&&Math.abs(y-x)>(XR[1]-XR[0])*0.08){p.text(x,y,'y = g(x)',{dy:-14,c:COL.navy,weight:700});break;}}
+  for(let i=0;i<40;i++){const x=range[1]-(range[1]-range[0])*(0.06+i*0.02),y=g(x);
+    if(isFinite(y)&&y>range[0]&&y<range[1]&&Math.abs(y-x)>(range[1]-range[0])*0.08){p.text(x,y,'y = g(x)',{dy:-14,c:COL.navy,weight:700});break;}}
   const x0=pts[0].x;
   for(let j=1;j<=k;j++){const a=pts[j-1].x,b=pts[j].x,cur=j===k,op=cur?1:0.5,w=cur?3.5:3;
     p.seg(a,j===1?0:a,a,b,{c:COL.orange,w,op});p.seg(a,b,b,b,{c:COL.orange,w,op});
@@ -368,7 +384,7 @@ function render(k){
   const xc=pts[k].x,d=numD(g)(xc),[cc,txt]=classify(d);
   $('slope').innerHTML=`g′(${sb('x',k)}) ≈ ${fmt(d,4)}<br><span class="badge ${cc}">${txt}</span>`;
   const done=k===R.last;
-  if(done&&R.status.ok){const x=pts[pts.length-1].x;p.dot(x,x,10,COL.teal);p.seg(x,x,x,XR[0],{c:COL.teal,w:2.5,dash:'4 6'});p.text(x,x,fmt(x),{dx:14,dy:28,anchor:'start',c:COL.teal,weight:800});}
+  if(done&&R.status.ok){const x=pts[pts.length-1].x;p.dot(x,x,10,COL.teal);p.seg(x,x,x,range[0],{c:COL.teal,w:2.5,dash:'4 6'});p.text(x,x,fmt(x),{dx:14,dy:28,anchor:'start',c:COL.teal,weight:800});}
   p.end();
   if(done)setStatus(R.status.ok?'ok':'bad',R.status.msg);else setStatus('info','Press Step (&rarr;) for the next iterate');
   const rows=[];for(let j=0;j<=k;j++){const q=pts[j];rows.push([j,fmt(q.x,10),q.dx===null?'':fmt(q.dx,4),fmt(numD(g)(q.x),4)]);}
@@ -384,15 +400,27 @@ function recompute(resetK){
   R=G.error?null:fixedPoint(G.f,x0,tol,MAXIT);S.last=R?R.last:0;S.pause();S.set(resetK?0:S.k);
 }
 function applyPreset(){const pr=GPRESETS.find(p=>p.id===$('fsel').value);$('customBox').hidden=pr.id!=='custom';
-  if(pr.id!=='custom'){XR=pr.range.slice();setVal('xmin',XR[0]);setVal('xmax',XR[1]);setVal('x0',pr.x0);}
+  viewRange=null;$('zoomWithIterations').checked=false;
+  if(pr.id!=='custom'){XR=pr.range.slice();setVal('x0',pr.x0);}
   updateSliders();recompute(true);}
 fillSelect('fsel',GPRESETS);fillTol('tol',0.01);
 onSelectChange('fsel',applyPreset);
 onSelectChange('tol',()=>recompute(false));
 $('custom').addEventListener('input',debounce(()=>recompute(true),300));
 linkSlider('x0','x0R',()=>recompute(true));
-for(const id of ['xmin','xmax'])$(id).addEventListener('input',()=>{const r=readRange();if(r){XR=r;updateSliders();S.show();}});
 applyPreset();
+
+let drag=null;
+$('plot').addEventListener('pointerdown',e=>{const rect=$('plot').getBoundingClientRect(),x=(e.clientX-rect.left)*plot.W/rect.width,y=(e.clientY-rect.top)*plot.H/rect.height;
+  if(x<plot.m.l||x>plot.m.l+plot.pw||y<plot.m.t||y>plot.m.t+plot.ph)return;
+  $('zoomWithIterations').checked=false;drag={id:e.pointerId,x:e.clientX,y:e.clientY,range:(viewRange||XR).slice()};$('plot').setPointerCapture(e.pointerId);});
+$('plot').addEventListener('pointermove',e=>{if(!drag||drag.id!==e.pointerId)return;const rect=$('plot').getBoundingClientRect(),dx=(e.clientX-drag.x)*plot.W/rect.width,dy=(e.clientY-drag.y)*plot.H/rect.height,span=drag.range[1]-drag.range[0],shift=-dx/plot.pw*span+dy/plot.ph*span;viewRange=[drag.range[0]+shift,drag.range[1]+shift];S.show();});
+for(const type of ['pointerup','pointercancel'])$('plot').addEventListener(type,e=>{if(drag?.id===e.pointerId)drag=null;});
+$('plot').addEventListener('wheel',e=>{$('zoomWithIterations').checked=false;e.preventDefault();const rect=$('plot').getBoundingClientRect(),x=(e.clientX-rect.left)*plot.W/rect.width,y=(e.clientY-rect.top)*plot.H/rect.height,fx=(x-plot.m.l)/plot.pw,fy=(plot.m.t+plot.ph-y)/plot.ph,factor=e.deltaY<0?0.85:1/0.85,range=viewRange||XR;
+  const zoom=(span,f)=>{const center=range[0]+f*span,next=span*factor;return[center-f*next,center+(1-f)*next];};
+  const xr=zoom(range[1]-range[0],fx),yr=zoom(range[1]-range[0],fy);viewRange=[Math.min(xr[0],yr[0]),Math.max(xr[1],yr[1])];S.show();},{passive:false});
+$('zoomWithIterations').addEventListener('change',()=>{viewRange=null;if($('zoomWithIterations').checked)S.zoomK=0;S.set(S.k);});
+$('btnResetView').addEventListener('click',()=>{$('zoomWithIterations').checked=false;viewRange=null;S.show();});
 </script>
 </body>
 </html>

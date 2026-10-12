@@ -32,20 +32,22 @@
     grid-column: 1 / -1;
 }
 
-/* The figures are Matplotlib panels, an animation and two schematics, all drawn
-   on white by the packages' own docs, with aspect ratios from 1.6:1 to 3.4:1.
-   A fixed band with object-fit:contain shows each one whole and keeps the cards
-   aligned. */
+/* The figures are Matplotlib panels and schematics with different aspect ratios.
+    A shared 16:9 frame keeps course card images uniform; contain preserves every
+    figure and leaves white space around narrower images. */
 .project-figure {
     display: block;
-    /* No fixed height: each figure fills the card's width at its own aspect
-       ratio, so nothing is letterboxed or cropped. The grid stretches the
-       cards in a row to match, so unequal figure heights do not misalign. */
     width: 100%;
     height: auto;
     margin: 0 0 0.95rem;
     border: 1px solid var(--border);
     border-radius: 8px;
+}
+
+.course-cover-figure {
+        aspect-ratio: 16 / 9;
+        object-fit: contain;
+        background: #fff;
 }
 
 /* White backgrounds punch a hole in a dark card, so the figures are inverted
@@ -54,6 +56,10 @@
    Regenerate them on a transparent canvas if the inversion ever misleads. */
 body.dark .project-figure {
     filter: invert(1) hue-rotate(180deg);
+}
+
+body.dark .course-cover-figure {
+    filter: none;
 }
 
 .project-body {

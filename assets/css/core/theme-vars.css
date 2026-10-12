@@ -162,3 +162,12 @@ strong, b {
 [data-accent="teal"]   { --accent-h: 175; } /* clean teal                    */
 [data-accent="purple"] { --accent-h: 260; } /* lavender / indigo             */
 [data-accent="rose"]   { --accent-h: 345; } /* warm rose                     */
+
+/* Tone down the magenta cast of the rose accent in dark mode. */
+.dark[data-accent="rose"] {
+  --accent-h: 352;
+  --main-color-1-s: 30%;
+  --main-color-2-s: 30%;
+  --main-color-3-s: 28%;
+  --main-color-4-s: 34%;
+}

@@ -1,0 +1,47 @@
+/* Shared theme for all CNM1 standalone demos. */
+:root {
+  --accent-h: 210;
+  --site-font: -apple-system, BlinkMacSystemFont, "segoe ui", Roboto, Oxygen, Ubuntu, Cantarell, "open sans", "helvetica neue", sans-serif;
+  --bg: hsl(var(--accent-h), 60%, 98%);
+  --navy: hsl(var(--accent-h), 12%, 24%);
+  --curve: hsl(var(--accent-h), 55%, 43%);
+  --orange: #FF4A3B;
+  --teal: hsl(165, 65%, 35%);
+  --yellow: #9A6A00;
+  --grey: hsl(var(--accent-h), 10%, 52%);
+  --soft: hsla(var(--accent-h), 60%, 29%, .08);
+  color-scheme: light;
+}
+
+:root[data-accent="blue"] { --accent-h: 210; }
+:root[data-accent="teal"] { --accent-h: 175; }
+:root[data-accent="purple"] { --accent-h: 260; }
+:root[data-accent="rose"] { --accent-h: 345; }
+
+:root.dark {
+  --bg: hsl(var(--accent-h), 60%, 5%);
+  --navy: hsl(var(--accent-h), 10%, 74%);
+  --curve: hsl(var(--accent-h), 47%, 70%);
+  --orange: #FF6A5C;
+  --teal: hsl(165, 55%, 60%);
+  --yellow: #F0E442;
+  --grey: hsl(var(--accent-h), 12%, 58%);
+  --soft: hsla(var(--accent-h), 20%, 20%, .8);
+  color-scheme: dark;
+}
+
+:root.dark[data-accent="rose"] {
+  --accent-h: 352;
+  --bg: hsl(352, 28%, 6%);
+  --curve: hsl(352, 30%, 72%);
+  --soft: hsla(352, 18%, 20%, .8);
+}
+
+body { background: var(--bg); color: var(--navy); font-family: var(--site-font); }
+svg.plot text { font-family: var(--site-font); }
+button, select, input[type="number"], input[type="text"] {
+  background: var(--bg);
+  color: var(--navy);
+  border-color: var(--grey);
+}
+button.primary { background: var(--curve); color: var(--bg); border-color: var(--curve); }

@@ -3,7 +3,6 @@
 {{- end -}}
 
 {{- $colorClass := .Site.Params.defaultColor | default "blue" -}}
-{{- $themeClass := .Site.Params.defaultTheme | default "auto" -}}
 
 
 <!-- {{- /* theme-toggle is enabled */}}
@@ -83,23 +82,28 @@
 {{- if (or (ne .Kind `page` ) (eq .Layout `archives`) (eq .Layout `search`)) -}}
 {{- print "list" -}}
 {{- end -}}
-{{- if eq $themeClass `dark` -}}
-{{- print " dark" }}
-{{- end -}}
 {{- print " " $colorClass -}}
 " id="top">
     {{- if (not site.Params.disableThemeToggle) }}
     <script>
     (function(){
-        var pref=localStorage.getItem('pref-theme');
-        if(pref==='light'){document.body.classList.remove('dark');document.body.classList.add('light');document.documentElement.classList.remove('dark');document.documentElement.classList.add('light');}
-        else if(pref==='dark'){document.body.classList.add('dark');document.documentElement.classList.add('dark');}
+        var isDark=document.documentElement.classList.contains('dark');
+        document.body.classList.toggle('dark',isDark);
+        document.body.classList.toggle('light',!isDark);
     })();
     </script>
     {{- end }}
-    <!-- {{- if not .IsHome  }} -->
+    {{- if not (.Param "hideHeader") }}
     {{- partialCached "header.html" . .Page -}}
-    <!-- {{- end }} -->
+    {{- end }}
+    {{- with .Params.backLink }}
+        <div class="page-back-wrap">
+            <a class="page-back" href="{{ . }}">{{ $.Params.backLabel | default "Back" }}</a>
+            {{- if and ($.Param "hideHeader") (not site.Params.disableThemeToggle) }}
+            <button class="page-theme-toggle" type="button" data-theme-toggle aria-label="Toggle dark and light theme" title="Toggle dark and light theme"></button>
+            {{- end }}
+        </div>
+    {{- end }}
     <main class="main">
         {{- block "main" . }}{{ end }}
     </main>
