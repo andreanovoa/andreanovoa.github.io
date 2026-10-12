@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compare Root Finders</title>
+<style>
+@font-face{font-family:"CMU Sans Serif";src:url("fonts/cmunss.woff2") format("woff2");font-weight:400 600;font-display:swap}
+@font-face{font-family:"CMU Sans Serif";src:url("fonts/cmunsx.woff2") format("woff2");font-weight:700 900;font-display:swap}
+
+:root{--bg:#FFFFFF;--navy:#1A1A1A;--curve:#0072B2;--orange:#D55E00;--teal:#009E73;--grey:#767676;--soft:#F2F4F7;}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{font-size:18px;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--navy);font-family:"CMU Sans Serif",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;line-height:1.4}
+.wrap{max-width:1440px;margin:0 auto;padding:14px 16px 40px}
+header.top{display:flex;flex-wrap:wrap;align-items:center;gap:6px 20px;margin-bottom:12px}
+header.top h1{font-size:1.9rem;line-height:1.15;margin:0;font-weight:750;letter-spacing:-0.01em}
+.back{color:var(--navy);text-decoration:none;font-weight:600;font-size:.95rem;padding:6px 12px;border:2px solid var(--soft);border-radius:999px;background:var(--soft)}
+.back:hover{border-color:var(--grey)}
+.lede{margin:0;flex-basis:100%;font-size:1.05rem;opacity:.85}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;grid-template-areas:"plot side" "table side";gap:16px 22px;align-items:start}
+.plotcard{grid-area:plot;min-width:0}
+.side{grid-area:side;min-width:0}
+.tablewrap{grid-area:table;min-width:0}
+.formula{font-size:1.2rem;line-height:1.5;min-height:3.3em;padding:10px 14px;background:var(--soft);border-radius:10px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.formula b{font-weight:750}
+.formula .line2{display:block;font-size:1.05rem}
+.status{margin:8px 2px 0;font-size:1.15rem;font-weight:700;min-height:1.5em}
+.status.ok{color:var(--teal)}
+.status.bad{color:var(--orange)}
+.status.info{color:var(--navy);font-weight:500;opacity:.75}
+svg.plot{display:block;width:100%;height:auto;margin-top:6px;user-select:none;-webkit-user-select:none}
+svg.plot text{font-family:"CMU Sans Serif",system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+.side{background:var(--soft);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+button{font:inherit;font-size:1.05rem;font-weight:700;padding:10px 8px;min-height:50px;border-radius:9px;border:2px solid var(--navy);background:#fff;color:var(--navy);cursor:pointer;touch-action:manipulation}
+button.primary{background:var(--navy);color:#fff}
+button:active{transform:translateY(1px)}
+button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+.field{display:flex;flex-direction:column;gap:4px;font-size:.95rem;font-weight:650}
+select,input[type=number],input[type=text]{font:inherit;font-size:1rem;font-weight:500;padding:8px 10px;border:2px solid var(--grey);border-radius:8px;background:#fff;color:var(--navy);width:100%;min-width:0}
+input[type=text]{font-family:ui-monospace,Menlo,Consolas,monospace}
+.numslide{display:grid;grid-template-columns:96px minmax(0,1fr);gap:10px;align-items:center}
+input[type=range]{width:100%;min-width:0;accent-color:var(--orange);height:28px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hint{margin:0;font-size:.85rem;opacity:.75}
+.err{color:var(--orange);font-size:.9rem;font-weight:600;min-height:0}
+.tablewrap{overflow:auto;max-height:46vh;border:2px solid var(--soft);border-radius:10px;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:1rem}
+th,td{padding:7px 12px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--soft)}
+th{position:sticky;top:0;background:var(--soft);font-weight:700;z-index:1}
+th:first-child,td:first-child{text-align:center}
+tr.cur td{background:rgba(228,87,46,.13);font-weight:750}
+.badge{display:inline-block;padding:3px 12px;border-radius:999px;font-weight:700;color:#fff;font-size:.95rem;white-space:nowrap}
+.badge.teal{background:var(--teal)}.badge.orange{background:var(--orange)}.badge.grey{background:var(--grey)}
+.chip{display:inline-block;margin-right:14px;white-space:nowrap}
+@media (max-width:980px){
+  .layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"plot" "side" "table"}
+}
+@media (max-width:600px){
+  html{font-size:16px}
+  header.top h1{font-size:1.5rem}
+  .formula{font-size:1.02rem}
+  .formula .line2{font-size:.95rem}
+  th,td{padding:6px 8px}
+}
+
+.summary{margin-top:14px}
+.summary td:first-child,.summary th:first-child{text-align:left}
+.swatch{display:inline-block;width:28px;height:0;border-top:4px solid;vertical-align:middle;margin-right:8px}
+.layout{grid-template-areas:"plot side" "table side" "iter side"}
+.iterwrap{grid-area:iter}
+@media (max-width:980px){.layout{grid-template-areas:"plot" "side" "table" "iter"}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <a class="back" href="index.html">&larr; All demos</a>
+  <h1>Compare the four methods</h1>
+  <p class="lede">Error on a log scale: a straight line is linear convergence, a line that bends down ever faster is quadratic.</p>
+</header>
+<main class="layout">
+  <section class="plotcard">
+    <div class="formula" id="formula">&nbsp;</div>
+    <div class="status" id="status">&nbsp;</div>
+    <svg class="plot" id="plot" role="img" aria-label="Error versus iteration, log scale"></svg>
+  </section>
+  <aside class="side">
+    <div class="btns">
+      <button id="btnBack" type="button" title="Back (left arrow)">&larr; Back</button>
+      <button id="btnStep" type="button" class="primary" title="Step (right arrow)">Step &rarr;</button>
+      <button id="btnPlay" type="button" title="Play / pause (p)">Play</button>
+      <button id="btnReset" type="button" title="Reset (r)">Reset</button>
+    </div>
+    <button id="btnEnd" type="button" title="Show all (End)">Show all</button>
+    <label class="field">f(x)<select id="fsel"></select></label>
+    <div class="pair"><label class="field">Bisection a<input id="a" type="number" step="0.1"></label><label class="field">Bisection b<input id="b" type="number" step="0.1"></label></div>
+    <label class="field"><span>Newton x<sub>0</sub></span><input id="nx0" type="number" step="0.1"></label>
+    <div class="pair"><label class="field"><span>Secant x<sub>0</sub></span><input id="sx0" type="number" step="0.1"></label><label class="field"><span>Secant x<sub>1</sub></span><input id="sx1" type="number" step="0.1"></label></div>
+    <label class="field">Fixed point g(x)<select id="gsel"></select></label>
+    <label class="field"><span>Fixed point x<sub>0</sub></span><input id="gx0" type="number" step="0.1"></label>
+    <label class="field">Tolerance (for the table)<select id="tol"></select></label>
+    <p class="hint">Keys: &rarr; step, &larr; back, p play, r reset, End show all</p>
+  </aside>
+  <div class="tablewrap"><table id="sum" class="summary"></table></div>
+  <div class="tablewrap iterwrap"><table id="tbl"></table></div>
+</main>
+</div>
+<script>
+"use strict";
+/* ---------- shared core (identical in every demo page) ---------- */
+// Okabe-Ito colour-blind-safe palette, same as the slides and notes
+const COL={navy:'#1A1A1A',curve:'#0072B2',orange:'#D55E00',teal:'#009E73',grey:'#767676',soft:'#F2F4F7'};
+const $=id=>document.getElementById(id);
+const num=id=>parseFloat($(id).value);
+
+/* erf / erfc: Abramowitz & Stegun 7.1.26 (|error| < 1.5e-7) */
+function erf(x){const s=x<0?-1:1;x=Math.abs(x);const t=1/(1+0.3275911*x);
+  const y=1-((((1.061405429*t-1.453152027)*t+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x);return s*y;}
+function erfc(x){return 1-erf(x);}
+
+/* f(x) presets with analytic derivatives and per-method defaults */
+const PRESETS=[
+ {id:'quad',label:'x² − 2x − 3',expr:'x^2 - 2x - 3',f:x=>x*x-2*x-3,df:x=>2*x-2,range:[-2,5],bis:[1,4],nx0:2,sec:[1,4]},
+ {id:'cubic',label:'x³ − 2x − 5',expr:'x^3 - 2x - 5',f:x=>x*x*x-2*x-5,df:x=>3*x*x-2,range:[-1,4],bis:[1,3],nx0:3,sec:[1,3]},
+ {id:'cos',label:'cos(x) − x',expr:'cos(x) - x',f:x=>Math.cos(x)-x,df:x=>-Math.sin(x)-1,range:[-1,2],bis:[0,1.5],nx0:1.5,sec:[0,1.5]},
+ {id:'erfc',label:'erfc(x) − 0.5  (heat-shield tile)',expr:'erfc(x) - 0.5',f:x=>erfc(x)-0.5,df:x=>-2/Math.sqrt(Math.PI)*Math.exp(-x*x),range:[-1,2.5],bis:[0,2],nx0:1,sec:[0,1.5]},
+ {id:'custom',label:'Custom f(x)…'}
+];
+/* g(x) presets for fixed-point iteration x = g(x) */
+const GPRESETS=[
+ {id:'g1',label:'g₁ = √(2x + 3)   [x² − 2x − 3]',expr:'sqrt(2x + 3)',f:x=>Math.sqrt(2*x+3),show:v=>`√(2·${P(v)} + 3)`,x0:4,range:[-2,5]},
+ {id:'g2',label:'g₂ = 3/(x − 2)   [x² − 2x − 3]',expr:'3/(x - 2)',f:x=>3/(x-2),show:v=>`3/(${P(v)} − 2)`,x0:4,range:[-7,5]},
+ {id:'g3',label:'g₃ = (x² − 3)/2   [x² − 2x − 3]',expr:'(x^2 - 3)/2',f:x=>(x*x-3)/2,show:v=>`(${P(v)}² − 3)/2`,x0:4,range:[-3,8]},
+ {id:'sin',label:'g = sin(x)',expr:'sin(x)',f:Math.sin,show:v=>`sin(${fmt(v)})`,x0:2,range:[-1,3]},
+ {id:'cos',label:'g = cos(x)   [cos(x) − x]',expr:'cos(x)',f:Math.cos,show:v=>`cos(${fmt(v)})`,x0:-1,range:[-1.5,1.5]},
+ {id:'cbrt',label:'g = (2x + 5)^(1/3)   [x³ − 2x − 5]',expr:'(2x + 5)^(1/3)',f:x=>Math.cbrt(2*x+5),show:v=>`(2·${P(v)} + 5)^(1/3)`,x0:1,range:[0,3]},
+ {id:'erfcg',label:'g = x + erfc(x) − 0.5   [erfc(x) − 0.5]',expr:'x + erfc(x) - 0.5',f:x=>x+erfc(x)-0.5,show:v=>`${fmt(v)} + erfc(${fmt(v)}) − 0.5`,x0:1.5,range:[-0.5,2]},
+ {id:'custom',label:'Custom g(x)…'}
+];
+
+/* ---------- safe expression parser (whitelist + recursive descent, no eval) ---------- */
+const FUNCS={sin:Math.sin,cos:Math.cos,tan:Math.tan,exp:Math.exp,log:Math.log,sqrt:Math.sqrt,abs:Math.abs,erfc:erfc};
+function compileExpr(src){
+  const s=String(src).toLowerCase().replace(/\*\*/g,'^');
+  if(!s.trim()) throw new Error('Type an expression in x');
+  if(/[^0-9a-z+\-*\/^(). ]/.test(s)) throw new Error('Allowed: numbers, x, + − * / ^ ( ) and sin cos tan exp log sqrt abs erfc pi');
+  for(const w of (s.match(/[a-z]+/g)||[])) if(w!=='x'&&w!=='pi'&&!(w in FUNCS)) throw new Error('Unknown name "'+w+'"');
+  const toks=s.match(/\d+\.?\d*|\.\d+|[a-z]+|[+\-*\/^()]/g)||[];
+  if(toks.join('')!==s.replace(/\s+/g,'')) throw new Error('Could not read the expression');
+  let i=0;const peek=()=>toks[i],next=()=>toks[i++];
+  const isNum=t=>t!==undefined&&/^[\d.]/.test(t),isName=t=>t!==undefined&&/^[a-z]/.test(t);
+  function expr(){let a=term();while(peek()==='+'||peek()==='-'){const op=next(),l=a,r=term();a=op==='+'?(x=>l(x)+r(x)):(x=>l(x)-r(x));}return a;}
+  function term(){let a=unary();for(;;){const t=peek();let op;
+      if(t==='*'||t==='/')op=next();else if(isNum(t)||isName(t)||t==='(')op='*';else break;
+      const l=a,r=unary();a=op==='*'?(x=>l(x)*r(x)):(x=>l(x)/r(x));}return a;}
+  function unary(){if(peek()==='-'){next();const a=unary();return x=>-a(x);}if(peek()==='+'){next();return unary();}return power();}
+  function power(){const a=primary();if(peek()==='^'){next();const b=unary();return x=>Math.pow(a(x),b(x));}return a;}
+  function primary(){const t=next();
+    if(t===undefined)throw new Error('Expression ends too early');
+    if(isNum(t)){const v=parseFloat(t);return()=>v;}
+    if(t==='x')return x=>x;
+    if(t==='pi')return()=>Math.PI;
+    if(t in FUNCS){if(next()!=='(')throw new Error(t+' needs brackets, e.g. '+t+'(x)');const a=expr();if(next()!==')')throw new Error('Missing )');const fn=FUNCS[t];return x=>fn(a(x));}
+    if(t==='('){const a=expr();if(next()!==')')throw new Error('Missing )');return a;}
+    throw new Error('Unexpected "'+t+'"');}
+  const f=expr();if(i<toks.length)throw new Error('Unexpected "'+toks[i]+'"');
+  f(1.234);return f;
+}
+const numD=f=>x=>{const h=1e-5*Math.max(1,Math.abs(x));return(f(x+h)-f(x-h))/(2*h);};
+
+/* ---------- formatting ---------- */
+function fmt(v,sig){sig=sig||6;
+  if(v===null||v===undefined)return '';
+  if(Number.isNaN(v))return 'undefined';
+  if(!isFinite(v))return v>0?'∞':'−∞';
+  if(v===0)return '0';
+  const a=Math.abs(v);let s;
+  if(a>=1e6||a<1e-4){s=v.toExponential(Math.max(1,Math.min(sig,6)-3)).replace(/\.?0+e/,'e').replace('e+','e');}
+  else{s=v.toPrecision(sig);if(s.indexOf('.')>=0)s=s.replace(/0+$/,'').replace(/\.$/,'');}
+  return s.replace(/-/g,'−');}
+const P=v=>v<0?'('+fmt(v)+')':fmt(v);
+const sb=(b,i)=>b+'<sub>'+i+'</sub>';
+const ssub=(b,i)=>b+'<tspan dy="0.32em" font-size="72%">'+i+'</tspan>';
+
+/* ---------- plotting (plain SVG) ---------- */
+function niceStep(span,n){const raw=span/Math.max(1,n);const p=Math.pow(10,Math.floor(Math.log10(raw)));const m=raw/p;return(m<1.5?1:m<3?2:m<7?5:10)*p;}
+function ticks(a,b,n){const st=niceStep(b-a,n);const out=[];for(let v=Math.ceil(a/st-1e-9)*st;v<=b+st*1e-9;v+=st)out.push(Math.abs(v)<st*1e-9?0:+v.toPrecision(12));return out;}
+function autoY(fns,a,b){let v=[];
+  for(const fn of fns)for(let i=0;i<=400;i++){const y=fn(a+(b-a)*i/400);if(isFinite(y))v.push(y);}
+  if(!v.length)return[-1,1];
+  v.sort((p,q)=>p-q);let lo=v[0],hi=v[v.length-1];
+  const p3=v[Math.floor(v.length*.03)],p97=v[Math.ceil(v.length*.97)-1];
+  if(p97>p3&&hi-lo>6*(p97-p3)){lo=p3;hi=p97;}
+  lo=Math.min(lo,0);hi=Math.max(hi,0);
+  if(hi-lo<1e-12){lo-=1;hi+=1;}
+  const pad=(hi-lo)*0.08;return[lo-pad,hi+pad];}
+const cl=v=>Math.max(-1e5,Math.min(1e5,v));
+class Plot{
+  constructor(svg){this.svg=svg;}
+  begin(xr,yr,o){o=o||{};
+    const w=Math.max(260,Math.round(this.svg.parentElement.clientWidth||800));
+    const small=w<600;this.small=small;
+    const hmax=Math.max(320,window.innerHeight*0.62);
+    const h=Math.round(Math.min(hmax,Math.max(250,w*(small?0.85:0.6))));
+    this.W=w;this.H=h;this.fs=small?15:18;
+    this.m={l:small?46:68,r:small?12:22,t:12,b:small?34:44};
+    this.pw=w-this.m.l-this.m.r;this.ph=h-this.m.t-this.m.b;
+    this.log=!!o.log;this.x0=xr[0];this.x1=xr[1];
+    this.y0=this.log?Math.log10(yr[0]):yr[0];this.y1=this.log?Math.log10(yr[1]):yr[1];
+    this.L={back:[],under:[],mid:[],top:[],front:[]};return this;}
+  X(x){return +cl(this.m.l+(x-this.x0)/(this.x1-this.x0)*this.pw).toFixed(2);}
+  Y(y){if(this.log)y=Math.log10(y);return +cl(this.m.t+(this.y1-y)/(this.y1-this.y0)*this.ph).toFixed(2);}
+  st(s){s=s||{};return `stroke="${s.c||COL.navy}" stroke-width="${s.w||3}" fill="none" stroke-linecap="round" stroke-linejoin="round"${s.dash?` stroke-dasharray="${s.dash}"`:''}${s.op!=null?` opacity="${s.op}"`:''}`;}
+  seg(x1,y1,x2,y2,s,layer){if(![x1,y1,x2,y2].every(isFinite))return;this.L[layer||'mid'].push(`<line x1="${this.X(x1)}" y1="${this.Y(y1)}" x2="${this.X(x2)}" y2="${this.Y(y2)}" ${this.st(s)}/>`);}
+  vline(x,s,layer){const X=this.X(x);this.L[layer||'mid'].push(`<line x1="${X}" y1="${this.m.t}" x2="${X}" y2="${this.m.t+this.ph}" ${this.st(s)}/>`);}
+  hline(y,s,layer){const Y=this.Y(y);this.L[layer||'mid'].push(`<line x1="${this.m.l}" y1="${Y}" x2="${this.m.l+this.pw}" y2="${Y}" ${this.st(s)}/>`);}
+  path(pts,s,layer){let d='',pen=false;for(const p of pts){if(!p||!isFinite(p[0])||!isFinite(p[1])){pen=false;continue;}d+=(pen?'L':'M')+this.X(p[0])+' '+this.Y(p[1]);pen=true;}
+    if(d)this.L[layer||'mid'].push(`<path d="${d}" ${this.st(s)}/>`);}
+  curve(fn,s){const n=Math.max(300,Math.round(this.pw*1.5)),span=this.y1-this.y0,lo=this.y0-4*span,hi=this.y1+4*span;const pts=[];let prev=null;
+    for(let i=0;i<=n;i++){const x=this.x0+(this.x1-this.x0)*i/n;const y=fn(x);
+      if(!isFinite(y)){pts.push(null);prev=null;continue;}
+      if(prev!==null&&((prev>this.y1&&y<this.y0)||(prev<this.y0&&y>this.y1)))pts.push(null);
+      prev=y;pts.push([x,Math.max(lo,Math.min(hi,y))]);}
+    this.path(pts,s);}
+  line(x1,y1,x2,y2,s,layer){/* infinite line through two points, clipped to plot */
+    if(x1===x2){this.vline(x1,s,layer);return;}const m=(y2-y1)/(x2-x1);
+    this.seg(this.x0,y1+m*(this.x0-x1),this.x1,y1+m*(this.x1-x1),s,layer);}
+  dot(x,y,r,fill,layer,stroke){if(!isFinite(x)||!isFinite(y))return;this.L[layer||'top'].push(`<circle cx="${this.X(x)}" cy="${this.Y(y)}" r="${r}" fill="${fill}" stroke="${stroke||'#fff'}" stroke-width="2.5"/>`);}
+  band(xa,xb,fill,op){const a=this.X(Math.min(xa,xb)),b=this.X(Math.max(xa,xb));this.L.under.push(`<rect x="${a}" y="${this.m.t}" width="${Math.max(0,b-a)}" height="${this.ph}" fill="${fill}" opacity="${op}"/>`);}
+  text(x,y,t,o){o=o||{};let X=this.X(x)+(o.dx||0),Y=this.Y(y)+(o.dy||0);
+    const pad=o.anchor==='start'||o.anchor==='end'?4:18;
+    X=Math.max(this.m.l+pad,Math.min(this.m.l+this.pw-pad,X));Y=Math.max(this.m.t+this.fs,Math.min(this.m.t+this.ph-6,Y));
+    this.ptext(X,Y,t,o);}
+  ptext(X,Y,t,o){o=o||{};this.L.front.push(`<text x="${X}" y="${Y}" fill="${o.c||COL.navy}" font-size="${o.size||this.fs}" font-weight="${o.weight||650}" text-anchor="${o.anchor||'middle'}" stroke="#fff" stroke-width="5" stroke-linejoin="round" paint-order="stroke">${t}</text>`);}
+  pill(X,Y,t,fill){const w=Math.max(30,t.length*11+18),h=this.small?24:28;
+    this.L.front.push(`<rect x="${X-w/2}" y="${Y}" width="${w}" height="${h}" rx="${h/2}" fill="${fill}"/><text x="${X}" y="${Y+h/2+this.fs*0.36}" fill="#fff" font-size="${this.fs+2}" font-weight="800" text-anchor="middle">${t}</text>`);}
+  axisLabels(list,dy){if(!list.length)return;const yl=Math.max(this.m.t+this.fs+40,Math.min(this.m.t+this.ph-6,this.Y(0)+(dy||32)));
+    const idx=list.map((q,i)=>i).sort((i,j)=>list[i][0]-list[j][0]);
+    const XS=spread(idx.map(i=>this.X(list[i][0])),this.small?26:32,this.m.l+14,this.m.l+this.pw-14);
+    idx.forEach((i,j)=>this.ptext(XS[j],yl,list[i][1],{c:list[i][2],weight:800}));}
+  axes(o){o=o||{};const m=this.m,pw=this.pw,ph=this.ph,B=this.L.back,fs=this.fs;
+    const xt=ticks(this.x0,this.x1,Math.max(3,Math.round(pw/(this.small?70:100))));
+    for(const v of xt){const X=this.X(v);
+      B.push(`<line x1="${X}" y1="${m.t}" x2="${X}" y2="${m.t+ph}" stroke="${COL.grey}" stroke-width="1" opacity=".45"/>`);
+      B.push(`<text x="${X}" y="${m.t+ph+fs+8}" fill="${COL.navy}" font-size="${fs}" text-anchor="middle">${fmt(v,4)}</text>`);}
+    let yt;
+    if(this.log){const a=Math.ceil(this.y0-1e-9),b=Math.floor(this.y1+1e-9),stp=Math.max(1,Math.ceil((b-a)/(this.small?5:8)));yt=[];for(let e=b;e>=a;e-=stp)yt.push(e);}
+    else yt=ticks(this.y0,this.y1,Math.max(3,Math.round(ph/(this.small?55:70))));
+    for(const v of yt){const Y=this.log?this.Y(Math.pow(10,v)):this.Y(v);
+      B.push(`<line x1="${m.l}" y1="${Y}" x2="${m.l+pw}" y2="${Y}" stroke="${COL.grey}" stroke-width="1" opacity=".45"/>`);
+      const lab=this.log?`10<tspan dy="-0.55em" font-size="70%">${String(v).replace('-','−')}</tspan>`:fmt(v,4);
+      B.push(`<text x="${m.l-8}" y="${Y+fs*0.35}" fill="${COL.navy}" font-size="${fs}" text-anchor="end">${lab}</text>`);}
+    B.push(`<rect x="${m.l}" y="${m.t}" width="${pw}" height="${ph}" fill="none" stroke="${COL.grey}" stroke-width="1.5"/>`);
+    if(!this.log&&this.y0<0&&this.y1>0){const Y=this.Y(0);B.push(`<line x1="${m.l}" y1="${Y}" x2="${m.l+pw}" y2="${Y}" stroke="${COL.navy}" stroke-width="2.5"/>`);}
+    if(!o.noYaxis&&this.x0<0&&this.x1>0){const X=this.X(0);B.push(`<line x1="${X}" y1="${m.t}" x2="${X}" y2="${m.t+ph}" stroke="${COL.navy}" stroke-width="2.5"/>`);}
+    if(o.xlabel)this.ptext(m.l+pw-6,m.t+ph-10,o.xlabel,{anchor:'end',weight:600});
+    if(o.ylabel)this.ptext(m.l+10,m.t+fs+6,o.ylabel,{anchor:'start',weight:600});}
+  end(){const m=this.m,L=this.L,id=this.svg.id+'-clip';
+    this.svg.setAttribute('viewBox',`0 0 ${this.W} ${this.H}`);this.svg.setAttribute('width',this.W);this.svg.setAttribute('height',this.H);
+    this.svg.innerHTML=`<defs><clipPath id="${id}"><rect x="${m.l}" y="${m.t}" width="${this.pw}" height="${this.ph}"/></clipPath></defs><g>${L.back.join('')}</g><g clip-path="url(#${id})">${L.under.join('')}${L.mid.join('')}${L.top.join('')}</g><g>${L.front.join('')}</g>`;}
+}
+
+/* spread sorted pixel positions so neighbours are at least `gap` apart (keeps order) */
+function spread(xs,gap,lo,hi){const o=xs.slice();
+  for(let it=0;it<50;it++){let moved=false;
+    for(let i=1;i<o.length;i++){const d=o[i]-o[i-1];if(d<gap-0.5){const s=(gap-d)/2;o[i-1]-=s;o[i]+=s;moved=true;}}
+    for(let i=0;i<o.length;i++){if(o[i]<lo+i*gap)o[i]=lo+i*gap;const r=hi-(o.length-1-i)*gap;if(o[i]>r)o[i]=r;}
+    if(!moved)break;}
+  return o;}
+/* ---------- UI helpers ---------- */
+function setStatus(kind,html){const s=$('status');s.className='status '+(kind||'');s.innerHTML=html||'&nbsp;';}
+function setFormula(html){$('formula').innerHTML=html||'&nbsp;';}
+function renderTable(id,head,rows,cur){const t=$(id);
+  t.innerHTML='<thead><tr>'+head.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>'+rows.map((r,i)=>'<tr'+(i===cur?' class="cur"':'')+'>'+r.map(c=>'<td>'+c+'</td>').join('')+'</tr>').join('')+'</tbody>';
+  const row=t.querySelector('tr.cur'),w=t.parentElement;
+  if(row&&w.scrollHeight>w.clientHeight){const top=row.offsetTop,hh=t.tHead.offsetHeight;
+    if(top-hh<w.scrollTop)w.scrollTop=top-hh;else if(top+row.offsetHeight>w.scrollTop+w.clientHeight)w.scrollTop=top+row.offsetHeight-w.clientHeight;}}
+function fillSelect(id,list){$(id).innerHTML=list.map(p=>`<option value="${p.id}">${p.label}</option>`).join('');}
+function fillTol(id,def){const opts=[0.1,0.01,0.001,1e-4,1e-6,1e-8];$(id).innerHTML=opts.map(v=>`<option value="${v}"${v===def?' selected':''}>${fmt(v)}</option>`).join('');}
+/* number box + slider pair */
+function linkSlider(numId,rangeId,cb){const n=$(numId),r=$(rangeId);
+  n.addEventListener('input',()=>{const v=parseFloat(n.value);if(isFinite(v)){r.value=v;cb();}});
+  n.addEventListener('keydown',e=>{if(e.key==='Enter')n.blur();});
+  r.addEventListener('input',()=>{n.value=+(+r.value).toFixed(6);cb();});
+  r.addEventListener('change',()=>r.blur());}
+function setSliderRange(rangeId,lo,hi){const r=$(rangeId);const st=niceStep(hi-lo,200);r.min=Math.floor(lo/st)*st;r.max=Math.ceil(hi/st)*st;r.step=st;}
+function setVal(numId,v){$(numId).value=+(+v).toFixed(6);const r=$(numId+'R');if(r)r.value=v;}
+/* function selector: returns {f,df,label,preset} or {error} */
+function getFunc(selId,list,customId){const id=$(selId).value;
+  if(id!=='custom'){const p=list.find(q=>q.id===id);return{f:p.f,df:p.df||numD(p.f),label:p.label,preset:p};}
+  try{const f=compileExpr($(customId).value);return{f,df:numD(f),label:$(customId).value,preset:null,custom:true};}
+  catch(e){return{error:e.message};}}
+/* step / back / reset / play controller with keyboard (clicker friendly) */
+function Stepper(render){
+  const S={k:0,last:0,timer:null,delay:1100};const pb=$('btnPlay');
+  S.show=()=>render(S.k);
+  S.set=k=>{S.k=Math.max(0,Math.min(S.last,k));render(S.k);};
+  S.pause=()=>{if(S.timer)clearInterval(S.timer);S.timer=null;pb.textContent='Play';pb.classList.remove('primary');};
+  S.step=()=>{if(S.k<S.last)S.set(S.k+1);};
+  S.back=()=>{S.pause();S.set(S.k-1);};
+  S.reset=()=>{S.pause();S.set(0);};
+  S.end=()=>{S.pause();S.set(S.last);};
+  S.toggle=()=>{if(S.timer){S.pause();return;}if(S.k>=S.last)S.set(0);pb.textContent='Pause';
+    S.timer=setInterval(()=>{S.set(S.k+1);if(S.k>=S.last)S.pause();},S.delay);};
+  $('btnStep').onclick=()=>{S.pause();S.step();};
+  $('btnBack').onclick=S.back;$('btnReset').onclick=S.reset;$('btnPlay').onclick=S.toggle;
+  document.addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey)return;
+    const t=e.target,tag=t&&t.tagName,k=e.key;
+    const inField=tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA';
+    if(inField&&k==='Escape'){t.blur();return;}
+    if(inField&&!(k==='PageDown'||k==='PageUp'))return;
+    if(k==='ArrowRight'||k==='PageDown'){e.preventDefault();S.pause();S.step();}
+    else if(k==='ArrowLeft'||k==='PageUp'){e.preventDefault();S.back();}
+    else if(k==='r'||k==='R'||k==='Home'){e.preventDefault();S.reset();}
+    else if(k==='p'||k==='P'){e.preventDefault();S.toggle();}
+    else if(k==='End'){e.preventDefault();S.end();}});
+  let rt=null;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(S.show,80);});
+  return S;}
+/* x-range inputs */
+function readRange(){const a=num('xmin'),b=num('xmax');return(isFinite(a)&&isFinite(b)&&b>a)?[a,b]:null;}
+function onSelectChange(id,cb){$(id).addEventListener('change',()=>{$(id).blur();cb();});}
+function debounce(fn,ms){let t=null;return()=>{clearTimeout(t);t=setTimeout(fn,ms);};}
+/* ---------- end shared core ---------- */
+
+
+const NMAX=40, FLOOR=1e-16;
+const GFOR={quad:['g1','g2','g3'],cubic:['cbrt'],cos:['cos'],erfc:['erfcg']};
+const METHODS=[
+  {id:'bis',name:'Bisection',c:COL.teal,dash:null,rate:'linear: error halves'},
+  {id:'new',name:'Newton',c:COL.orange,dash:null,rate:'quadratic: digits double'},
+  {id:'sec',name:'Secant',c:COL.curve,dash:null,rate:'superlinear (order ≈ 1.62)'},
+  {id:'fp',name:'Fixed point',c:COL.grey,dash:'10 8',rate:'linear: error × |g′|'}
+];
+const close=(u,v)=>Math.abs(u-v)<=1e-15*Math.max(1,Math.abs(v));
+function seqBis(f,a,b){const o={pts:[],fail:null};if(a>b){const t=a;a=b;b=t;}let fa=f(a),fb=f(b);
+  if(!(fa*fb<0)){if(fa===0||fb===0){o.pts.push({n:1,x:fa===0?a:b});return o;}o.fail='root not bracketed, f(a)·f(b) > 0';return o;}
+  for(let n=1;n<=NMAX;n++){const c=(a+b)/2,fc=f(c);o.pts.push({n,x:c});if(fc===0||close(a,b))break;if(fa*fc<0){b=c;fb=fc;}else{a=c;fa=fc;}}return o;}
+function seqNewton(f,df,x){const o={pts:[{n:0,x}],fail:null};
+  for(let n=1;n<=NMAX;n++){const fx=f(x);if(fx===0)break;const d=df(x);if(!(Math.abs(d)>1e-12)){o.fail=`f′(x) = 0 at ${sb('x',n-1)}, Newton fails`;break;}
+    const y=x-fx/d;if(!isFinite(y)||Math.abs(y)>1e6){o.fail='diverged';break;}o.pts.push({n,x:y});if(close(y,x))break;x=y;}return o;}
+function seqSecant(f,x0,x1){const o={pts:[{n:0,x:x0},{n:1,x:x1}],fail:null};let A=x0,B=x1,fA=f(A),fB=f(B);
+  for(let n=2;n<=NMAX;n++){if(fB===0||close(A,B))break;if(fB===fA){o.fail='f(xₙ) = f(xₙ₋₁), secant fails';break;}
+    const C=B-fB*(B-A)/(fB-fA);if(!isFinite(C)||Math.abs(C)>1e6){o.fail='diverged';break;}o.pts.push({n,x:C});A=B;fA=fB;B=C;fB=f(C);}return o;}
+function seqFP(g,x){const o={pts:[{n:0,x}],fail:null};
+  for(let n=1;n<=NMAX;n++){const y=g(x);if(!isFinite(y)){o.fail='g(x) undefined';break;}o.pts.push({n,x:y});if(Math.abs(y)>1e6){o.fail='diverged (|x| > 10⁶)';break;}if(close(y,x))break;x=y;}return o;}
+function polish(f,df,L){for(let i=0;i<8;i++){const d=df(L);if(!(Math.abs(d)>1e-300))break;const y=L-f(L)/d;if(!isFinite(y)||Math.abs(y-L)>1e-6*Math.max(1,Math.abs(L)))break;L=y;}return L;}
+
+const plot=new Plot($('plot'));
+let F=null,RES=[],LAST=0,YR=[FLOOR,10];
+
+function compute(){
+  const pr=PRESETS.find(p=>p.id===$('fsel').value);F=pr;
+  const g=GPRESETS.find(q=>q.id===$('gsel').value);
+  const seqs=[seqBis(pr.f,num('a'),num('b')),seqNewton(pr.f,pr.df,num('nx0')),seqSecant(pr.f,num('sx0'),num('sx1')),seqFP(g.f,num('gx0'))];
+  /* each converging method is measured against its own limit (polished with Newton) */
+  let ref=null;
+  seqs.forEach(s=>{if(!s.fail&&s.pts.length){const L=polish(pr.f,pr.df,s.pts[s.pts.length-1].x);if(Math.abs(pr.f(L))<1e-6){s.L=L;if(ref===null)ref=L;}else s.fail=s.fail||'did not reach a root';}});
+  seqs.forEach(s=>{const L=s.L!==undefined?s.L:ref;s.ref=L;s.pts.forEach(q=>{q.e=L===null?NaN:Math.abs(q.x-L);});});
+  const tol=+$('tol').value;
+  seqs.forEach((s,i)=>{s.N=null;for(let j=1;j<s.pts.length;j++){if(Math.abs(s.pts[j].x-s.pts[j-1].x)<tol){s.N=j;break;}}
+    if(s.N!==null){s.iters=METHODS[i].id==='sec'?s.pts[s.N].n-1:s.pts[s.N].n;}});
+  RES=seqs;
+  LAST=Math.max(1,...seqs.map(s=>s.pts.length?s.pts[s.pts.length-1].n:0));
+  let emax=1;seqs.forEach(s=>s.pts.forEach(q=>{if(isFinite(q.e)&&q.e>emax)emax=q.e;}));
+  YR=[FLOOR,Math.pow(10,Math.ceil(Math.log10(Math.min(emax,1e6))+0.2))];
+  S.last=LAST;
+}
+
+function render(k){
+  const p=plot;const XMAX=Math.max(8,k);p.begin([0,XMAX],YR,{log:true});p.axes({noYaxis:true});
+  const tol=+$('tol').value;
+  p.hline(tol,{c:COL.grey,w:2,dash:'3 6'});p.text(0,tol,'tol',{dx:6,dy:-8,anchor:'start',c:COL.grey,weight:700,size:p.fs-2});
+  const labels=[];
+  RES.forEach((s,i)=>{const M=METHODS[i];
+    const vis=s.pts.filter(q=>q.n<=k&&isFinite(q.e));
+    const pts=[];for(const q of vis){if(q.e<FLOOR){pts.push([q.n,FLOOR]);break;}pts.push([q.n,q.e]);}
+    p.path(pts,{c:M.c,w:3.5,dash:M.dash});
+    pts.forEach(([n,e])=>p.dot(n,e,5,M.c,'top',M.c));
+    if(pts.length>1){const [n,e]=pts[pts.length-1];labels.push({X:p.X(n),Y:p.Y(e),t:M.name,c:M.c});}});
+  /* direct labels at line ends; when two collide, the later one moves up */
+  const yMin=p.m.t+p.fs+4,yMax=p.m.t+p.ph-8,gap=p.fs+6;
+  labels.forEach(L=>{L.Y=Math.max(yMin,Math.min(yMax,L.Y+p.fs*0.35));L.right=L.X>p.m.l+p.pw-140;L.X=L.right?L.X-10:L.X+10;});
+  labels.sort((u,v)=>v.Y-u.Y);
+  for(let i=0;i<labels.length;i++)for(let j=0;j<i;j++){const u=labels[j],v=labels[i];
+    if(Math.abs(u.X-v.X)<150&&Math.abs(u.Y-v.Y)<gap)v.Y=u.Y-gap;}
+  for(const L of labels)p.ptext(L.X,L.Y,L.t,{anchor:L.right?'end':'start',c:L.c,weight:800});
+  p.end();
+  /* error chips for the current n */
+  setFormula(`iteration n = <b>${k}</b> &nbsp; error |${sb('x','n')} − root|:<span class="line2">`+RES.map((s,i)=>{const q=s.pts.find(t=>t.n===k);
+    const lastN=s.pts.length?s.pts[s.pts.length-1].n:-1;
+    const val=q&&isFinite(q.e)?fmt(q.e,3):(k>lastN&&lastN>=0&&!s.fail?'done at n = '+lastN:'–');
+    return `<span class="chip" style="color:${METHODS[i].c}"><b>${METHODS[i].name}</b> ${val}</span>`;}).join('')+'</span>');
+  if(k===LAST){const ok=RES.filter(s=>s.N!==null),bad=RES.map((s,i)=>s.fail?METHODS[i].name+': '+s.fail:null).filter(Boolean);
+    setStatus(bad.length||ok.length<4?'bad':'ok',(bad.length?'Diverged / failed: '+bad.join('; '):(ok.length===4?'Converged: all four methods reached tol':'Not all methods reached tol within '+NMAX+' iterations'))+'');}
+  else setStatus('info','Press Step (&rarr;) or Play to race the methods');
+  /* summary table */
+  renderTable('sum',['Method','iterations to tol','x at stop','|error| at stop','convergence'],RES.map((s,i)=>{const M=METHODS[i];
+    const sw=`<span class="swatch" style="border-color:${M.c};${M.dash?'border-top-style:dashed':''}"></span>${M.name}`;
+    if(s.N===null)return[sw,`<span style="color:${COL.orange}">${s.fail||'not reached'}</span>`,'','',M.rate];
+    const q=s.pts[s.N];return[sw,'<b>'+s.iters+'</b>',fmt(q.x,10),fmt(q.e,3),M.rate];}),-1);
+  /* iteration table (values of x_n) */
+  const rows=[];for(let n=0;n<=k;n++){rows.push([n,...RES.map(s=>{const q=s.pts.find(t=>t.n===n);return q?fmt(q.x,10):'';})]);}
+  renderTable('tbl',['n','Bisection '+sb('c','n'),'Newton '+sb('x','n'),'Secant '+sb('x','n'),'Fixed point '+sb('x','n')],rows,k);
+}
+
+const S=Stepper(render);S.delay=700;
+function recompute(resetK){compute();S.pause();S.set(resetK?0:S.k);}
+function fillG(){const ids=GFOR[$('fsel').value];fillSelect('gsel',GPRESETS.filter(q=>ids.includes(q.id)));applyG();}
+function applyG(){const g=GPRESETS.find(q=>q.id===$('gsel').value);setVal('gx0',g.x0);}
+function applyPreset(){const pr=PRESETS.find(p=>p.id===$('fsel').value);
+  setVal('a',pr.bis[0]);setVal('b',pr.bis[1]);setVal('nx0',pr.nx0);setVal('sx0',pr.sec[0]);setVal('sx1',pr.sec[1]);fillG();recompute(true);}
+fillSelect('fsel',PRESETS.filter(p=>p.id!=='custom'));fillTol('tol',1e-6);
+onSelectChange('fsel',applyPreset);
+onSelectChange('gsel',()=>{applyG();recompute(true);});
+onSelectChange('tol',()=>recompute(false));
+for(const id of ['a','b','nx0','sx0','sx1','gx0']){$(id).addEventListener('input',()=>{if(isFinite(num(id)))recompute(true);});$(id).addEventListener('keydown',e=>{if(e.key==='Enter')e.target.blur();});}
+$('btnEnd').onclick=S.end;
+applyPreset();
+</script>
+</body>
+</html>
