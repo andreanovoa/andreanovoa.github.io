@@ -31,7 +31,7 @@ compare the methods. The lecture slides and notes are on Blackboard.
 
 <div class="project course-card">
   <div class="project-body">
-    <h2 class="project-name"><a href="class2/" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none">2. Solving unsolvable equations</a></h2>
+    <h2 class="project-name"><a href="class2/" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none">2. Root finding</a></h2>
     <p class="project-desc">Root finding: bisection, Newton–Raphson, the secant method and fixed-point iteration, with their convergence and failure modes.</p>
     <img class="project-figure course-cover-figure" src="class2.png" alt="Fixed-point iteration drawn as cobweb diagrams for x = sin x and x = cos x" loading="lazy">
     <!-- <details class="project-demo">
@@ -43,7 +43,7 @@ compare the methods. The lecture slides and notes are on Blackboard.
 
 <div class="project course-card">
   <div class="project-body">
-    <h2 class="project-name"><a href="class3/" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none">3. Integrating unintegrable functions</a></h2>
+    <h2 class="project-name"><a href="class3/" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none">3. Numerical integration</a></h2>
     <p class="project-desc">Numerical integration: Riemann sums, the trapezium rule, Simpson's rule, Newton–Cotes formulae and Gauss–Legendre quadrature.</p>
     <img class="project-figure course-cover-figure" src="class3.png" alt="" loading="lazy">
   </div>

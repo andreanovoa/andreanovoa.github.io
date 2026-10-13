@@ -1,5 +1,5 @@
 ---
-title: "Integrating unintegrable functions"
+title: "Numerical integration"
 description: "Numerical integration with Riemann sums, Newton–Cotes rules and Gauss–Legendre quadrature."
 summary: "AERO40003 Numerical Methods · Class 3"
 date: 2026-10-12

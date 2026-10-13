@@ -1,5 +1,5 @@
 ---
-title: "Solving unsolvable equations"
+title: "Root finding"
 description: "Root finding: bisection, Newton–Raphson, the secant method and fixed-point iteration, with their convergence and failure modes."
 summary: "AERO40003 Numerical Methods · Class 2"
 date: 2026-10-12
