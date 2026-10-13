@@ -213,7 +213,7 @@ function drawStore(R,ki){
   if(!R){svgSize(svg,W,40);svg.innerHTML='';$('storeNote').innerHTML='';return;}
   const perRow=W>=560?16:8,bw=Math.min(42,(W-8)/perRow),bh=32,ls=W<600?11:12,rowH=bh+2*ls+20,max=(1n<<BigInt(N-1))-1n;
   const nI=R.rI.length,over=R.I>max,done=ki>=nI,P=pink();let out='';
-  for(let i=0;i<N;i++){const r=Math.floor(i/perRow),x=(W-perRow*bw)/2+(i%perRow)*bw,y=r*rowH+ls+8,bitNo=N-i;
+  for(let i=0;i<N;i++){const r=Math.floor(i/perRow),x=(W-perRow*bw)/2+(i%perRow)*bw,y=r*rowH+ls+8,bitNo=i+1;
     if(i===0){out+=box(x,y,bw,bh,{fill:P,stroke:P,sw:2.4,fop:R.neg?.3:.1});
       out+=txt(x+bw/2,y+bh/2+6,R.neg?1:0,{size:17,weight:750});out+=txt(x+bw/2,y-5,'s',{size:ls+1,c:P,weight:750});}
     else{const p=N-1-i;/* place value 2^p, β index i */
