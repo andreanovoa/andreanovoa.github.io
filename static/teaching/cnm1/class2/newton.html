@@ -71,6 +71,13 @@ tr.cur td{background:rgba(228,87,46,.13);font-weight:750}
   th,td{padding:6px 8px}
 }
 
+/* phone layout: buttons wrap, nothing wider than the screen */
+@media (max-width:600px){
+  .controls.btns{display:flex;flex-wrap:wrap;align-items:center}
+  .controls.btns .zoom-option{flex-basis:100%;margin-left:0}
+  .badge{white-space:normal}
+  .method-option{width:auto;justify-self:stretch}
+}
 </style>
 <link rel="stylesheet" href="../theme.css">
 </head>
@@ -113,7 +120,9 @@ tr.cur td{background:rgba(228,87,46,.13);font-weight:750}
 /* ---------- shared core (identical in every demo page) ---------- */
 // Okabe-Ito colour-blind-safe palette, same as the slides and notes
 const palette=getComputedStyle(document.documentElement);
-const COL={navy:palette.getPropertyValue('--navy').trim(),curve:palette.getPropertyValue('--curve').trim(),orange:palette.getPropertyValue('--orange').trim(),teal:palette.getPropertyValue('--teal').trim(),grey:palette.getPropertyValue('--grey').trim(),soft:palette.getPropertyValue('--soft').trim()};
+const COL={bg:palette.getPropertyValue('--bg').trim(),navy:palette.getPropertyValue('--navy').trim(),curve:palette.getPropertyValue('--curve').trim(),orange:palette.getPropertyValue('--orange').trim(),teal:palette.getPropertyValue('--teal').trim(),grey:palette.getPropertyValue('--grey').trim(),soft:palette.getPropertyValue('--soft').trim()};
+/* follow the site's light/dark toggle: re-read the colours and redraw */
+new MutationObserver(()=>{for(const k in COL)COL[k]=palette.getPropertyValue('--'+k).trim();try{S.show();}catch(e){}}).observe(document.documentElement,{attributes:true,attributeFilter:['class','data-accent']});
 const $=id=>document.getElementById(id);
 const num=id=>parseFloat($(id).value);
 
@@ -229,15 +238,15 @@ class Plot{
   line(x1,y1,x2,y2,s,layer){/* infinite line through two points, clipped to plot */
     if(x1===x2){this.vline(x1,s,layer);return;}const m=(y2-y1)/(x2-x1);
     this.seg(this.x0,y1+m*(this.x0-x1),this.x1,y1+m*(this.x1-x1),s,layer);}
-  dot(x,y,r,fill,layer,stroke){if(!isFinite(x)||!isFinite(y))return;this.L[layer||'top'].push(`<circle cx="${this.X(x)}" cy="${this.Y(y)}" r="${r}" fill="${fill}" stroke="${stroke||'#fff'}" stroke-width="2.5"/>`);}
+  dot(x,y,r,fill,layer,stroke){if(!isFinite(x)||!isFinite(y))return;this.L[layer||'top'].push(`<circle cx="${this.X(x)}" cy="${this.Y(y)}" r="${r}" fill="${fill}" stroke="${stroke||COL.bg}" stroke-width="2.5"/>`);}
   band(xa,xb,fill,op){const a=this.X(Math.min(xa,xb)),b=this.X(Math.max(xa,xb));this.L.under.push(`<rect x="${a}" y="${this.m.t}" width="${Math.max(0,b-a)}" height="${this.ph}" fill="${fill}" opacity="${op}"/>`);}
   text(x,y,t,o){o=o||{};let X=this.X(x)+(o.dx||0),Y=this.Y(y)+(o.dy||0);
     const pad=o.anchor==='start'||o.anchor==='end'?4:18;
     X=Math.max(this.m.l+pad,Math.min(this.m.l+this.pw-pad,X));Y=Math.max(this.m.t+this.fs,Math.min(this.m.t+this.ph-6,Y));
     this.ptext(X,Y,t,o);}
-  ptext(X,Y,t,o){o=o||{};this.L.front.push(`<text x="${X}" y="${Y}" fill="${o.c||COL.navy}" font-size="${o.size||this.fs}" font-weight="${o.weight||650}" text-anchor="${o.anchor||'middle'}" stroke="#fff" stroke-width="5" stroke-linejoin="round" paint-order="stroke">${t}</text>`);}
+  ptext(X,Y,t,o){o=o||{};this.L.front.push(`<text x="${X}" y="${Y}" fill="${o.c||COL.navy}" font-size="${o.size||this.fs}" font-weight="${o.weight||650}" text-anchor="${o.anchor||'middle'}" stroke="${COL.bg}" stroke-width="5" stroke-linejoin="round" paint-order="stroke">${t}</text>`);}
   pill(X,Y,t,fill){const w=Math.max(30,t.length*11+18),h=this.small?24:28;
-    this.L.front.push(`<rect x="${X-w/2}" y="${Y}" width="${w}" height="${h}" rx="${h/2}" fill="${fill}"/><text x="${X}" y="${Y+h/2+this.fs*0.36}" fill="#fff" font-size="${this.fs+2}" font-weight="800" text-anchor="middle">${t}</text>`);}
+    this.L.front.push(`<rect x="${X-w/2}" y="${Y}" width="${w}" height="${h}" rx="${h/2}" fill="${fill}"/><text x="${X}" y="${Y+h/2+this.fs*0.36}" fill="${COL.bg}" font-size="${this.fs+2}" font-weight="800" text-anchor="middle">${t}</text>`);}
   axisLabels(list,dy){if(!list.length)return;const yl=Math.max(this.m.t+this.fs+40,Math.min(this.m.t+this.ph-6,this.Y(0)+(dy||32)));
     const idx=list.map((q,i)=>i).sort((i,j)=>list[i][0]-list[j][0]);
     const XS=spread(idx.map(i=>this.X(list[i][0])),this.small?26:32,this.m.l+14,this.m.l+this.pw-14);

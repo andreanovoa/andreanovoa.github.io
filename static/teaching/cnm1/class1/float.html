@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="../theme.js"></script>
+<title>Floating-Point Explorer</title>
+<link rel="stylesheet" href="../demo.css">
+<style>
+@font-face{font-family:"CMU Sans Serif";src:url("fonts/cmunss.woff2") format("woff2");font-weight:400 600;font-display:swap}
+@font-face{font-family:"CMU Sans Serif";src:url("fonts/cmunsx.woff2") format("woff2");font-weight:700 900;font-display:swap}
+#bits{cursor:default}
+#bits rect[data-i]{cursor:pointer}
+.legend{margin:4px 0 0;font-size:.9rem}
+.legend .swatch{width:18px}
+.bin{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92em;overflow-wrap:anywhere}
+.bin .kept{color:var(--curve);font-weight:700}
+.bin .tail{color:var(--grey)}
+.bin .sg{color:var(--orange);font-weight:700}
+.bin .ex{color:var(--teal);font-weight:700}
+.k-t{color:var(--teal)}.k-o{color:var(--orange)}
+#stairLegend .chip{white-space:normal}
+#tbl td:nth-child(2){font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.8rem}
+#tbl td:first-child{text-align:left}
+#tbl td:last-child{text-align:left;white-space:normal;overflow-wrap:anywhere;min-width:11em}
+#tbl td:nth-child(2){white-space:normal;word-break:break-all;min-width:6em}
+</style>
+<link rel="stylesheet" href="../theme.css">
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <h1>Floating-point explorer</h1>
+  <p class="lede">x = (−1)<sup>s</sup> (1 + β) × 2<sup>c − e</sup>. Type a number to see how it is stored, or click any bit to change it. Reset and Step walk through the encoding recipe.</p>
+</header>
+<main class="layout">
+  <section class="plotcard">
+    <p class="panel-title">Bit pattern (click a bit to toggle it)</p>
+    <svg class="plot static" id="bits" role="img" aria-label="Bit pattern: sign, exponent and mantissa"></svg>
+    <p class="legend"><span class="chip"><span class="swatch" style="border-color:var(--orange)"></span>sign s</span><span class="chip"><span class="swatch" style="border-color:var(--teal)"></span>exponent c</span><span class="chip"><span class="swatch" style="border-color:var(--curve)"></span>mantissa β</span></p>
+    <p class="panel-title">Number line near the stored value x̃</p>
+    <svg class="plot" id="plot" role="img" aria-label="Neighbouring floating-point numbers around the stored value"></svg>
+    <p class="plot-hint">Grey ticks: neighbouring floating-point numbers; shaded: every x stored as x̃. Drag to pan · scroll to zoom</p>
+    <p class="panel-title">Gap Δ between neighbouring floats against |x| (log–log)</p>
+    <svg class="plot" id="plot2" role="img" aria-label="Gap between floats against the size of the number, log-log"></svg>
+    <p class="legend" id="stairLegend"></p>
+    <p class="plot-hint">The gap doubles at every power of 2. Drag to pan · scroll to zoom</p>
+  </section>
+  <aside class="side">
+    <label class="field span2">Number x<input id="num" type="text" value="0.1" spellcheck="false" autocomplete="off" inputmode="decimal"></label>
+    <label class="field span2">Preset<select id="preset"></select></label>
+    <label class="field">Format<select id="fmt"><option value="single">single (32-bit)</option><option value="double">double (64-bit)</option><option value="half">half (16-bit)</option></select></label>
+    <label class="field">Mantissa<select id="mode"><option value="nearest">round to nearest</option><option value="chop">chop</option></select></label>
+    <div id="numErr" class="err full"></div>
+    <p class="hint">Round to nearest uses ties to even (IEEE 754). Keys: &rarr; step, &larr; back, p play, r reset</p>
+  </aside>
+  <div class="controls btns">
+    <button id="btnBack" type="button" title="Back (left arrow)">&larr; Back</button>
+    <button id="btnStep" type="button" class="primary" title="Step (right arrow)">Step &rarr;</button>
+    <button id="btnPlay" type="button" title="Play / pause (p)">Play</button>
+    <button id="btnReset" type="button" title="Reset (r)">Reset</button>
+    <button id="btnResetView" type="button" title="Restore the original graph view">Reset view</button>
+  </div>
+  <section class="results-card">
+    <div class="formula wrap" id="formula">&nbsp;</div>
+    <div class="status" id="status">&nbsp;</div>
+    <div class="tablewrap scroll"><table id="tbl"></table></div>
+  </section>
+</main>
+<footer style="margin-top:1rem;color:var(--grey);font-size:.8rem">© Andrea Nóvoa</footer>
+</div>
+<script src="../demo-core.js"></script>
+<script>
+"use strict";
+/* ---------- exact arithmetic (BigInt, no rounding) ---------- */
+const pow10=n=>10n**BigInt(n);
+const bitlen=a=>a===0n?0:a.toString(2).length;
+function gcd(a,b){if(a<0n)a=-a;if(b<0n)b=-b;while(b){const t=a%b;a=b;b=t;}return a||1n;}
+/* decimal string (optional exponent) -> exact fraction {neg,N,D}, or {special} */
+function parseDec(str){
+  const s=String(str).trim().toLowerCase().replace(/[−–]/g,'-').replace(/[\s,_]+/g,'').replace(/×10\^?/,'e');
+  if(/^[+-]?(inf|infinity|∞)$/.test(s))return{special:'inf',neg:s[0]==='-'};
+  if(s==='nan')return{special:'nan',neg:false};
+  const m=s.match(/^([+-])?(\d*)(?:\.(\d*))?(?:e([+-]?\d+))?$/);
+  if(!m||(!m[2]&&!m[3]))throw new Error('Type a decimal number, for example 15.5, −0.1 or 3.4e38.');
+  const ip=m[2]||'',fp=m[3]||'',ex=m[4]?parseInt(m[4],10):0;
+  if(Math.abs(ex)>400)throw new Error('Exponent too large: use |exponent| ≤ 400.');
+  if((ip+fp).replace(/^0+/,'').length>80)throw new Error('At most 80 significant digits, please.');
+  let N=BigInt((ip+fp)||'0'),D=pow10(fp.length);
+  if(ex>0)N*=pow10(ex);else if(ex<0)D*=pow10(-ex);
+  const g=gcd(N,D);return{neg:m[1]==='-',N:N/g,D:D/g};}
+/* Number close to a/b (b > 0), safe for very large or very small ratios */
+function ratio(a,b){if(a===0n)return 0;const neg=a<0n;if(neg)a=-a;
+  const sh=bitlen(b)-bitlen(a)+64;const q=sh>=0?(a<<BigInt(sh))/b:a/(b<<BigInt(-sh));
+  let v=Number(q),e=-sh;while(e>900){v*=2**900;e-=900;}while(e<-900){v*=2**-900;e+=900;}v*=2**e;return neg?-v:v;}
+/* exact decimal expansion of M·2^k (M ≥ 0): {int, frac} digit strings */
+function decOfBin(M,k){
+  if(k>=0)return{int:(M<<BigInt(k)).toString(),frac:''};
+  const n=-k,t=(M*5n**BigInt(n)).toString().padStart(n+1,'0');
+  return{int:t.slice(0,t.length-n),frac:t.slice(t.length-n).replace(/0+$/,'')};}
+const sigDigits=d=>((d.int==='0'?'':d.int)+d.frac).replace(/^0+/,'').length;
+/* readable exact decimal (or truncated, marked with …) */
+function showDec(d,maxSig){maxSig=maxSig||60;
+  const all=(d.int==='0'?'':d.int)+d.frac,lead=d.int==='0'?(d.frac.match(/^0*/)[0].length):0;
+  const sig=all.replace(/^0+/,'');
+  if(!sig)return '0';
+  const e=d.int!=='0'?d.int.length-1:-(lead+1);
+  if(e>=-6&&e<=20&&sig.length<=maxSig)return d.int+(d.frac?'.'+d.frac:'');
+  const body=sig.replace(/0+$/,'');const cut=body.length>maxSig;
+  const mant=body[0]+(body.length>1?'.'+body.slice(1,maxSig):'');
+  return mant+(cut?'…':'')+' × 10<sup>'+String(e).replace('-','−')+'</sup>';}
+
+/* ---------- IEEE 754 binary formats ---------- */
+const FORMATS={
+  half:{id:'half',name:'half precision',eb:5,mb:10},
+  single:{id:'single',name:'single precision',eb:8,mb:23},
+  double:{id:'double',name:'double precision',eb:11,mb:52}};
+for(const F of Object.values(FORMATS)){F.bias=2**(F.eb-1)-1;F.emin=1-F.bias;F.emax=F.bias;F.cmax=2**F.eb-1;F.n=1+F.eb+F.mb;
+  F.digits=F.mb===52?17:F.mb===23?9:5;}
+const toBits=(v,n)=>v.toString(2).padStart(n,'0');
+/* encode an exact value {neg,N,D} (or special): round to nearest (ties to even) or chop; keep every detail for the steps */
+function analyse(F,x,mode){
+  const mb=BigInt(F.mb),one=1n<<mb,A={s:x.neg?1:0};
+  const fin=(c,f,kind)=>{A.c=c;A.f=f;A.kind=kind;A.bits=String(A.s)+toBits(BigInt(c),F.eb)+toBits(f,F.mb);return A;};
+  if(x.special==='nan'){A.s=0;return fin(F.cmax,one>>1n,'nan');}
+  if(x.special==='inf')return fin(F.cmax,0n,'inf');
+  const N=x.N,D=x.D;if(N===0n)return fin(0,0n,'zero');
+  let E=bitlen(N)-bitlen(D);const ge=E=>E>=0?N>=(D<<BigInt(E)):(N<<BigInt(-E))>=D;if(!ge(E))E-=1;
+  A.E=E;A.sub=E<F.emin;const sc=A.sub?F.mb-F.emin:F.mb-E;      /* m = x·2^sc */
+  const num=sc>=0?N<<BigInt(sc):N,den=sc>=0?D:D<<BigInt(-sc);
+  let m=num/den;const r=num-m*den;A.m0=m;A.r=r;A.den=den;
+  A.exact=r===0n;A.tie=2n*r===den;A.above=2n*r>den;
+  A.up=mode==='nearest'&&(A.above||(A.tie&&(m&1n)===1n));if(A.up)m+=1n;
+  if(A.sub){if(m===0n)return fin(0,0n,'underflow');if(m===one){A.carry=true;return fin(1,0n,'normal');}return fin(0,m,'sub');}
+  if(m===(one<<1n)){m>>=1n;E+=1;A.carry=true;}
+  A.Ef=E;
+  if(E>F.emax)return mode==='chop'?fin(F.cmax-1,one-1n,'overflowchop'):fin(F.cmax,0n,'overflow');
+  return fin(E+F.bias,m-one,'normal');}
+/* decode a bit string: value = (−1)^s · M · 2^k */
+function decode(F,bits){
+  const s=bits[0]==='1'?1:0,c=parseInt(bits.slice(1,1+F.eb),2),f=BigInt('0b'+bits.slice(1+F.eb));
+  if(c===F.cmax)return f===0n?{s,c,f,kind:'inf'}:{s,c,f,kind:'nan'};
+  if(c===0)return{s,c,f,kind:f===0n?'zero':'sub',M:f,k:F.emin-F.mb};
+  return{s,c,f,kind:'normal',M:(1n<<BigInt(F.mb))+f,k:c-F.bias-F.mb};}
+/* exact rationals {n (signed), d > 0} */
+const rat=(neg,M,k)=>k>=0?{n:(neg?-1n:1n)*(M<<BigInt(k)),d:1n}:{n:(neg?-1n:1n)*M,d:1n<<BigInt(-k)};
+const rsub=(a,b)=>({n:a.n*b.d-b.n*a.d,d:a.d*b.d});
+const rscale=(a,k)=>k>=0?{n:a.n,d:a.d<<BigInt(k)}:{n:a.n<<BigInt(-k),d:a.d};   /* a / 2^k */
+const rnum=a=>ratio(a.n,a.d);
+/* value of the float with signed index J (J > 0 positive, J < 0 negative, 0 = zero) */
+function valJ(F,J){const neg=J<0n,mag=neg?-J:J,c=Number(mag>>BigInt(F.mb)),f=mag&((1n<<BigInt(F.mb))-1n);
+  return c===0?rat(neg,f,F.emin-F.mb):rat(neg,(1n<<BigInt(F.mb))+f,c-F.bias-F.mb);}
+
+/* ---------- presets (Class 1 slides and notes) ---------- */
+const PRESETS=[
+ {id:'15.5',v:'15.5',f:'single',label:'15.5 (worked example)'},
+ {id:'0.1',v:'0.1',f:'single',label:'0.1 (not stored exactly)'},
+ {id:'-6.75',v:'-6.75',f:'single',label:'−6.75'},
+ {id:'1',v:'1',f:'single',label:'1 (the next float is 1 + ε)'},
+ {id:'0.1d',v:'0.1',f:'double',label:'0.1 in double precision'},
+ {id:'3x0.1',v:'0.30000000000000004',f:'double',label:'3 × 0.1 in double = 0.30000000000000004'},
+ {id:'3.4e38',v:'3.4e38',f:'single',label:'3.4 × 10³⁸ (just below x_max)'},
+ {id:'4e38',v:'4e38',f:'single',label:'4 × 10³⁸ (overflow)'},
+ {id:'1e-39',v:'1e-39',f:'single',label:'10⁻³⁹ (below x_min; subnormal, not examined)'},
+ {id:'0.3h',v:'0.3',f:'half',label:'0.3 in half precision (10-bit mantissa)'},
+ {id:'custom',label:'Custom: type a number or click bits'}];
+
+let F=FORMATS.single,X=null,A=null,V=null,STEPS=[],forced=null,CX=null;   /* CX: exact value of a clicked bit pattern */
+const view={xr:null,yr:null},view2={xr:null,yr:null};
+const plot=new Plot($('plot')),plot2=new Plot($('plot2'));
+const sup=e=>'<sup>'+String(e).replace('-','−')+'</sup>';
+const mono=s=>`<span class="bin">${s}</span>`;
+const sgn=s=>String(s).replace(/-/g,'−');
+const xTxt=()=>{const v=$('num').value.trim();return sgn(v)||'0';};
+
+/* binary digits of |x| starting at the leading 1: n bits, and whether more non-zero bits follow */
+function sigBits(x,E,n){const sc=n-1-E,num=sc>=0?x.N<<BigInt(sc):x.N,den=sc>=0?x.D:x.D<<BigInt(-sc);
+  const m=num/den;return{s:m.toString(2),more:num-m*den!==0n};}
+function positional(x,E,n){const {s,more}=sigBits(x,E,n);let t;
+  if(E>=0){const ip=s.slice(0,E+1).padEnd(E+1,'0'),fp=s.slice(E+1);t=ip+(fp.replace(/0+$/,'')||more?'.'+(more?fp:fp.replace(/0+$/,'')):'');}
+  else t='0.'+'0'.repeat(-E-1)+(more?s:s.replace(/0+$/,''));
+  return t+(more?'…':'');}
+/* the bits of r/den, i.e. the discarded part in units of the last kept place */
+function tailBits(r,den,n){let t=r,s='';for(let i=0;i<n&&t>0n;i++){t*=2n;if(t>=den){s+='1';t-=den;}else s+='0';}return s+(t>0n?'…':'');}
+
+function fieldVals(){const d=V;const out={};
+  out.beta=d.kind==='normal'||d.kind==='sub'?showDec(decOfBin(d.f,-F.mb),60):'0';
+  if(d.kind==='normal')out.onep=showDec(decOfBin(d.M,-F.mb),60);
+  return out;}
+function storedTxt(maxSig){if(V.kind==='nan')return 'NaN';if(V.kind==='inf')return V.s?'−∞':'∞';if(V.kind==='zero')return V.s?'−0':'0';
+  return (V.s?'−':'')+showDec(decOfBin(V.M,V.k),maxSig||60);}
+function errors(){if(!X||X.special||V.kind==='nan'||V.kind==='inf')return null;
+  const r=rsub({n:(X.neg?-1n:1n)*X.N,d:X.D},V.kind==='zero'?{n:0n,d:1n}:rat(V.s===1,V.M,V.k));
+  const e=rnum(r),er=X.N===0n?null:ratio(r.n*X.D,r.d*X.N)*(X.neg?-1:1);return{e,er,zero:r.n===0n};}
+
+/* sciS() with enough digits for numbers of 1 000 and above */
+function sciS(v,s){const a=Math.abs(v);return sci(v,a>=1&&a<1e6?Math.max(s||3,Math.floor(Math.log10(a))+1):s);}
+/* ---------- the recipe, one step per entry ---------- */
+function buildSteps(){
+  const st=[],name=F.name,bias=F.bias,cb=A.bits.slice(1,1+F.eb),mbits=A.bits.slice(1+F.eb);
+  const head=`Encode x = ${xTxt()} in ${name}: 1 + ${F.eb} + ${F.mb} bits, bias e = ${bias}`;
+  const fin=errors(),rows=9;
+  const final=(k)=>({l1:`Step ${st.length}: x̃ = (−1)${sup(V.s)} × (1 + β) × 2${sup('c − e')}`+(V.kind==='normal'?` = (−1)${sup(V.s)} × ${showDec(decOfBin(V.M,-F.mb),60)} × 2${sup(V.c-bias)}`:''),
+    l2:`x̃ = <b>${storedTxt()}</b>`,
+    l3:fin?(fin.zero?'Stored exactly: ε = 0':`ε = x − x̃ = ${sciS(fin.e,3)}, &nbsp;ε<sub>r</sub> = ${fin.er===null?'—':sciS(fin.er,3)}`):'&nbsp;',rev:3,rows});
+  if(X.special||A.kind==='zero'){
+    st.push({l1:head,l2:'Special values use reserved exponent patterns.',l3:'&nbsp;',rev:0,rows:0});
+    const why=A.kind==='nan'?`NaN (not a number): c = ${F.cmax} (all ones) and β ≠ 0`:A.kind==='inf'?`${A.s?'−':''}∞: c = ${F.cmax} (all ones) and β = 0`:`${A.s?'−':''}0: c = 0 and β = 0`;
+    st.push({l1:why,l2:`x̃ = <b>${storedTxt()}</b>`,l3:'&nbsp;',rev:3,rows});return st;}
+  const E=A.E,abs=positional(X,E,F.mb+9),far=E<-10||E>40;
+  st.push({l1:head,l2:`x = (−1)${sup('s')} (1 + β) × 2${sup('c − e')}, &nbsp;0 ≤ β &lt; 1`,l3:'Press Step (&rarr;) to follow the recipe.',rev:0,rows:0});
+  st.push({l1:'Step 1: write |x| in binary',l2:far?`|x| = ${sgn(xTxt().replace(/^−/,''))}: the leading 1 is in place 2${sup(E)}, too far from the point to write out`:`|x| = ${mono(abs)}<sub>2</sub>`,
+    l3:'Whole part: divide by 2; fraction: multiply by 2 (see the converter).',rev:0,rows:0});
+  const sb=sigBits(X,E,F.mb+9),norm='1.'+sb.s.slice(1)+(sb.more?'…':'');
+  st.push({l1:'Step 2: normalise: move the point behind the first 1',l2:`|x| = ${mono(norm)}<sub>2</sub> × 2${sup(E)}`,l3:`true exponent p = ${sgn(E)}`,rev:0,rows:0});
+  st.push({l1:'Step 3: sign',l2:`x ${X.neg?'&lt;':'&gt;'} 0, so <b>s = ${A.s}</b>`,l3:'&nbsp;',rev:1,rows:1});
+  if(A.kind==='overflow'||A.kind==='overflowchop'){
+    const p=A.Ef;
+    st.push({l1:`Step 4: exponent: p = ${p}${A.carry?' (after rounding up)':''} &gt; ${F.emax}`,
+      l2:A.kind==='overflow'?`<b>Overflow</b>: too large for ${name}, stored as ${A.s?'−':''}∞ (c = ${F.cmax}, β = 0)`:`<b>Overflow</b>: chopped to the largest finite number`,
+      l3:`x̃ = <b>${storedTxt(12)}</b>`,rev:3,rows});return st;}
+  if(A.sub||A.kind==='underflow'){
+    st.push({l1:`Step 4: exponent: p = ${sgn(E)} &lt; ${sgn(F.emin)}, below x<sub>min</sub> = 2${sup(F.emin)}`,
+      l2:A.kind==='underflow'?`<b>Underflow</b>: too small even for a subnormal number, stored as ${A.s?'−':''}0`:`<b>Underflow</b>: c = 0. The standard then stores x = 0.β × 2${sup(F.emin)} (subnormal, not examined)`,
+      l3:`c = 0 = ${mono('<span class="ex">'+cb+'</span>')}<sub>2</sub>`,rev:2,rows:4});
+    if(A.kind==='underflow'){st[st.length-1].rev=3;st[st.length-1].rows=rows;return st;}
+    const kept=toBits(A.m0,F.mb),tail=tailBits(A.r,A.den,10);
+    st.push({l1:`Step 5: keep ${F.mb} bits of 0.β (subnormal), ${$('mode').value==='chop'?'chop':'round to nearest'}`,
+      l2:`β = ${mono('<span class="kept">'+kept+'</span>'+(A.exact?'':'|<span class="tail">'+tail+'</span>'))}`,
+      l3:A.exact?'Nothing is discarded.':A.up?(A.tie?'A tie: round to the even last bit (up).':'The discarded part is more than half the last place: round up.'):($('mode').value==='chop'?'Chopping: the discarded bits are dropped.':'The discarded part is less than half the last place: round down.'),rev:3,rows:6});
+    st.push(final());return st;}
+  const p=A.Ef,c=p+bias;
+  st.push({l1:`Step 4: exponent c = p + e`,l2:`c = ${sgn(p)} + ${bias} = ${c} = ${mono('<span class="ex">'+toBits(BigInt(c),F.eb)+'</span>')}<sub>2</sub>`,
+    l3:`${sgn(F.emin)} ≤ p ≤ ${F.emax}: in range`+(A.carry?` (p went up by 1 because rounding carried, see step 5)`:''),rev:2,rows:4});
+  const kept=toBits(A.m0-(1n<<BigInt(F.mb)),F.mb),tail=tailBits(A.r,A.den,12),chop=$('mode').value==='chop';
+  let dec;
+  if(A.exact)dec='Nothing is discarded: β is exact.';
+  else if(chop)dec='Chopping: the discarded bits are dropped.';
+  else if(A.tie)dec=`The discarded part is exactly half the last place: a tie, so round to the even last bit (${A.up?'up':'down'}).`;
+  else dec=`The discarded part 0.${tail}<sub>2</sub> of the last place is ${A.above?'more':'less'} than half: round ${A.above?'up':'down'}.`;
+  if(A.carry)dec+=' Rounding up carries: 1.11…1 + last place = 10.0, so β = 0 and p increases by 1.';
+  st.push({l1:`Step 5: keep ${F.mb} mantissa bits β<sub>1</sub>…β<sub>${F.mb}</sub>`,
+    l2:`1.${mono('<span class="kept">'+kept+'</span>'+(A.exact?'':' | <span class="tail">'+tail+'</span>'))}`,
+    l3:dec+(A.exact?'':` &nbsp;β = ${mono('<span class="kept">'+mbits+'</span>')}`),rev:3,rows:6});
+  st.push(final());return st;}
+
+/* ---------- drawing ---------- */
+function svgSize(svg,W,H){svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.setAttribute('width',W);svg.setAttribute('height',H);}
+function txt(x,y,t,o){o=o||{};return `<text x="${x}" y="${y}" fill="${o.c||COL.navy}" font-size="${o.size||13}" font-weight="${o.weight||500}" text-anchor="${o.anchor||'middle'}">${t}</text>`;}
+function drawBits(rev){
+  const svg=$('bits'),W=Math.max(260,Math.round(svg.parentElement.clientWidth||700)),n=F.n;
+  const perRow=Math.min(n,W>=32*17+8?32:16),bw=Math.min(34,(W-8)/perRow),bh=30,ls=W<600?10:11,top=18,rowH=top+bh+ls+14;
+  const bits=forced||(A?A.bits:'0'.repeat(n)),x0=(W-perRow*bw)/2;let out='';
+  for(let i=0;i<n;i++){const r=Math.floor(i/perRow),x=x0+(i%perRow)*bw,y=r*rowH+top;
+    const fld=i===0?0:i<=F.eb?1:2,shown=rev>fld,col=[COL.orange,COL.teal,COL.curve][fld],b=bits[i];
+    const lab=fld===0?'s':fld===1?String(F.eb-i):String(i-F.eb);
+    out+=`<rect data-i="${i}" x="${x+1}" y="${y}" width="${bw-2}" height="${bh}" rx="3" fill="${shown?col:COL.bg}" fill-opacity="${shown?(b==='1'?.3:.08):1}" stroke="${shown?col:COL.grey}" stroke-width="${shown?1.6:1.2}"${shown?'':' stroke-dasharray="3 3"'}><title>${fld===0?'sign bit':fld===1?'exponent bit c'+lab:'mantissa bit β'+lab} (click to toggle)</title></rect>`;
+    if(shown)out+=`<text x="${x+bw/2}" y="${y+bh/2+5.5}" font-size="${bw<24?14:16}" font-weight="${b==='1'?750:500}" text-anchor="middle" fill="${b==='1'?COL.navy:COL.grey}" pointer-events="none">${b}</text>`;
+    out+=txt(x+bw/2,y+bh+ls+3,fld===0?'':lab,{size:ls,c:shown?col:COL.grey});
+    /* field name above the first bit of each field in a row */
+    if(i===0||i===1||i===1+F.eb||i%perRow===0)out+=txt(x+2,y-5,fld===0?'s':fld===1?'c':'β',{size:ls+2,c:col,weight:750,anchor:'start'});}
+  const rows=Math.ceil(n/perRow);svgSize(svg,W,rows*rowH);svg.innerHTML=out;}
+
+/* number line in units of the gap Δ above x̃ */
+function drawLine(){
+  const p=plot,small=($('plot').parentElement.clientWidth||700)<600,H=small?170:200;
+  if(V.kind==='nan'||V.kind==='inf'){p.begin([-1,1],[0,1],{h:H,ml:16});p.L.back.push(`<rect x="${p.m.l}" y="${p.m.t}" width="${p.pw}" height="${p.ph}" fill="none" stroke="${COL.grey}" stroke-width="1.5"/>`);
+    p.ptext(p.m.l+p.pw/2,p.m.t+p.ph/2+6,V.kind==='nan'?'NaN is not on the number line':'x̃ = '+(V.s?'−':'')+'∞: not a finite number',{c:COL.orange});p.end();return;}
+  const mbB=BigInt(F.mb),mag0=(BigInt(V.c)<<mbB)|V.f,J0=V.s?-mag0:mag0,maxMag=(BigInt(F.cmax)<<mbB)-1n;
+  const kD=Math.max(V.c,1)-F.bias-F.mb,v0=valJ(F,J0),u=J=>rnum(rscale(rsub(valJ(F,J),v0),kD));
+  const ok=J=>(J<0n?-J:J)<=maxMag;
+  const er=errors();
+  let uxe=0;if(er&&!er.zero){uxe=rnum(rscale(rsub({n:(X.neg?-1n:1n)*X.N,d:X.D},v0),kD));}
+  const lo0=Math.min(-2.6,uxe-1),hi0=Math.max(2.6,uxe+1);
+  const xr=view.xr||[lo0,hi0];
+  p.begin(xr,[0,1],{h:H,ml:16});
+  /* frame and tick labels below it (no grid lines, so labels never sit on lines) */
+  const m=p.m,B=p.L.back,fs=p.fs;
+  B.push(`<rect x="${m.l}" y="${m.t}" width="${p.pw}" height="${p.ph}" fill="none" stroke="${COL.grey}" stroke-width="1.5"/>`);
+  for(const t of ticks(xr[0],xr[1],Math.max(2,Math.round(p.pw/(small?95:130))))){const X=p.X(t);if(X<m.l||X>m.l+p.pw)continue;
+    B.push(`<line x1="${X}" y1="${m.t+p.ph}" x2="${X}" y2="${m.t+p.ph-6}" stroke="${COL.grey}" stroke-width="1.5"/>`);
+    const lab=t===0?'x̃':(t>0?'x̃ + ':'x̃ − ')+fmt(Math.abs(t),4)+'Δ';
+    if(X-lab.length*fs*0.29-2<0||X+lab.length*fs*0.29+2>p.W)continue;
+    B.push(`<text x="${X}" y="${m.t+p.ph+fs+8}" fill="${COL.navy}" font-size="${fs-1}" text-anchor="middle">${lab}</text>`);}
+  /* neighbours: walk out from x̃ until the edge of the view (at most 300 each way) */
+  const pts=[[J0,0]];let dense=[false,false];
+  for(const dir of [-1n,1n]){let J=J0,cnt=0;
+    for(;;){J+=dir;if(!ok(J))break;const uu=u(J);if(dir<0n?uu<xr[0]:uu>xr[1])break;
+      if(++cnt>300){dense[dir<0n?0:1]=true;break;}pts.push([J,uu]);}}
+  /* every real number in the shaded band is stored as x̃ */
+  const has=d=>ok(J0+d),uP=has(-1n)?u(J0-1n):null,uN=has(1n)?u(J0+1n):null,chop=$('mode').value==='chop';
+  if(uP!==null&&uN!==null){const a=chop?(J0>0n?0:uP):uP/2,b=chop?(J0>0n?uN:0):uN/2;p.band(a,b,COL.orange,0.10);}
+  for(const [i,side] of [[0,-1],[1,1]])if(dense[i]){const edge=side<0?Math.min(...pts.map(q=>q[1])):Math.max(...pts.map(q=>q[1]));
+    p.band(side<0?xr[0]:edge,side<0?edge:xr[1],COL.grey,0.15);}
+  p.seg(xr[0],0.5,xr[1],0.5,{c:COL.navy,w:2},'under');
+  for(const [J,uu] of pts){if(J===J0)continue;p.seg(uu,0.37,uu,0.63,{c:COL.grey,w:2});}
+  p.seg(0,0.28,0,0.72,{c:COL.orange,w:4},'top');
+  if(er&&!er.zero)p.dot(uxe,0.5,7,COL.teal,'top');
+  /* gap bracket between x̃ and the next float, labelled above it */
+  if(uN!==null&&p.X(uN)-p.X(0)>24){const yb=0.8;p.seg(0,yb,uN,yb,{c:COL.grey,w:1.8});p.seg(0,yb-0.04,0,yb+0.04,{c:COL.grey,w:1.8});p.seg(uN,yb-0.04,uN,yb+0.04,{c:COL.grey,w:1.8});
+    const Xc=Math.max(m.l+30,Math.min(m.l+p.pw-30,(p.X(0)+p.X(uN))/2));p.ptext(Xc,p.Y(yb)-8,'Δ = 2'+`<tspan dy="-0.5em" font-size="72%">${sgn(kD)}</tspan>`,{c:COL.grey,weight:700,size:fs-1});}
+  /* labels below the line */
+  const labs=[[p.X(0),'x̃ stored',COL.orange]];if(er&&!er.zero)labs.push([p.X(uxe),'x typed',COL.teal]);
+  labs.sort((a,b)=>a[0]-b[0]);const XS=spread(labs.map(l=>l[0]),small?92:116,m.l+40,m.l+p.pw-40);
+  labs.forEach((l,i)=>p.ptext(XS[i],p.Y(0.14),er&&er.zero?'x = x̃ (exact)':l[1],{c:l[2],weight:800}));
+  p.end();}
+
+/* gap between neighbouring floats against |x| (log–log) */
+function gapAt(x){const e=Math.max(F.emin,Math.floor(Math.log2(x)));return 2**(e-F.mb);}
+function drawStair(){
+  const p=plot2,eps=2**-F.mb,xminS=2**(F.emin-F.mb),xmin=2**F.emin,xmax=2**F.emax*(2-eps);
+  const c=V&&(V.kind==='normal'||V.kind==='sub')?Math.abs(rnum(rat(false,V.M,V.k))):1;
+  const clampL=v=>Math.min(1e307,Math.max(xminS,v));
+  let xr=view2.xr||[clampL(c/64),clampL(c*64)];xr=[clampL(xr[0]),clampL(xr[1])];if(xr[1]<=xr[0]*1.01)xr[1]=xr[0]*2;
+  let yr=view2.yr||[gapAt(xr[0])/4,gapAt(xr[1])*4];yr=[Math.max(1e-320,yr[0]),Math.min(1e307,yr[1])];if(yr[1]<=yr[0]*1.01)yr[1]=yr[0]*2;
+  p.begin(xr,yr,{logx:true,log:true,hfrac:.72});p.axes();
+  if(xmin>xr[0])p.band(xr[0],Math.min(xmin,xr[1]),COL.grey,0.14);
+  p.curve(x=>eps*x,{c:COL.grey,w:1.8,dash:'7 6'});
+  const pts=[],e0=Math.max(F.emin-F.mb,Math.floor(Math.log2(xr[0]))-1),e1=Math.min(F.emax,Math.ceil(Math.log2(xr[1]))+1);
+  for(let e=e0;e<=e1&&pts.length<6000;e++){const g=2**(Math.max(e,F.emin)-F.mb),a=Math.max(xminS,2**e),b=e===F.emax?xmax:2**(e+1);pts.push([a,g],[b,g]);}
+  p.path(pts,{c:COL.curve,w:3});
+  p.dot(1,eps,6,COL.teal);
+  if(V&&(V.kind==='normal'||V.kind==='sub'))p.dot(c,2**(Math.max(V.c,1)-F.bias-F.mb),7,COL.orange);
+  /* legend below the plot (as HTML), so no text sits on the staircase or the guide */
+  const sp=e=>'2<sup>'+sgn(e)+'</sup>',L=[`<span class="chip"><span class="k-t">●</span> at x = 1: Δ = ε = ${sp(-F.mb)} ≈ ${sciS(eps,3)}</span>`];
+  if(V&&(V.kind==='normal'||V.kind==='sub'))L.push(`<span class="chip"><span class="k-o">●</span> x̃: Δ = ${sp(Math.max(V.c,1)-F.bias-F.mb)}</span>`);
+  L.push('<span class="chip">dashed: relative gap ε, Δ = ε|x|</span>');
+  if(xmin>xr[0])L.push('<span class="chip">shaded: subnormal (not examined)</span>');
+  $('stairLegend').innerHTML=L.join(' ');
+  p.end();}
+
+/* ---------- read-out ---------- */
+function render(k){
+  if(!A){drawBits(0);plot.begin([0,1],[0,1],{h:170,ml:16});plot.end();plot2.begin([1,10],[1,10],{logx:true,log:true,hfrac:.72});plot2.axes();plot2.end();
+    setFormula('');setStatus('bad',$('numErr').textContent);renderTable('tbl',[],[],-1);return;}
+  const s=STEPS[Math.min(k,STEPS.length-1)];
+  drawBits(s.rev);drawLine();drawStair();
+  setFormula(`<span class="line1">${s.l1}</span><span class="line2">${s.l2}</span><span class="line3">${s.l3}</span>`);
+  /* status */
+  const last=k>=S.last,fv=fieldVals(),er=errors();
+  if(!last)setStatus('info',`Step ${k} of ${S.last}. Press Step (&rarr;) to continue.`);
+  else if(A.kind==='overflow'||A.kind==='overflowchop')setStatus('bad',`Overflow: |x| is larger than x<sub>max</sub> ≈ ${sciS(rnum(rat(false,(1n<<BigInt(F.mb+1))-1n,F.emax-F.mb)),5)}`);
+  else if(A.kind==='underflow')setStatus('bad',`Underflow: |x| is too small, stored as 0`);
+  else if(V.kind==='sub')setStatus('info',`Subnormal number (c = 0, not examined): fewer significant bits, larger relative error`);
+  else if(V.kind==='nan'||V.kind==='inf'||V.kind==='zero'||!er)setStatus('ok',`Stored as ${storedTxt()}`);
+  else if(er.zero)setStatus('ok',CX?`This bit pattern stores x̃ = ${storedTxt(20)} exactly`:`${xTxt()} is stored exactly in ${F.name}`);
+  else{const eps=2**-F.mb,chop=$('mode').value==='chop';
+    setStatus('info',`Not exact: ${A.up?'rounded up':chop?'chopped':'rounded down'}. |ε<sub>r</sub>| = ${sciS(Math.abs(er.er),3)} ≤ ${chop?'ε':'ε/2'} = ${sciS(chop?eps:eps/2,3)}`);}
+  /* fields table, filled as the recipe reaches them */
+  const cb=(forced||A.bits).slice(1,1+F.eb),mbits=(forced||A.bits).slice(1+F.eb),cv=V.c;
+  const cNote=cv===0?' (reserved: zero or subnormal)':cv===F.cmax?' (reserved: ∞ or NaN)':'';
+  const tE=cv===0?(V.kind==='sub'?`${sgn(F.emin)} (subnormal)`:'—'):cv===F.cmax?'—':sgn(cv-F.bias);
+  const all=[
+    ['sign s',V.s,V.s?'negative':'positive'],
+    ['exponent c',cb,cv+cNote],
+    ['bias e','',F.bias],
+    ['true exponent c − e','',tE],
+    ['mantissa β',mbits,'0.β = '+fv.beta],
+    ['1 + β','',V.kind==='normal'?fv.onep:V.kind==='sub'?'0.β (subnormal)':'—'],
+    ['stored x̃','',storedTxt(60)],
+    ['error ε = x − x̃','',er?(er.zero?'0':sciS(er.e,4)):'—'],
+    ['relative error ε<sub>r</sub>','',er&&er.er!==null?(er.zero?'0':sciS(er.er,4)):'—']];
+  const prev=k>0?STEPS[Math.min(k-1,STEPS.length-1)].rows:0,nr=s.rows;
+  renderTable('tbl',['field','bits','value'],all.slice(0,nr),-1,{cellClass:(i)=>i>=prev&&k>0?'new':''});
+  if(!nr)$('tbl').querySelector('tbody').innerHTML=`<tr><td colspan="3" style="text-align:left;opacity:.75">The fields appear as the recipe reaches them.</td></tr>`;}
+const S=Stepper(render);S.delay=1300;
+
+function recompute(keepView){
+  F=FORMATS[$('fmt').value];$('numErr').textContent='';
+  try{X=CX||parseDec($('num').value);}catch(e){X=null;A=null;$('numErr').textContent=e.message;S.last=0;S.pause();S.set(0);return;}
+  if(!forced){A=analyse(F,X,$('mode').value);V=decode(F,A.bits);}
+  else{V=decode(F,forced);A={bits:forced,s:V.s,kind:V.kind==='nan'?'nan':V.kind,c:V.c,f:V.f};}
+  if(!keepView){view.xr=view.yr=view2.xr=view2.yr=null;}
+  STEPS=buildSteps();S.last=STEPS.length-1;S.pause();S.set(S.last);}
+/* clicking a bit: the typed number becomes the stored value of the new pattern */
+function shortest(d){const dec=decOfBin(d.M,d.k);
+  if(sigDigits(dec)<=40)return (d.s?'-':'')+dec.int+(dec.frac?'.'+dec.frac:'');
+  const v=rnum(rat(d.s===1,d.M,d.k)),target=String(d.s)+toBits(BigInt(d.c),F.eb)+toBits(d.f,F.mb);
+  for(let p=1;p<=F.digits;p++){const t=v.toPrecision(p);try{if(analyse(F,parseDec(t),'nearest').bits===target)return t;}catch(e){}}
+  return v.toPrecision(F.digits);}
+$('bits').addEventListener('click',e=>{const r=e.target.closest('rect[data-i]');if(!r||!A)return;const i=+r.dataset.i;
+  const b=(forced||A.bits).split('');b[i]=b[i]==='1'?'0':'1';const bits=b.join(''),d=decode(F,bits);
+  forced=null;CX=d.kind==='nan'?null:d.kind==='inf'?{special:'inf',neg:d.s===1}:d.kind==='zero'?{neg:d.s===1,N:0n,D:1n}:{neg:d.s===1,...(r=>({N:r.n<0n?-r.n:r.n,D:r.d}))(rat(false,d.M,d.k))};
+  if(d.kind==='nan'){forced=bits;$('num').value='NaN';}
+  else if(d.kind==='inf')$('num').value=(d.s?'−':'')+'inf';
+  else if(d.kind==='zero')$('num').value=d.s?'−0':'0';
+  else $('num').value=sgn(shortest(d));
+  $('preset').value='custom';recompute(false);});
+fillSelect('preset',PRESETS);$('preset').value='0.1';
+onSelectChange('preset',()=>{const P=PRESETS.find(q=>q.id===$('preset').value);if(!P||!P.v){$('num').focus();return;}
+  forced=null;CX=null;$('num').value=sgn(P.v);$('fmt').value=P.f;recompute();});
+$('num').addEventListener('input',debounce(()=>{forced=null;CX=null;$('preset').value='custom';recompute();},300));
+$('num').addEventListener('keydown',e=>{if(e.key==='Enter')e.target.blur();});
+onSelectChange('fmt',()=>{forced=null;CX=null;recompute();});
+onSelectChange('mode',()=>{forced=null;CX=null;recompute();});
+enablePanZoom(plot,view,()=>S.show(),{lockY:true});
+enablePanZoom(plot2,view2,()=>S.show());
+bindViewControls([view,view2],()=>S.show());
+recompute();
+</script>
+</body>
+</html>

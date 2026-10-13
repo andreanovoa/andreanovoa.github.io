@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="../theme.js"></script>
+<title>Polynomial and Spline</title>
+<link rel="stylesheet" href="../demo.css">
+<style>
+@font-face{font-family:"CMU Sans Serif";src:url("fonts/cmunss.woff2") format("woff2");font-weight:400 600;font-display:swap}
+@font-face{font-family:"CMU Sans Serif";src:url("fonts/cmunsx.woff2") format("woff2");font-weight:700 900;font-display:swap}
+#plot2{margin-top:2px}
+</style>
+<link rel="stylesheet" href="../theme.css">
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <h1>Polynomial and cubic spline</h1>
+  <p class="lede">Each step adds one data point. One polynomial of degree N through all N + 1 points, against a cubic spline: one cubic per interval with continuous y, y′ and y″.</p>
+</header>
+<main class="layout">
+  <section class="plotcard">
+    <svg class="plot" id="plot" role="img" aria-label="Data points, the interpolating polynomial, the cubic spline and the underlying function"></svg>
+    <p class="panel-title">Spline second derivative y″(x): linear between the data points</p>
+    <svg class="plot" id="plot2" role="img" aria-label="Second derivative of the cubic spline"></svg>
+    <p class="plot-hint" id="plotHint">Drag to pan · scroll to zoom</p>
+  </section>
+  <aside class="side">
+    <label class="field span3">Data<select id="preset"></select></label>
+    <label class="field span3">Spline end conditions<select id="ends">
+      <option value="natural">Free run-out (natural): y″ = 0 at the ends</option>
+      <option value="parabolic">Parabolic run-out: y″₀ = y″₁, y″<sub>N</sub> = y″<sub>N−1</sub></option>
+    </select></label>
+    <label class="field">Points N + 1<input id="n" type="number" min="2" max="21" step="1"></label>
+    <label class="field span2">Evaluate at x<input id="xe" type="number" step="0.05"></label>
+    <p class="hint" id="nHint"></p>
+    <p class="hint">Keys: &rarr; step, &larr; back, p play, r reset</p>
+  </aside>
+  <div class="controls btns">
+    <button id="btnBack" type="button" title="Back (left arrow)">&larr; Back</button>
+    <button id="btnStep" type="button" class="primary" title="Step (right arrow)">Step &rarr;</button>
+    <button id="btnPlay" type="button" title="Play / pause (p)">Play</button>
+    <button id="btnReset" type="button" title="Reset (r)">Reset</button>
+    <button id="btnResetView" type="button" title="Restore the original graph view">Reset view</button>
+  </div>
+  <section class="results-card">
+    <div class="formula wrap" id="formula">&nbsp;</div>
+    <div class="status" id="status">&nbsp;</div>
+    <div class="tablewrap scroll"><table id="tbl"></table></div>
+  </section>
+</main>
+<footer style="margin-top:1rem;color:var(--grey);font-size:.8rem">© Andrea Nóvoa</footer>
+</div>
+<script src="../demo-core.js"></script>
+<script>
+"use strict";
+/* direct labels in the right margin, at the height where each line leaves the plot; never overlapping
+   (like endLabels in demo-core.js, but pushed back inside when they would stack beyond the top or bottom) */
+function marginLabels(p,items){const gap=p.fs+6,lo=p.m.t+p.fs,hi=p.m.t+p.ph-4;
+  const L=items.map(o=>Object.assign({},o,{Y:Math.max(lo,Math.min(hi,o.Y+p.fs*0.35))})).sort((u,v)=>u.Y-v.Y);
+  for(let i=1;i<L.length;i++)if(L[i].Y<L[i-1].Y+gap)L[i].Y=L[i-1].Y+gap;
+  const over=L.length?L[L.length-1].Y-hi:0;if(over>0)for(const l of L)l.Y-=over;
+  for(const l of L)p.ptext(p.m.l+p.pw+10,l.Y,l.t,{anchor:'start',c:l.c,weight:800});}
+/* ---------- interpolation helpers (Class 4) ---------- */
+const linspace=(a,b,n)=>Array.from({length:n},(_,i)=>n===1?a:a+(b-a)*i/(n-1));
+/* Chebyshev nodes x_i = −cos((2i + 1)π / (2N + 2)), i = 0..N, mapped from [−1, 1] to [a, b] */
+const chebNodes=(a,b,n)=>Array.from({length:n},(_,i)=>(a+b)/2-(b-a)/2*Math.cos((2*i+1)*Math.PI/(2*n)));
+const runge=x=>1/(1+25*x*x);
+/* ISA troposphere density (kg/m³), h in km */
+const isa=h=>1.225*Math.pow((288.15-6.5*h)/288.15,4.2559);
+function divDiffTop(xs,ys){const n=xs.length,c=ys.slice();for(let j=1;j<n;j++)for(let i=n-1;i>=j;i--)c[i]=(c[i]-c[i-1])/(xs[i]-xs[i-j]);return c;}
+function newtonEval(xs,c,x){let v=c[c.length-1];for(let k=c.length-2;k>=0;k--)v=v*(x-xs[k])+c[k];return v;}
+/* second derivatives M_i = y''(x_i) of the cubic spline: tridiagonal system (general spacing), Thomas algorithm.
+   Interior rows: h_{i-1}/6 M_{i-1} + (h_{i-1}+h_i)/3 M_i + h_i/6 M_{i+1} = (y_{i+1}-y_i)/h_i - (y_i-y_{i-1})/h_{i-1}
+   Free run-out: M_0 = M_N = 0. Parabolic run-out: M_0 = M_1, M_N = M_{N-1}. */
+function splineM(xs,ys,ends){const n=xs.length;if(n<3)return new Array(n).fill(0);
+  const a=new Array(n).fill(0),b=new Array(n).fill(0),c=new Array(n).fill(0),d=new Array(n).fill(0);
+  for(let i=1;i<n-1;i++){const h0=xs[i]-xs[i-1],h1=xs[i+1]-xs[i];a[i]=h0/6;b[i]=(h0+h1)/3;c[i]=h1/6;d[i]=(ys[i+1]-ys[i])/h1-(ys[i]-ys[i-1])/h0;}
+  b[0]=1;b[n-1]=1;if(ends==='parabolic'){c[0]=-1;a[n-1]=-1;}
+  for(let i=1;i<n;i++){const w=a[i]/b[i-1];b[i]-=w*c[i-1];d[i]-=w*d[i-1];}
+  const M=new Array(n);M[n-1]=d[n-1]/b[n-1];for(let i=n-2;i>=0;i--)M[i]=(d[i]-c[i]*M[i+1])/b[i];return M;}
+function splinePiece(xs,ys,M,i,x){const h=xs[i+1]-xs[i],a=xs[i+1]-x,c=x-xs[i];
+  return M[i]/6*(a*a*a/h-h*a)+M[i+1]/6*(c*c*c/h-h*c)+ys[i]*a/h+ys[i+1]*c/h;}
+function splineEval(xs,ys,M,x){if(x<xs[0]||x>xs[xs.length-1])return NaN;let i=0;while(i<xs.length-2&&x>xs[i+1])i++;return splinePiece(xs,ys,M,i,x);}
+
+const NMAX=21;
+const PRESETS=[
+ {id:'eq',label:'1/(1 + 25x²), equispaced nodes on [−1, 1]',f:runge,a:-1,b:1,nodes:linspace,n0:5,xe:0.9},
+ {id:'ch',label:'1/(1 + 25x²), Chebyshev nodes on [−1, 1]',f:runge,a:-1,b:1,nodes:chebNodes,n0:5,xe:0.9},
+ {id:'sin',label:'sin x, equispaced on [0, 2π]',f:Math.sin,a:0,b:2*Math.PI,nodes:linspace,n0:4,xe:1},
+ {id:'isa',label:'ISA density ρ (kg/m³) vs altitude h (km), 0 to 11 km',f:isa,a:0,b:11,nodes:linspace,n0:3,xe:5},
+ {id:'ex',label:'Worked example: x = 0, 1, −1, 2, −2',pts:[[0,-5],[1,-3],[-1,-15],[2,39],[-2,-9]],xe:1.5},
+ {id:'own',label:'Your own points (drag them on the plot)',pts:[[0,1],[1,2.4],[2,1.2],[3,3],[4,2.6],[5,3.8]],xe:2.5}
+];
+fillSelect('preset',PRESETS);
+
+const plot=new Plot($('plot')),plot2=new Plot($('plot2'));
+const view={xr:null,yr:null},view2={xr:null,yr:null};
+let PR=PRESETS[0],OWN=PRESETS[5].pts.map(q=>q.slice()),dragIdx=-1;
+const nMin=2;
+const nOf=k=>nMin+k;
+function allPts(){return PR.id==='own'?OWN:(PR.pts||[]);}
+/* data for N + 1 = n points: in the order they are added (fixed data) or regenerated nodes (functions) */
+function dataFor(n){if(PR.f){const xs=PR.nodes(PR.a,PR.b,n);return xs.map(x=>[x,PR.f(x)]);}return allPts().slice(0,n);}
+function build(n){const pts=dataFor(n),xs=pts.map(q=>q[0]),ys=pts.map(q=>q[1]);
+  const c=divDiffTop(xs,ys),poly=x=>newtonEval(xs,c,x);
+  const s=pts.slice().sort((u,v)=>u[0]-v[0]),sx=s.map(q=>q[0]),sy=s.map(q=>q[1]),M=splineM(sx,sy,$('ends').value);
+  return{pts,poly,sx,sy,M,spl:x=>splineEval(sx,sy,M,x)};}
+function interval(){if(PR.f)return[PR.a,PR.b];const xs=allPts().map(q=>q[0]);return[Math.min(...xs),Math.max(...xs)];}
+/* max errors: the polynomial on [a, b]; the spline where it is defined, [x_0, x_N] (smaller than [a, b] for Chebyshev nodes) */
+function maxErr(B){const [a,b]=interval(),c=B.sx[0],d=B.sx[B.sx.length-1];let ep=0,es=0;
+  for(let i=0;i<=2000;i++){const x=a+(b-a)*i/2000,y=i===2000?d:c+(d-c)*i/2000;ep=Math.max(ep,Math.abs(B.poly(x)-PR.f(x)));es=Math.max(es,Math.abs(B.spl(y)-PR.f(y)));}
+  return{ep,es};}
+const tsup=t=>`<tspan dy="-0.5em" font-size="72%">${t}</tspan>`;
+
+function render(k){
+  const n=nOf(k);$('n').value=n;
+  const B=build(n),xe=num('xe');
+  const [a,b]=interval(),pad=(b-a)*0.06;
+  const xr=view.xr||[a-pad,b+pad];
+  let yr=view.yr;
+  if(!yr){const fns=[B.spl];if(PR.f)fns.push(PR.f);let r=autoY(fns,a,b,{extra:allPts().map(q=>q[1]).concat(B.pts.map(q=>q[1])),noZero:!!(PR.f&&PR.id!=='eq'&&PR.id!=='ch')});
+    /* let the polynomial widen the view, but not without limit (it can blow up near the ends) */
+    const pr=autoY([B.poly],a,b,{noZero:true,pad:0.05}),h=r[1]-r[0];
+    yr=[Math.max(r[0]-1.5*h,Math.min(r[0],pr[0])),Math.min(r[1]+1.5*h,Math.max(r[1],pr[1]))];}
+  const p=plot.begin(xr,yr);p.m.r=p.small?60:124;p.pw=p.W-p.m.l-p.m.r;p.axes();
+  const labs=[],edge=p.m.l+p.pw-0.01;
+  if(PR.f){p.curve(PR.f,{c:COL.curve,w:3});labs.push({X:edge,Y:p.Y(PR.f(p.x1)),t:'f(x)',c:COL.curve});}
+  if(B.sx.length>=2){p.curve(B.spl,{c:COL.teal,w:3.5},Math.max(p.x0,B.sx[0]),Math.min(p.x1,B.sx[B.sx.length-1]));
+    const xl=Math.min(p.x1,B.sx[B.sx.length-1]);labs.push({X:edge,Y:p.Y(B.spl(xl)),t:'spline',c:COL.teal});}
+  p.curve(B.poly,{c:COL.orange,w:3,dash:'9 6'});labs.push({X:edge,Y:p.Y(B.poly(p.x1)),t:p.small?'poly.':'polynomial',c:COL.orange});
+  if(isFinite(xe)){p.vline(xe,{c:COL.grey,w:1.5,dash:'4 5'},'under');p.dot(xe,B.poly(xe),6,COL.orange);if(isFinite(B.spl(xe)))p.dot(xe,B.spl(xe),6,COL.teal);}
+  if(!PR.f){const all=allPts();for(let i=n;i<all.length;i++)p.ring(all[i][0],all[i][1],6,COL.grey);}
+  B.pts.forEach((q,i)=>{const isNew=!PR.f&&i===n-1&&k>0;p.dot(q[0],q[1],dragIdx===i?10:isNew?9:7,isNew?COL.orange:COL.navy);});
+  marginLabels(p,labs);
+  p.end();
+
+  /* second derivative of the spline (piecewise linear) */
+  const xr2=view2.xr||view.xr||xr;
+  const yr2=view2.yr||autoY([],0,1,{extra:B.M.concat([0]),pad:0.15});
+  const q=plot2.begin(xr2,yr2,{hfrac:.42});q.m.r=p.m.r;q.pw=q.W-q.m.l-q.m.r;q.axes();
+  q.path(B.sx.map((x,i)=>[x,B.M[i]]),{c:COL.teal,w:3});B.sx.forEach((x,i)=>q.dot(x,B.M[i],5,COL.teal));
+  q.end();
+
+  /* formula */
+  const kind=PR.f?(PR.nodes===chebNodes?'Chebyshev nodes':'equispaced nodes'):'data points';
+  const ev=isFinite(xe)?`<span class="line2">At x = ${fmt(xe,4)}: &nbsp;polynomial ${fmt(B.poly(xe),7)}, &nbsp;spline ${isFinite(B.spl(xe))?fmt(B.spl(xe),7):'outside the data'}${PR.f?`, &nbsp;exact ${fmt(PR.f(xe),7)}`:''}</span>`:'';
+  let l3='',stat,kindS='info';
+  if(PR.f){const E=maxErr(B);
+    l3=`<span class="line3">Max error on [${fmt(a,4)}, ${fmt(b,4)}]: &nbsp;polynomial <b>${sci(E.ep,3)}</b>, &nbsp;spline${PR.nodes===chebNodes?` (on [${sb('x',0)}, ${sb('x','N')}])`:''} <b>${sci(E.es,3)}</b></span>`;
+    if(k===0)stat=`Two points: both interpolants are the same straight line. Press Step (&rarr;) to add a point.`;
+    else{const Ep=maxErr(build(n-1)),gp=E.ep>Ep.ep*1.0001,gs=E.es>Ep.es*1.0001;
+      stat=`N + 1 = ${n-1} → ${n}: polynomial max error ${gp?'grows':'shrinks'} (${sci(Ep.ep,2)} → ${sci(E.ep,2)})`+
+        (gp&&PR.id==='eq'?': Runge phenomenon':'')+`; spline max error ${gs?'grows':'shrinks'} (${sci(Ep.es,2)} → ${sci(E.es,2)})`;
+      if(gp&&!gs)kindS='bad';else if(!gp&&!gs)kindS='ok';}}
+  else{let dmax=0;for(let i=0;i<=1000;i++){const x=a+(b-a)*i/1000;const d=Math.abs(B.poly(x)-B.spl(x));if(isFinite(d))dmax=Math.max(dmax,d);}
+    stat=k===0?'Two points: both interpolants are the same straight line. Press Step (&rarr;) to add a point.'
+      :`No underlying function: the two interpolants agree at the ${n} points and differ by up to ${fmt(dmax,3)} between them.`;}
+  setFormula(`<span class="line1">N + 1 = <b>${n}</b> ${kind}: polynomial of degree ${n-1}; spline of ${n-1} cubic piece${n>2?'s':''}</span>`+ev+l3);
+  setStatus(kindS,stat);
+
+  /* table: spline second derivatives at the sorted nodes */
+  const newest=!PR.f&&k>0?B.pts[n-1]:null;
+  const rows=B.sx.map((x,i)=>[i,fmt(x,6),fmt(B.sy[i],6),fmt(B.M[i],6)]);
+  const cur=newest?B.sx.findIndex((x,i)=>x===newest[0]&&B.sy[i]===newest[1]):-1;
+  renderTable('tbl',['i','x<sub>i</sub>','y<sub>i</sub>','spline y″(x<sub>i</sub>)'],rows,cur);
+}
+const S=Stepper(render);S.delay=1100;
+function lastK(){return PR.f?NMAX-nMin:allPts().length-nMin;}
+function load(){PR=PRESETS.find(q=>q.id===$('preset').value);
+  S.last=lastK();$('n').max=nOf(S.last);$('xe').value=PR.xe;
+  $('nHint').textContent=PR.f?`Each step adds a point: the nodes are regenerated (${PR.nodes===chebNodes?'Chebyshev':'equispaced'}) for N + 1 = 2 to ${NMAX}.`
+    :PR.id==='own'?'Drag a point to move it. Double-click an empty spot to add a point, or a point to remove it.':'Each step adds the next point, in the order listed.';
+  $('plotHint').textContent=PR.id==='own'?'Drag a point to move it · drag elsewhere to pan · scroll to zoom':'Drag to pan · scroll to zoom';
+  view.xr=view.yr=view2.xr=view2.yr=null;
+  S.pause();S.set(PR.f?PR.n0-nMin:S.last);}
+onSelectChange('preset',load);
+onSelectChange('ends',()=>S.show());
+onNumber('xe',()=>S.show());
+$('n').addEventListener('input',()=>{const v=Math.round(num('n'));if(!isFinite(v))return;S.pause();S.set(v-nMin);});
+$('n').addEventListener('keydown',e=>{if(e.key==='Enter')e.target.blur();});
+
+/* drag the points of "Your own points"; anywhere else the plot pans */
+function hitPoint(px,py){if(PR.id!=='own')return -1;const n=nOf(S.k);let best=-1,bd=plot.small?22:16;
+  for(let i=0;i<n;i++){const d=Math.hypot(plot.X(OWN[i][0])-px,plot.Y(OWN[i][1])-py);if(d<bd){bd=d;best=i;}}return best;}
+const svg=$('plot');
+const toPx=e=>{const r=svg.getBoundingClientRect();return{x:(e.clientX-r.left)*plot.W/r.width,y:(e.clientY-r.top)*plot.H/r.height};};
+enablePanZoom(plot,view,()=>S.show(),{onView:v=>{view2.xr=v.xr.slice();},onDown:(e,d)=>{const i=hitPoint(d.px,d.py);if(i<0)return false;
+  dragIdx=i;view.xr=plot.xr;view.yr=plot.yr;svg.setPointerCapture(e.pointerId);S.show();return true;}});
+svg.addEventListener('pointermove',e=>{if(dragIdx<0)return;const q=toPx(e);
+  const x=Math.max(plot.x0,Math.min(plot.x1,plot.dx(q.x))),y=Math.max(plot.y0,Math.min(plot.y1,plot.dy(q.y))),tol=(plot.x1-plot.x0)*0.005;
+  if(!OWN.some((u,j)=>j!==dragIdx&&Math.abs(u[0]-x)<tol))OWN[dragIdx][0]=+x.toFixed(3);OWN[dragIdx][1]=+y.toFixed(3);S.show();});
+for(const t of ['pointerup','pointercancel'])svg.addEventListener(t,()=>{if(dragIdx>=0){dragIdx=-1;S.show();}});
+svg.addEventListener('dblclick',e=>{if(PR.id!=='own')return;const q=toPx(e);
+  if(q.x<plot.m.l||q.x>plot.m.l+plot.pw||q.y<plot.m.t||q.y>plot.m.t+plot.ph)return;
+  const i=hitPoint(q.x,q.y);
+  if(i>=0){if(nOf(S.k)>2){OWN.splice(i,1);S.last=lastK();S.set(S.k-1);}}
+  else{const x=+plot.dx(q.x).toFixed(3),y=+plot.dy(q.y).toFixed(3);if(OWN.length>=NMAX||OWN.some(u=>Math.abs(u[0]-x)<(plot.x1-plot.x0)*0.005))return;
+    OWN.splice(nOf(S.k),0,[x,y]);S.last=lastK();S.set(S.k+1);}});
+enablePanZoom(plot2,view2,()=>S.show(),{onView:v=>{view.xr=v.xr.slice();}});
+bindViewControls([view,view2],()=>S.show());
+load();
+</script>
+</body>
+</html>

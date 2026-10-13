@@ -16,25 +16,21 @@ build:
 
 <p class="module-context">AERO40003 Computing and Numerical Methods 1 · Class 1</p>
 
-<p>Explore how computers represent numbers, where rounding errors come from, and how they affect calculations.</p>
+<p>Interactive demos for how computers store numbers: convert to binary step by step, take a floating-point number apart bit by bit, and see how rounding errors arise and propagate.</p>
 
-<div class="module-demos" aria-label="Computer arithmetic topics">
+<div class="module-demos" aria-label="Computer arithmetic demos">
   <details class="module-demo">
-    <summary>Binary and integer representation</summary>
-    <p>Interactive demo placeholder.</p>
+    <summary><svg class="module-demo-icon" viewBox="0 0 96 72" aria-hidden="true"><rect x="10" y="22" width="14" height="22" rx="2" fill="none" stroke="#0072B2" stroke-width="2.5"/><rect x="27" y="22" width="14" height="22" rx="2" fill="#0072B2" opacity=".35" stroke="#0072B2" stroke-width="2.5"/><rect x="44" y="22" width="14" height="22" rx="2" fill="#0072B2" opacity=".35" stroke="#0072B2" stroke-width="2.5"/><rect x="61" y="22" width="14" height="22" rx="2" fill="none" stroke="#0072B2" stroke-width="2.5"/><path d="M14 56H86" stroke="#767676" stroke-width="2"/><path d="M80 14V48" stroke="#D55E00" stroke-width="3"/><circle cx="80" cy="14" r="4" fill="#D55E00"/></svg><span>Decimal to binary, and integer storage</span></summary>
+    <iframe class="module-demo-frame" src="converter.html" title="Decimal to binary converter demo" loading="lazy"></iframe>
   </details>
   <details class="module-demo">
-    <summary>Floating-point representation</summary>
-    <p>Interactive demo placeholder.</p>
+    <summary><svg class="module-demo-icon" viewBox="0 0 96 72" aria-hidden="true"><rect x="8" y="24" width="8" height="22" fill="#D55E00"/><rect x="18" y="24" width="24" height="22" fill="#009E73"/><rect x="44" y="24" width="44" height="22" fill="#0072B2"/><path d="M8 58H88" stroke="#767676" stroke-width="2"/><path d="M16 54V62M28 54V62M52 54V62M88 54V62" stroke="#767676" stroke-width="2"/></svg><span>Floating-point explorer: IEEE 754 single and double</span></summary>
+    <iframe class="module-demo-frame" src="float.html" title="Floating-point explorer demo" loading="lazy"></iframe>
   </details>
   <details class="module-demo">
-    <summary>Rounding, chopping, overflow and underflow</summary>
-    <p>Interactive demo placeholder.</p>
-  </details>
-  <details class="module-demo">
-    <summary>Error propagation</summary>
-    <p>Interactive demo placeholder.</p>
+    <summary><svg class="module-demo-icon" viewBox="0 0 96 72" aria-hidden="true"><path d="M8 40H88" stroke="#767676" stroke-width="2"/><path d="M18 32V48M48 32V48M78 32V48" stroke="#767676" stroke-width="2"/><circle cx="57" cy="40" r="5" fill="#009E73"/><path d="M57 26L48 26" stroke="#D55E00" stroke-width="3"/><circle cx="48" cy="26" r="4" fill="#D55E00"/><rect x="20" y="54" width="40" height="6" fill="#0072B2" opacity=".6"/><rect x="34" y="62" width="44" height="6" fill="#D55E00" opacity=".6"/></svg><span>Rounding, chopping and error propagation</span></summary>
+    <iframe class="module-demo-frame" src="rounding.html" title="Rounding, chopping and error propagation demo" loading="lazy"></iframe>
   </details>
 </div>
 
-<script src="../class2/module-demos.js"></script>
+<script src="module-demos.js"></script>

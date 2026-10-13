@@ -131,3 +131,28 @@ body.dark .course-cover-figure {
     border-radius: 8px;
     background: var(--theme);
 }
+
+/* Course page: the whole class card is a link. The title link is stretched over
+   the card (a transparent ::after layer), so a click anywhere opens the class
+   page in a new tab while the markup keeps a single, accessible link. */
+.course-card {
+    position: relative;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.course-card .project-name a::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 10px;
+}
+
+.course-card:hover,
+.course-card:focus-within {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.course-card .project-name a:focus-visible {
+    outline: none;
+}

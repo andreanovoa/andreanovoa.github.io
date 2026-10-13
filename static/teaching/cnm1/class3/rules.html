@@ -4,327 +4,97 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="../theme.js"></script>
-<title>Integration Rules Explorer</title>
+<title>Integration Rules</title>
+<link rel="stylesheet" href="../demo.css">
 <style>
 @font-face{font-family:"CMU Sans Serif";src:url("fonts/cmunss.woff2") format("woff2");font-weight:400 600;font-display:swap}
 @font-face{font-family:"CMU Sans Serif";src:url("fonts/cmunsx.woff2") format("woff2");font-weight:700 900;font-display:swap}
-
-:root{--bg:#FFFFFF;--navy:#1A1A1A;--curve:#0072B2;--orange:#D55E00;--teal:#009E73;--grey:#767676;--soft:#F2F4F7;}
-*{box-sizing:border-box}
-[hidden]{display:none!important}
-html{font-size:18px;-webkit-text-size-adjust:100%;text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--navy);font-family:"CMU Sans Serif",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;line-height:1.4}
-.wrap{max-width:1440px;margin:0 auto;padding:14px 16px 40px}
-header.top{display:flex;flex-wrap:wrap;align-items:center;gap:6px 20px;margin-bottom:12px}
-header.top h1{font-size:1.9rem;line-height:1.15;margin:0;font-weight:750;letter-spacing:-0.01em}
-.back{color:var(--navy);text-decoration:none;font-weight:600;font-size:.95rem;padding:6px 12px;border:2px solid var(--soft);border-radius:999px;background:var(--soft)}
-.back:hover{border-color:var(--grey)}
-.lede{margin:0;flex-basis:100%;font-size:1.05rem;opacity:.85}
-.layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;grid-template-areas:"plot side" "table side";gap:16px 22px;align-items:start}
-.plotcard{grid-area:plot;min-width:0}
-.side{grid-area:side;min-width:0}
-.tablewrap{grid-area:table;min-width:0}
-.formula{font-size:1.2rem;line-height:1.5;min-height:3.3em;padding:10px 14px;background:var(--soft);border-radius:10px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
-.formula b{font-weight:750}
-.formula .line2{display:block;font-size:1.05rem}
-.status{margin:8px 2px 0;font-size:1.15rem;font-weight:700;min-height:1.5em}
-.status.ok{color:var(--teal)}
-.status.bad{color:var(--orange)}
-.status.info{color:var(--navy);font-weight:500;opacity:.75}
-svg.plot{display:block;width:100%;height:auto;margin-top:6px;user-select:none;-webkit-user-select:none}
-svg.plot text{font-family:"CMU Sans Serif",system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
-.side{background:var(--soft);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:14px}
-.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-button{font:inherit;font-size:1.05rem;font-weight:700;padding:10px 8px;min-height:50px;border-radius:9px;border:2px solid var(--navy);background:#fff;color:var(--navy);cursor:pointer;touch-action:manipulation}
-button.primary{background:var(--navy);color:#fff}
-button:active{transform:translateY(1px)}
-button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
-.field{display:flex;flex-direction:column;gap:4px;font-size:.95rem;font-weight:650}
-select,input[type=number],input[type=text]{font:inherit;font-size:1rem;font-weight:500;padding:8px 10px;border:2px solid var(--grey);border-radius:8px;background:#fff;color:var(--navy);width:100%;min-width:0}
-input[type=text]{font-family:ui-monospace,Menlo,Consolas,monospace}
-.numslide{display:grid;grid-template-columns:96px minmax(0,1fr);gap:10px;align-items:center}
-input[type=range]{width:100%;min-width:0;accent-color:var(--orange);height:28px}
-.pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.hint{margin:0;font-size:.85rem;opacity:.75}
-.err{color:var(--orange);font-size:.9rem;font-weight:600;min-height:0}
-.tablewrap{overflow:auto;max-height:46vh;border:2px solid var(--soft);border-radius:10px;-webkit-overflow-scrolling:touch}
-table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:1rem}
-th,td{padding:7px 12px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--soft)}
-th{position:sticky;top:0;background:var(--soft);font-weight:700;z-index:1}
-th:first-child,td:first-child{text-align:center}
-tr.cur td{background:rgba(228,87,46,.13);font-weight:750}
-.badge{display:inline-block;padding:3px 12px;border-radius:999px;font-weight:700;color:#fff;font-size:.95rem;white-space:nowrap}
-.badge.teal{background:var(--teal)}.badge.orange{background:var(--orange)}.badge.grey{background:var(--grey)}
-.chip{display:inline-block;margin-right:14px;white-space:nowrap}
-@media (max-width:980px){
-  .layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"plot" "side" "table"}
-}
-@media (max-width:600px){
-  html{font-size:16px}
-  header.top h1{font-size:1.5rem}
-  .formula{font-size:1.02rem}
-  .formula .line2{font-size:.95rem}
-  th,td{padding:6px 8px}
-}
-
-.summary{margin-top:14px}
-.summary td:first-child,.summary th:first-child{text-align:left}
-.swatch{display:inline-block;width:28px;height:0;border-top:4px solid;vertical-align:middle;margin-right:8px}
-.layout{grid-template-areas:"plot side" "table side" "iter side"}
-.iterwrap{grid-area:iter}
-@media (max-width:980px){.layout{grid-template-areas:"plot" "side" "table" "iter"}}
-
-.check{display:flex;flex-wrap:wrap;gap:6px 14px;font-weight:600;font-size:.95rem}
-.check label{display:flex;align-items:center;gap:6px;white-space:nowrap}
-.check input{width:20px;height:20px;accent-color:var(--orange)}
-.big{font-size:1.25rem}
+#tbl tr.sum td{border-top:2px solid var(--grey);font-weight:750}
+#cmp tr.cur td{font-weight:750}
+.ebar{display:inline-block;height:.6em;background:var(--orange);border-radius:2px;vertical-align:middle;margin-right:.4em;opacity:.8}
+.custom-row{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr);gap:10px}
+@media (max-width:600px){.custom-row{grid-template-columns:1fr 1fr}.custom-row>:first-child{grid-column:1/-1}}
 </style>
 <link rel="stylesheet" href="../theme.css">
 </head>
 <body>
 <div class="wrap">
-
 <header class="top">
-  <h1>Integration rules explorer</h1>
-  <p class="lede">Pick an integrand and a rule, then add strips or Gauss points. Shaded: the area the rule actually computes. Dots: where f is evaluated.</p>
+  <h1>Integration rules</h1>
+  <p class="lede">The shaded area is what the rule computes; the dots are where f is evaluated. Each step adds one strip, or one Gauss point.</p>
 </header>
 <main class="layout">
   <section class="plotcard">
-    <div class="formula" id="formula">&nbsp;</div>
-    <div class="status" id="status">&nbsp;</div>
-    <svg class="plot" id="plot" role="img" aria-label="Integration rule plot"></svg>
+    <svg class="plot" id="plot" role="img" aria-label="Integrand, quadrature nodes and the area computed by the rule"></svg>
+    <p class="plot-hint">Drag to pan · scroll to zoom</p>
   </section>
   <aside class="side">
-    <div class="btns">
-      <button id="btnBack" type="button" title="Fewer (left arrow)">&larr; Fewer</button>
-      <button id="btnStep" type="button" class="primary" title="More (right arrow)">More &rarr;</button>
-      <button id="btnPlay" type="button" title="Play / pause (p)">Play</button>
-      <button id="btnReset" type="button" title="Reset (r)">Reset</button>
-    </div>
-    <label class="field">f(x) and interval<select id="fsel"></select></label>
-    <div id="customBox" class="field" hidden>
-      <input id="custom" type="text" value="exp(-x^2)" spellcheck="false" autocomplete="off" aria-label="Custom f(x)">
-      <div class="pair"><label class="field">a<input id="a" type="number" step="0.1" value="0"></label><label class="field">b<input id="b" type="number" step="0.1" value="1"></label></div>
+    <label class="field span2">f(x) and interval<select id="fsel"></select></label>
+    <label class="field span2">Rule<select id="rsel"></select></label>
+    <label class="field"><span id="nLab">Strips n</span><input id="n" type="number" step="1" min="1"></label>
+    <div id="customBox" class="full" hidden>
+      <div class="custom-row">
+        <label class="field">Custom f(x)<input id="custom" type="text" value="exp(-x^2)" spellcheck="false" autocomplete="off"></label>
+        <label class="field">a<input id="a" type="number" step="0.1" value="0"></label>
+        <label class="field">b<input id="b" type="number" step="0.1" value="1"></label>
+      </div>
       <div id="customErr" class="err"></div>
-      <div class="hint">Reference value: 20-point Gauss on 200 panels</div>
     </div>
-    <label class="field">Rule<select id="rsel"></select></label>
-    <div class="field"><label for="nR" id="nLab">Number of strips n</label><div class="numslide"><output id="nOut" class="big">1</output><input id="nR" type="range" min="0" max="10" step="1" aria-label="number slider"></div></div>
     <p class="hint" id="nHint"></p>
-    <p class="hint">Keys: &rarr; more, &larr; fewer, p play, r reset</p>
+    <p class="hint">Keys: &rarr; step, &larr; back, p play, r reset</p>
   </aside>
-  <div class="tablewrap"><table id="tbl"></table></div>
+  <div class="controls btns">
+    <button id="btnBack" type="button" title="Back (left arrow)">&larr; Back</button>
+    <button id="btnStep" type="button" class="primary" title="Step (right arrow)">Step &rarr;</button>
+    <button id="btnPlay" type="button" title="Play / pause (p)">Play</button>
+    <button id="btnReset" type="button" title="Reset (r)">Reset</button>
+    <button id="btnResetView" type="button" title="Restore the original graph view">Reset view</button>
+  </div>
+  <section class="results-card">
+    <div class="formula wrap" id="formula">&nbsp;</div>
+    <div class="status" id="status">&nbsp;</div>
+    <div class="tablewrap scroll"><table id="tbl"></table></div>
+    <p class="hint" id="cmpHead" style="margin:.9rem 0 .3rem;font-weight:700">Every rule with the same n</p>
+    <div class="tablewrap scroll"><table id="cmp"></table></div>
+  </section>
 </main>
+<footer style="margin-top:1rem;color:var(--grey);font-size:.8rem">© Andrea Nóvoa</footer>
 </div>
+<script src="../demo-core.js"></script>
 <script>
 "use strict";
-/* ---------- shared core (identical in every demo page) ---------- */
-// Okabe-Ito colour-blind-safe palette, same as the slides and notes
-const COL={navy:'#1A1A1A',curve:'#0072B2',orange:'#D55E00',teal:'#009E73',grey:'#767676',soft:'#F2F4F7'};
-const $=id=>document.getElementById(id);
-const num=id=>parseFloat($(id).value);
-
-/* erf / erfc: Abramowitz & Stegun 7.1.26 (|error| < 1.5e-7) */
-function erf(x){const s=x<0?-1:1;x=Math.abs(x);const t=1/(1+0.3275911*x);
-  const y=1-((((1.061405429*t-1.453152027)*t+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x);return s*y;}
-function erfc(x){return 1-erf(x);}
-
-/* ---------- safe expression parser (whitelist + recursive descent, no eval) ---------- */
-const FUNCS={sin:Math.sin,cos:Math.cos,tan:Math.tan,exp:Math.exp,log:Math.log,sqrt:Math.sqrt,abs:Math.abs,erfc:erfc};
-function compileExpr(src){
-  const s=String(src).toLowerCase().replace(/\*\*/g,'^');
-  if(!s.trim()) throw new Error('Type an expression in x');
-  if(/[^0-9a-z+\-*\/^(). ]/.test(s)) throw new Error('Allowed: numbers, x, + − * / ^ ( ) and sin cos tan exp log sqrt abs erfc pi');
-  for(const w of (s.match(/[a-z]+/g)||[])) if(w!=='x'&&w!=='pi'&&!(w in FUNCS)) throw new Error('Unknown name "'+w+'"');
-  const toks=s.match(/\d+\.?\d*|\.\d+|[a-z]+|[+\-*\/^()]/g)||[];
-  if(toks.join('')!==s.replace(/\s+/g,'')) throw new Error('Could not read the expression');
-  let i=0;const peek=()=>toks[i],next=()=>toks[i++];
-  const isNum=t=>t!==undefined&&/^[\d.]/.test(t),isName=t=>t!==undefined&&/^[a-z]/.test(t);
-  function expr(){let a=term();while(peek()==='+'||peek()==='-'){const op=next(),l=a,r=term();a=op==='+'?(x=>l(x)+r(x)):(x=>l(x)-r(x));}return a;}
-  function term(){let a=unary();for(;;){const t=peek();let op;
-      if(t==='*'||t==='/')op=next();else if(isNum(t)||isName(t)||t==='(')op='*';else break;
-      const l=a,r=unary();a=op==='*'?(x=>l(x)*r(x)):(x=>l(x)/r(x));}return a;}
-  function unary(){if(peek()==='-'){next();const a=unary();return x=>-a(x);}if(peek()==='+'){next();return unary();}return power();}
-  function power(){const a=primary();if(peek()==='^'){next();const b=unary();return x=>Math.pow(a(x),b(x));}return a;}
-  function primary(){const t=next();
-    if(t===undefined)throw new Error('Expression ends too early');
-    if(isNum(t)){const v=parseFloat(t);return()=>v;}
-    if(t==='x')return x=>x;
-    if(t==='pi')return()=>Math.PI;
-    if(t in FUNCS){if(next()!=='(')throw new Error(t+' needs brackets, e.g. '+t+'(x)');const a=expr();if(next()!==')')throw new Error('Missing )');const fn=FUNCS[t];return x=>fn(a(x));}
-    if(t==='('){const a=expr();if(next()!==')')throw new Error('Missing )');return a;}
-    throw new Error('Unexpected "'+t+'"');}
-  const f=expr();if(i<toks.length)throw new Error('Unexpected "'+toks[i]+'"');
-  f(1.234);return f;
-}
-const numD=f=>x=>{const h=1e-5*Math.max(1,Math.abs(x));return(f(x+h)-f(x-h))/(2*h);};
-
-/* ---------- formatting ---------- */
-function fmt(v,sig){sig=sig||6;
-  if(v===null||v===undefined)return '';
-  if(Number.isNaN(v))return 'undefined';
-  if(!isFinite(v))return v>0?'∞':'−∞';
-  if(v===0)return '0';
-  const a=Math.abs(v);let s;
-  if(a>=1e6||a<1e-4){s=v.toExponential(Math.max(1,Math.min(sig,6)-3)).replace(/\.?0+e/,'e').replace('e+','e');}
-  else{s=v.toPrecision(sig);if(s.indexOf('.')>=0)s=s.replace(/0+$/,'').replace(/\.$/,'');}
-  return s.replace(/-/g,'−');}
-const P=v=>v<0?'('+fmt(v)+')':fmt(v);
-const sb=(b,i)=>b+'<sub>'+i+'</sub>';
-const ssub=(b,i)=>b+'<tspan dy="0.32em" font-size="72%">'+i+'</tspan>';
-
-/* ---------- plotting (plain SVG) ---------- */
-function niceStep(span,n){const raw=span/Math.max(1,n);const p=Math.pow(10,Math.floor(Math.log10(raw)));const m=raw/p;return(m<1.5?1:m<3?2:m<7?5:10)*p;}
-function ticks(a,b,n){const st=niceStep(b-a,n);const out=[];for(let v=Math.ceil(a/st-1e-9)*st;v<=b+st*1e-9;v+=st)out.push(Math.abs(v)<st*1e-9?0:+v.toPrecision(12));return out;}
-function autoY(fns,a,b){let v=[];
-  for(const fn of fns)for(let i=0;i<=400;i++){const y=fn(a+(b-a)*i/400);if(isFinite(y))v.push(y);}
-  if(!v.length)return[-1,1];
-  v.sort((p,q)=>p-q);let lo=v[0],hi=v[v.length-1];
-  const p3=v[Math.floor(v.length*.03)],p97=v[Math.ceil(v.length*.97)-1];
-  if(p97>p3&&hi-lo>6*(p97-p3)){lo=p3;hi=p97;}
-  lo=Math.min(lo,0);hi=Math.max(hi,0);
-  if(hi-lo<1e-12){lo-=1;hi+=1;}
-  const pad=(hi-lo)*0.08;return[lo-pad,hi+pad];}
-const cl=v=>Math.max(-1e5,Math.min(1e5,v));
-class Plot{
-  constructor(svg){this.svg=svg;}
-  begin(xr,yr,o){o=o||{};
-    const w=Math.max(260,Math.round(this.svg.parentElement.clientWidth||800));
-    const small=w<600;this.small=small;
-    const hmax=Math.max(320,window.innerHeight*0.62);
-    const h=Math.round(Math.min(hmax,Math.max(250,w*(small?0.85:0.6))));
-    this.W=w;this.H=h;this.fs=small?15:18;
-    this.m={l:small?46:68,r:small?12:22,t:12,b:small?34:44};
-    this.pw=w-this.m.l-this.m.r;this.ph=h-this.m.t-this.m.b;
-    this.log=!!o.log;this.x0=xr[0];this.x1=xr[1];
-    this.y0=this.log?Math.log10(yr[0]):yr[0];this.y1=this.log?Math.log10(yr[1]):yr[1];
-    this.L={back:[],under:[],mid:[],top:[],front:[]};return this;}
-  X(x){return +cl(this.m.l+(x-this.x0)/(this.x1-this.x0)*this.pw).toFixed(2);}
-  Y(y){if(this.log)y=Math.log10(y);return +cl(this.m.t+(this.y1-y)/(this.y1-this.y0)*this.ph).toFixed(2);}
-  st(s){s=s||{};return `stroke="${s.c||COL.navy}" stroke-width="${s.w||3}" fill="none" stroke-linecap="round" stroke-linejoin="round"${s.dash?` stroke-dasharray="${s.dash}"`:''}${s.op!=null?` opacity="${s.op}"`:''}`;}
-  seg(x1,y1,x2,y2,s,layer){if(![x1,y1,x2,y2].every(isFinite))return;this.L[layer||'mid'].push(`<line x1="${this.X(x1)}" y1="${this.Y(y1)}" x2="${this.X(x2)}" y2="${this.Y(y2)}" ${this.st(s)}/>`);}
-  vline(x,s,layer){const X=this.X(x);this.L[layer||'mid'].push(`<line x1="${X}" y1="${this.m.t}" x2="${X}" y2="${this.m.t+this.ph}" ${this.st(s)}/>`);}
-  hline(y,s,layer){const Y=this.Y(y);this.L[layer||'mid'].push(`<line x1="${this.m.l}" y1="${Y}" x2="${this.m.l+this.pw}" y2="${Y}" ${this.st(s)}/>`);}
-  path(pts,s,layer){let d='',pen=false;for(const p of pts){if(!p||!isFinite(p[0])||!isFinite(p[1])){pen=false;continue;}d+=(pen?'L':'M')+this.X(p[0])+' '+this.Y(p[1]);pen=true;}
-    if(d)this.L[layer||'mid'].push(`<path d="${d}" ${this.st(s)}/>`);}
-  curve(fn,s){const n=Math.max(300,Math.round(this.pw*1.5)),span=this.y1-this.y0,lo=this.y0-4*span,hi=this.y1+4*span;const pts=[];let prev=null;
-    for(let i=0;i<=n;i++){const x=this.x0+(this.x1-this.x0)*i/n;const y=fn(x);
-      if(!isFinite(y)){pts.push(null);prev=null;continue;}
-      if(prev!==null&&((prev>this.y1&&y<this.y0)||(prev<this.y0&&y>this.y1)))pts.push(null);
-      prev=y;pts.push([x,Math.max(lo,Math.min(hi,y))]);}
-    this.path(pts,s);}
-  line(x1,y1,x2,y2,s,layer){/* infinite line through two points, clipped to plot */
-    if(x1===x2){this.vline(x1,s,layer);return;}const m=(y2-y1)/(x2-x1);
-    this.seg(this.x0,y1+m*(this.x0-x1),this.x1,y1+m*(this.x1-x1),s,layer);}
-  dot(x,y,r,fill,layer,stroke){if(!isFinite(x)||!isFinite(y))return;this.L[layer||'top'].push(`<circle cx="${this.X(x)}" cy="${this.Y(y)}" r="${r}" fill="${fill}" stroke="${stroke||'#fff'}" stroke-width="2.5"/>`);}
-  band(xa,xb,fill,op){const a=this.X(Math.min(xa,xb)),b=this.X(Math.max(xa,xb));this.L.under.push(`<rect x="${a}" y="${this.m.t}" width="${Math.max(0,b-a)}" height="${this.ph}" fill="${fill}" opacity="${op}"/>`);}
-  text(x,y,t,o){o=o||{};let X=this.X(x)+(o.dx||0),Y=this.Y(y)+(o.dy||0);
-    const pad=o.anchor==='start'||o.anchor==='end'?4:18;
-    X=Math.max(this.m.l+pad,Math.min(this.m.l+this.pw-pad,X));Y=Math.max(this.m.t+this.fs,Math.min(this.m.t+this.ph-6,Y));
-    this.ptext(X,Y,t,o);}
-  ptext(X,Y,t,o){o=o||{};this.L.front.push(`<text x="${X}" y="${Y}" fill="${o.c||COL.navy}" font-size="${o.size||this.fs}" font-weight="${o.weight||650}" text-anchor="${o.anchor||'middle'}" stroke="#fff" stroke-width="5" stroke-linejoin="round" paint-order="stroke">${t}</text>`);}
-  pill(X,Y,t,fill){const w=Math.max(30,t.length*11+18),h=this.small?24:28;
-    this.L.front.push(`<rect x="${X-w/2}" y="${Y}" width="${w}" height="${h}" rx="${h/2}" fill="${fill}"/><text x="${X}" y="${Y+h/2+this.fs*0.36}" fill="#fff" font-size="${this.fs+2}" font-weight="800" text-anchor="middle">${t}</text>`);}
-  axisLabels(list,dy){if(!list.length)return;const yl=Math.max(this.m.t+this.fs+40,Math.min(this.m.t+this.ph-6,this.Y(0)+(dy||32)));
-    const idx=list.map((q,i)=>i).sort((i,j)=>list[i][0]-list[j][0]);
-    const XS=spread(idx.map(i=>this.X(list[i][0])),this.small?26:32,this.m.l+14,this.m.l+this.pw-14);
-    idx.forEach((i,j)=>this.ptext(XS[j],yl,list[i][1],{c:list[i][2],weight:800}));}
-  axes(o){o=o||{};const m=this.m,pw=this.pw,ph=this.ph,B=this.L.back,fs=this.fs;
-    const xt=ticks(this.x0,this.x1,Math.max(3,Math.round(pw/(this.small?70:100))));
-    for(const v of xt){const X=this.X(v);
-      B.push(`<line x1="${X}" y1="${m.t}" x2="${X}" y2="${m.t+ph}" stroke="${COL.grey}" stroke-width="1" opacity=".45"/>`);
-      B.push(`<text x="${X}" y="${m.t+ph+fs+8}" fill="${COL.navy}" font-size="${fs}" text-anchor="middle">${fmt(v,4)}</text>`);}
-    let yt;
-    if(this.log){const a=Math.ceil(this.y0-1e-9),b=Math.floor(this.y1+1e-9),stp=Math.max(1,Math.ceil((b-a)/(this.small?5:8)));yt=[];for(let e=b;e>=a;e-=stp)yt.push(e);}
-    else yt=ticks(this.y0,this.y1,Math.max(3,Math.round(ph/(this.small?55:70))));
-    for(const v of yt){const Y=this.log?this.Y(Math.pow(10,v)):this.Y(v);
-      B.push(`<line x1="${m.l}" y1="${Y}" x2="${m.l+pw}" y2="${Y}" stroke="${COL.grey}" stroke-width="1" opacity=".45"/>`);
-      const lab=this.log?`10<tspan dy="-0.55em" font-size="70%">${String(v).replace('-','−')}</tspan>`:fmt(v,4);
-      B.push(`<text x="${m.l-8}" y="${Y+fs*0.35}" fill="${COL.navy}" font-size="${fs}" text-anchor="end">${lab}</text>`);}
-    B.push(`<rect x="${m.l}" y="${m.t}" width="${pw}" height="${ph}" fill="none" stroke="${COL.grey}" stroke-width="1.5"/>`);
-    if(!this.log&&this.y0<0&&this.y1>0){const Y=this.Y(0);B.push(`<line x1="${m.l}" y1="${Y}" x2="${m.l+pw}" y2="${Y}" stroke="${COL.navy}" stroke-width="2.5"/>`);}
-    if(!o.noYaxis&&this.x0<0&&this.x1>0){const X=this.X(0);B.push(`<line x1="${X}" y1="${m.t}" x2="${X}" y2="${m.t+ph}" stroke="${COL.navy}" stroke-width="2.5"/>`);}
-    if(o.xlabel)this.ptext(m.l+pw-6,m.t+ph-10,o.xlabel,{anchor:'end',weight:600});
-    if(o.ylabel)this.ptext(m.l+10,m.t+fs+6,o.ylabel,{anchor:'start',weight:600});}
-  end(){const m=this.m,L=this.L,id=this.svg.id+'-clip';
-    this.svg.setAttribute('viewBox',`0 0 ${this.W} ${this.H}`);this.svg.setAttribute('width',this.W);this.svg.setAttribute('height',this.H);
-    this.svg.innerHTML=`<defs><clipPath id="${id}"><rect x="${m.l}" y="${m.t}" width="${this.pw}" height="${this.ph}"/></clipPath></defs><g>${L.back.join('')}</g><g clip-path="url(#${id})">${L.under.join('')}${L.mid.join('')}${L.top.join('')}</g><g>${L.front.join('')}</g>`;}
-}
-
-/* spread sorted pixel positions so neighbours are at least `gap` apart (keeps order) */
-function spread(xs,gap,lo,hi){const o=xs.slice();
-  for(let it=0;it<50;it++){let moved=false;
-    for(let i=1;i<o.length;i++){const d=o[i]-o[i-1];if(d<gap-0.5){const s=(gap-d)/2;o[i-1]-=s;o[i]+=s;moved=true;}}
-    for(let i=0;i<o.length;i++){if(o[i]<lo+i*gap)o[i]=lo+i*gap;const r=hi-(o.length-1-i)*gap;if(o[i]>r)o[i]=r;}
-    if(!moved)break;}
-  return o;}
-/* ---------- UI helpers ---------- */
-function setStatus(kind,html){const s=$('status');s.className='status '+(kind||'');s.innerHTML=html||'&nbsp;';}
-function setFormula(html){$('formula').innerHTML=html||'&nbsp;';}
-function renderTable(id,head,rows,cur){const t=$(id);
-  t.innerHTML='<thead><tr>'+head.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>'+rows.map((r,i)=>'<tr'+(i===cur?' class="cur"':'')+'>'+r.map(c=>'<td>'+c+'</td>').join('')+'</tr>').join('')+'</tbody>';
-  const row=t.querySelector('tr.cur'),w=t.parentElement;
-  if(row&&w.scrollHeight>w.clientHeight){const top=row.offsetTop,hh=t.tHead.offsetHeight;
-    if(top-hh<w.scrollTop)w.scrollTop=top-hh;else if(top+row.offsetHeight>w.scrollTop+w.clientHeight)w.scrollTop=top+row.offsetHeight-w.clientHeight;}}
-function fillSelect(id,list){$(id).innerHTML=list.map(p=>`<option value="${p.id}">${p.label}</option>`).join('');}
-function fillTol(id,def){const opts=[0.1,0.01,0.001,1e-4,1e-6,1e-8];$(id).innerHTML=opts.map(v=>`<option value="${v}"${v===def?' selected':''}>${fmt(v)}</option>`).join('');}
-/* number box + slider pair */
-function linkSlider(numId,rangeId,cb){const n=$(numId),r=$(rangeId);
-  n.addEventListener('input',()=>{const v=parseFloat(n.value);if(isFinite(v)){r.value=v;cb();}});
-  n.addEventListener('keydown',e=>{if(e.key==='Enter')n.blur();});
-  r.addEventListener('input',()=>{n.value=+(+r.value).toFixed(6);cb();});
-  r.addEventListener('change',()=>r.blur());}
-function setSliderRange(rangeId,lo,hi){const r=$(rangeId);const st=niceStep(hi-lo,200);r.min=Math.floor(lo/st)*st;r.max=Math.ceil(hi/st)*st;r.step=st;}
-function setVal(numId,v){$(numId).value=+(+v).toFixed(6);const r=$(numId+'R');if(r)r.value=v;}
-/* function selector: returns {f,df,label,preset} or {error} */
-function getFunc(selId,list,customId){const id=$(selId).value;
-  if(id!=='custom'){const p=list.find(q=>q.id===id);return{f:p.f,df:p.df||numD(p.f),label:p.label,preset:p};}
-  try{const f=compileExpr($(customId).value);return{f,df:numD(f),label:$(customId).value,preset:null,custom:true};}
-  catch(e){return{error:e.message};}}
-/* step / back / reset / play controller with keyboard (clicker friendly) */
-function Stepper(render){
-  const S={k:0,last:0,timer:null,delay:1100};const pb=$('btnPlay');
-  S.show=()=>render(S.k);
-  S.set=k=>{S.k=Math.max(0,Math.min(S.last,k));render(S.k);};
-  S.pause=()=>{if(S.timer)clearInterval(S.timer);S.timer=null;pb.textContent='Play';pb.classList.remove('primary');};
-  S.step=()=>{if(S.k<S.last)S.set(S.k+1);};
-  S.back=()=>{S.pause();S.set(S.k-1);};
-  S.reset=()=>{S.pause();S.set(0);};
-  S.end=()=>{S.pause();S.set(S.last);};
-  S.toggle=()=>{if(S.timer){S.pause();return;}if(S.k>=S.last)S.set(0);pb.textContent='Pause';
-    S.timer=setInterval(()=>{S.set(S.k+1);if(S.k>=S.last)S.pause();},S.delay);};
-  $('btnStep').onclick=()=>{S.pause();S.step();};
-  $('btnBack').onclick=S.back;$('btnReset').onclick=S.reset;$('btnPlay').onclick=S.toggle;
-  document.addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey)return;
-    const t=e.target,tag=t&&t.tagName,k=e.key;
-    const inField=tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA';
-    if(inField&&k==='Escape'){t.blur();return;}
-    if(inField&&!(k==='PageDown'||k==='PageUp'))return;
-    if(k==='ArrowRight'||k==='PageDown'){e.preventDefault();S.pause();S.step();}
-    else if(k==='ArrowLeft'||k==='PageUp'){e.preventDefault();S.back();}
-    else if(k==='r'||k==='R'||k==='Home'){e.preventDefault();S.reset();}
-    else if(k==='p'||k==='P'){e.preventDefault();S.toggle();}
-    else if(k==='End'){e.preventDefault();S.end();}});
-  let rt=null;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(S.show,80);});
-  return S;}
-/* x-range inputs */
-function readRange(){const a=num('xmin'),b=num('xmax');return(isFinite(a)&&isFinite(b)&&b>a)?[a,b]:null;}
-function onSelectChange(id,cb){$(id).addEventListener('change',()=>{$(id).blur();cb();});}
-function debounce(fn,ms){let t=null;return()=>{clearTimeout(t);t=setTimeout(fn,ms);};}
-/* ---------- end shared core ---------- */
-
-/* ---------- Class 3: integrands, rules, Gauss-Legendre nodes ---------- */
+/* integrands: four harder ones that separate the rules, then those from the Class 3 notes and labs */
 const FPRE=[
- {id:'pi',label:'4/(1 + x²) on [0, 1]   (exact π)',expr:'4/(1+x^2)',f:x=>4/(1+x*x),a:0,b:1,exact:Math.PI},
- {id:'exp',label:'e^(−x²) on [0, 1]   (Lab 3)',expr:'exp(-x^2)',f:x=>Math.exp(-x*x),a:0,b:1,exact:0.7468241328124270},
- {id:'xex',label:'x eˣ on [0, 2]',expr:'x*exp(x)',f:x=>x*Math.exp(x),a:0,b:2,exact:Math.exp(2)+1},
- {id:'poly',label:'2x⁴ + 3x² on [−1, 1]',expr:'2x^4+3x^2',f:x=>2*x**4+3*x*x,a:-1,b:1,exact:2.8},
- {id:'one',label:'1 − e^(−x) on [0, 2]',expr:'1-exp(-x)',f:x=>1-Math.exp(-x),a:0,b:2,exact:1+Math.exp(-2)},
- {id:'wavy',label:'2 + sin(1.5x) + 0.2x on [0, 4]',expr:'2+sin(1.5x)+0.2x',f:x=>2+Math.sin(1.5*x)+0.2*x,a:0,b:4,exact:8+(1-Math.cos(6))/1.5+1.6},
- {id:'lift',label:'√(1 − x²) on [0, 1]   (elliptic lift, π/4)',expr:'sqrt(1-x^2)',f:x=>Math.sqrt(Math.max(0,1-x*x)),a:0,b:1,exact:Math.PI/4},
+ {id:'osc',label:'1 + sin(5x) on [0, π]   (oscillating)',f:x=>1+Math.sin(5*x),a:0,b:Math.PI,exact:Math.PI+0.4,exName:'π + 0.4'},
+ {id:'runge',label:'1/(1 + 25x²) on [−1, 1]   (sharp peak)',f:x=>1/(1+25*x*x),a:-1,b:1,exact:0.4*Math.atan(5),exName:'(2/5) arctan 5'},
+ {id:'damp',label:'e^(−x) cos(4x) on [0, 3]   (decaying oscillation)',f:x=>Math.exp(-x)*Math.cos(4*x),a:0,b:3,exact:(Math.exp(-3)*(4*Math.sin(12)-Math.cos(12))+1)/17},
+ {id:'sqrt',label:'√x on [0, 1]   (infinite slope at 0)',f:x=>Math.sqrt(Math.max(0,x)),a:0,b:1,exact:2/3,exName:'2/3'},
+ {id:'pi',label:'4/(1 + x²) on [0, 1]   (exact: π; worked example)',f:x=>4/(1+x*x),a:0,b:1,exact:Math.PI,exName:'π'},
+ {id:'poly',label:'2x⁴ + 3x² on [−1, 1]   (exact: 2.8)',f:x=>2*x**4+3*x*x,a:-1,b:1,exact:2.8},
+ {id:'exp',label:'e^(−x²) on [0, 1]',f:x=>Math.exp(-x*x),a:0,b:1,exact:0.746824132812427},
+ {id:'xex',label:'x eˣ on [0, 2]   (exact: e² + 1)',f:x=>x*Math.exp(x),a:0,b:2,exact:Math.exp(2)+1,exName:'e² + 1'},
+ {id:'one',label:'1 − e^(−x) on [0, 2]',f:x=>1-Math.exp(-x),a:0,b:2,exact:1+Math.exp(-2)},
+ {id:'wavy',label:'2 + sin(1.5x) + 0.2x on [0, 4]',f:x=>2+Math.sin(1.5*x)+0.2*x,a:0,b:4,exact:8+(1-Math.cos(6))/1.5+1.6},
+ {id:'lift',label:'√(1 − x²) on [0, 1]   (exact: π/4)',f:x=>Math.sqrt(Math.max(0,1-x*x)),a:0,b:1,exact:Math.PI/4,exName:'π/4'},
  {id:'custom',label:'Custom f(x)…'}
 ];
-/* Gauss-Legendre points (ascending) and weights on [-1,1]: Newton's method on the Legendre recurrence */
+/* m: strips per polynomial piece (0 = rectangles), −1 = one Newton–Cotes polynomial, −2 = Gauss–Legendre; p: error ∝ h^p */
+const RULES=[
+ {id:'left',name:'Left Riemann sum',m:0,p:1},
+ {id:'right',name:'Right Riemann sum',m:0,p:1},
+ {id:'upper',name:'Upper Riemann sum',m:0,p:1},
+ {id:'lower',name:'Lower Riemann sum',m:0,p:1},
+ {id:'mid',name:'Mid-point rule',m:0,p:2},
+ {id:'trap',name:'Trapezium rule',m:1,p:2},
+ {id:'simp',name:'Simpson’s 1/3 rule',m:2,p:4},
+ {id:'s38',name:'Simpson’s 3/8 rule',m:3,p:4},
+ {id:'boole',name:'Boole’s rule',m:4,p:6},
+ {id:'nc',name:'Newton–Cotes, one polynomial of degree d',m:-1},
+ {id:'gl',name:'Gauss–Legendre quadrature',m:-2}
+];
+const NMAX={0:40,1:40,2:40,3:39,4:40,'-1':12,'-2':12};
+
+/* Gauss–Legendre points (ascending) and weights on [−1, 1]: Newton's method on the Legendre recurrence */
 const GLCACHE={};
 function gaussLegendre(N){if(GLCACHE[N])return GLCACHE[N];const x=new Array(N),w=new Array(N);
   for(let i=1;i<=N;i++){let z=Math.cos(Math.PI*(i-0.25)/(N+0.5)),pp=1;
@@ -333,112 +103,152 @@ function gaussLegendre(N){if(GLCACHE[N])return GLCACHE[N];const x=new Array(N),w
     x[N-i]=z;w[N-i]=2/((1-z*z)*pp*pp);}
   if(N%2===1)x[(N-1)/2]=0;
   return GLCACHE[N]={x,w};}
-/* closed Newton-Cotes weights (per unit spacing) for nodes 0..d: integrate the Lagrange basis */
-function ncWeights(d){const w=[];for(let j=0;j<=d;j++){let c=[1];/* polynomial coefficients, ascending */
+/* closed Newton–Cotes weights (per unit spacing) for nodes 0..d: integrate each Lagrange basis polynomial */
+function ncWeights(d){const w=[];for(let j=0;j<=d;j++){let c=[1];
     for(let k=0;k<=d;k++){if(k===j)continue;const n=new Array(c.length+1).fill(0);
       for(let m=0;m<c.length;m++){n[m+1]+=c[m]/(j-k);n[m]+=-k*c[m]/(j-k);}c=n;}
     let s=0;for(let m=0;m<c.length;m++)s+=c[m]*Math.pow(d,m+1)/(m+1);w.push(s);}return w;}
-/* reference value for a custom integrand: composite 20-point Gauss on 200 panels */
+/* reference value for a custom integrand: composite 20-point Gauss–Legendre on 200 panels */
 function reference(f,a,b){const {x,w}=gaussLegendre(20);const P=200,H=(b-a)/P;let s=0;
   for(let p=0;p<P;p++){const c=a+(p+0.5)*H;for(let i=0;i<20;i++)s+=w[i]*f(c+H/2*x[i]);}return s*H/2;}
-const RULES=[
- {id:'left',name:'Left Riemann sum',m:0,ord:'error ∝ h'},
- {id:'right',name:'Right Riemann sum',m:0,ord:'error ∝ h'},
- {id:'upper',name:'Upper Riemann sum',m:0,ord:'error ∝ h'},
- {id:'lower',name:'Lower Riemann sum',m:0,ord:'error ∝ h'},
- {id:'mid',name:'Mid-point rule',m:0,ord:'error ∝ h²'},
- {id:'trap',name:'Trapezium rule',m:1,ord:'error ∝ h²'},
- {id:'simp',name:"Simpson's 1/3 rule",m:2,ord:'error ∝ h⁴'},
- {id:'s38',name:"Simpson's 3/8 rule",m:3,ord:'error ∝ h⁴'},
- {id:'boole',name:"Boole's rule",m:4,ord:'error ∝ h⁶'},
- {id:'nc',name:'Newton–Cotes, one polynomial',m:-1,ord:'exact up to degree d (d even: d + 1)'},
- {id:'gl',name:'Gauss–Legendre',m:-2,ord:'exact up to degree 2N − 1'}
-];
-/* apply a rule: returns {I, nodes:[{x,f,w}], shapes, evals} */
+function lagr(xs,fs,x){let s=0;for(let j=0;j<xs.length;j++){let l=1;for(let k=0;k<xs.length;k++)if(k!==j)l*=(x-xs[k])/(xs[j]-xs[k]);s+=l*fs[j];}return s;}
+
+/* apply a rule with n strips (or N points, or degree d): nodes [{x,f,w}], shapes to shade, the integral */
 function applyRule(rule,f,a,b,n){
   const R={nodes:[],shapes:[],polys:[]};
-  if(rule.m===0){const h=(b-a)/n;
+  if(rule.m===0){const h=(b-a)/n;R.h=h;
     for(let i=0;i<n;i++){const x0=a+i*h,x1=x0+h;let xs;
       if(rule.id==='left')xs=x0;else if(rule.id==='right')xs=x1;else if(rule.id==='mid')xs=x0+h/2;
       else{xs=x0;let best=f(x0);for(let k=1;k<=200;k++){const t=x0+h*k/200,v=f(t);if(rule.id==='upper'?v>best:v<best){best=v;xs=t;}}}
-      const fx=f(xs);R.nodes.push({x:xs,f:fx,w:h});R.shapes.push([[x0,0],[x0,fx],[x1,fx],[x1,0]]);}
-    R.evals=n;}
-  else if(rule.m>0||rule.m===-1){const d=rule.m>0?rule.m:n,P=rule.m>0?n/rule.m:1,h=(b-a)/(P*d),W=ncWeights(d);
+      const fx=f(xs);R.nodes.push({x:xs,f:fx,w:h});R.shapes.push([[x0,0],[x0,fx],[x1,fx],[x1,0]]);}}
+  else if(rule.m>0||rule.m===-1){const d=rule.m>0?rule.m:n,P=rule.m>0?n/rule.m:1,h=(b-a)/(P*d),W=ncWeights(d);R.h=h;
     const acc=new Map();
     for(let p=0;p<P;p++){const xs=[],fs=[];for(let j=0;j<=d;j++){const k=p*d+j,x=a+k*h,fx=f(x);xs.push(x);fs.push(fx);
         acc.set(k,{x,f:fx,w:(acc.has(k)?acc.get(k).w:0)+W[j]*h});}
       R.polys.push({xs,fs});}
-    R.nodes=[...acc.keys()].sort((u,v)=>u-v).map(k=>acc.get(k));R.evals=R.nodes.length;}
+    R.nodes=[...acc.keys()].sort((u,v)=>u-v).map(k=>acc.get(k));}
   else{const {x,w}=gaussLegendre(n);let left=a;
     for(let i=0;i<n;i++){const xi=(a+b)/2+(b-a)/2*x[i],fx=f(xi),wi=w[i]*(b-a)/2;R.nodes.push({x:xi,f:fx,w:wi,eta:x[i],wref:w[i]});
-      R.shapes.push([[left,0],[left,fx],[left+wi,fx],[left+wi,0]]);left+=wi;}
-    R.evals=n;}
+      R.shapes.push([[left,0],[left,fx],[left+wi,fx],[left+wi,0]]);left+=wi;}}
   R.I=R.nodes.reduce((s,q)=>s+q.w*q.f,0);return R;}
-function lagr(xs,fs,x){let s=0;for(let j=0;j<xs.length;j++){let l=1;for(let k=0;k<xs.length;k++)if(k!==j)l*=(x-xs[k])/(xs[j]-xs[k]);s+=l*fs[j];}return s;}
-function polygon(p,pts,fill,op,stroke){const d=pts.map((q,i)=>(i?'L':'M')+p.X(q[0])+' '+p.Y(q[1])).join('')+'Z';
-  p.L.under.push(`<path d="${d}" fill="${fill}" fill-opacity="${op}"${stroke?` stroke="${stroke}" stroke-width="1.5"`:''}/>`);}
+
+let F=null,RULE=RULES.find(r=>r.id==='simp');
+const view={xr:null,yr:null};
+const plot=new Plot($('plot'));
+const stepN=()=>RULE.m>0?RULE.m:1;
+const nMin=()=>RULE.m>0?RULE.m:1;
+const nOf=k=>nMin()+k*stepN();
+const sym=()=>RULE.m===-2?'N':RULE.m===-1?'d':'n';
+
 function readF(){const id=$('fsel').value;
-  if(id!=='custom'){const p=FPRE.find(q=>q.id===id);return{f:p.f,a:p.a,b:p.b,exact:p.exact,label:p.label,exactKind:'exact'};}
+  if(id!=='custom'){const p=FPRE.find(q=>q.id===id);return{...p,kind:'exact'};}
   const a=num('a'),b=num('b');if(!(isFinite(a)&&isFinite(b)&&b>a))return{error:'Enter limits with a < b'};
   try{const f=compileExpr($('custom').value);const ex=reference(f,a,b);if(!isFinite(ex))return{error:'f is not finite on [a, b]'};
-    return{f,a,b,exact:ex,label:$('custom').value,exactKind:'reference'};}catch(e){return{error:e.message};}}
+    return{f,a,b,exact:ex,kind:'reference'};}catch(e){return{error:e.message};}}
 
-const NLIST={0:[1,2,3,4,5,6,8,10,12,16,24,32,48,64],1:[1,2,3,4,5,6,8,10,12,16,24,32,48,64],
-  2:[1,2,3,4,5,6,8,12,16,24,32],3:[1,2,3,4,6,8,12,16,24],4:[1,2,3,4,6,8,12,16],
-  '-1':[1,2,3,4,5,6,7,8,9,10,12,14],'-2':[1,2,3,4,5,6,7,8,9,10,12,16]};
-const plot=new Plot($('plot'));
-let F=null,RULE=RULES[6];
-function list(){return NLIST[String(RULE.m)];}
-function nOf(k){const L=list();const v=L[Math.min(k,L.length-1)];return RULE.m>0?v*RULE.m:v;}
-function weightsText(R,n){
-  const h=n=>fmt(n,5);
+function ruleFormula(n){
   switch(RULE.id){
-    case 'left':case 'right':case 'upper':case 'lower':case 'mid':return `h = (b − a)/n = ${h((F.b-F.a)/n)}; each strip: h × f(sample)`;
-    case 'trap':return `h/2 (f₀ + 2f₁ + … + 2f<sub>n−1</sub> + f<sub>n</sub>), h = ${h((F.b-F.a)/n)}`;
-    case 'simp':return `h/3 (f₀ + 4f₁ + 2f₂ + … + 4f<sub>n−1</sub> + f<sub>n</sub>), h = ${h((F.b-F.a)/n)}`;
-    case 's38':return `3h/8 (f₀ + 3f₁ + 3f₂ + 2f₃ + … + f<sub>n</sub>), h = ${h((F.b-F.a)/n)}`;
-    case 'boole':return `2h/45 (7f₀ + 32f₁ + 12f₂ + 32f₃ + 14f₄ + … + 7f<sub>n</sub>), h = ${h((F.b-F.a)/n)}`;
-    case 'nc':return `one polynomial of degree ${n} through ${n+1} equispaced nodes`;
-    case 'gl':return `(b − a)/2 · Σ w<sub>i</sub> f(λ(η<sub>i</sub>)), η<sub>i</sub> = roots of L<sub>${n}</sub>`;}}
+    case 'left':return `I ≈ h [f(x₀) + f(x₁) + … + f(x<sub>${n-1}</sub>)]`;
+    case 'right':return `I ≈ h [f(x₁) + f(x₂) + … + f(x<sub>${n}</sub>)]`;
+    case 'upper':return `I ≈ h Σ (largest f on each strip)`;
+    case 'lower':return `I ≈ h Σ (smallest f on each strip)`;
+    case 'mid':return `I ≈ h [f(x<sub>m,0</sub>) + … + f(x<sub>m,${n-1}</sub>)]`;
+    case 'trap':return `I ≈ (h/2) [f₀ + 2f₁ + … + 2f<sub>${n-1}</sub> + f<sub>${n}</sub>]`;
+    case 'simp':return `I ≈ (h/3) [f₀ + 4f₁ + 2f₂ + … + 4f<sub>${n-1}</sub> + f<sub>${n}</sub>]`;
+    case 's38':return `I ≈ (3h/8) [f₀ + 3f₁ + 3f₂ + 2f₃ + … + 3f<sub>${n-1}</sub> + f<sub>${n}</sub>]`;
+    case 'boole':return `I ≈ (2h/45) [7f₀ + 32f₁ + 12f₂ + 32f₃ + 14f₄ + … + 7f<sub>${n}</sub>]`;
+    case 'nc':return `I ≈ Σ A<sub>j</sub> f<sub>j</sub>, &nbsp;A<sub>j</sub> = ∫ l<sub>j</sub>(x) dx`;
+    case 'gl':return `I ≈ (b − a)/2 · Σ w<sub>i</sub> f(λ(η<sub>i</sub>))`;}}
+function orderNote(n){
+  if(RULE.m===-2)return `exact for polynomials up to degree 2N − 1 = ${2*n-1}`;
+  if(RULE.m===-1)return `exact for polynomials up to degree ${n%2===0?n+1:n}`;
+  return `error ∝ h${RULE.p===1?'':'<sup>'+RULE.p+'</sup>'}`;}
+
 function render(k){
-  const n=nOf(k);$('nOut').textContent=n;$('nR').value=k;
+  const n=nOf(k);$('n').value=n;
   if(!F||F.error){plot.begin([0,1],[-1,1]);plot.axes();plot.end();setFormula('');setStatus('bad',F?F.error:'');renderTable('tbl',[],[],-1);return;}
-  const R=applyRule(RULE,F.f,F.a,F.b,n),pad=(F.b-F.a)*0.06,XR=[F.a-pad,F.b+pad];
-  const yr=autoY([F.f],XR[0],XR[1]);const p=plot.begin(XR,yr);p.axes();
-  const many=R.nodes.length>40;
-  if(R.polys.length){for(const P of R.polys){const pts=[[P.xs[0],0]];const N=60;
-      for(let i=0;i<=N;i++){const x=P.xs[0]+(P.xs[P.xs.length-1]-P.xs[0])*i/N;pts.push([x,lagr(P.xs,P.fs,x)]);}
-      pts.push([P.xs[P.xs.length-1],0]);polygon(p,pts,COL.grey,0.25);
-      p.path(pts.slice(1,-1),{c:COL.orange,w:2.5,dash:RULE.m===1?null:'8 6'});
-      p.seg(P.xs[P.xs.length-1],0,P.xs[P.xs.length-1],P.fs[P.fs.length-1],{c:COL.grey,w:1.2});}
-    p.seg(R.polys[0].xs[0],0,R.polys[0].xs[0],R.polys[0].fs[0],{c:COL.grey,w:1.2});}
-  else for(const s of R.shapes)polygon(p,s,COL.grey,0.25,COL.grey);
+  const R=applyRule(RULE,F.f,F.a,F.b,n),pad=(F.b-F.a)*0.08;
+  const xr=view.xr||[F.a-pad,F.b+pad],yr=view.yr||autoY([F.f],xr[0],xr[1],{extra:R.nodes.map(q=>q.f)});
+  const p=plot.begin(xr,yr);p.axes();
+  const many=R.nodes.length>24;
+  /* the area the rule computes: rectangles, or the area under each interpolating polynomial */
+  if(R.polys.length){for(const Q of R.polys){const x0=Q.xs[0],x1=Q.xs[Q.xs.length-1],N=Math.max(24,Math.round((p.X(x1)-p.X(x0))/2));
+      const top=[];for(let i=0;i<=N;i++){const x=x0+(x1-x0)*i/N;top.push([x,lagr(Q.xs,Q.fs,x)]);}
+      p.area([[x0,0],...top,[x1,0]],COL.orange,0.16);
+      p.path(top,{c:COL.orange,w:2.5,dash:RULE.m===1?null:'8 6'});
+      p.seg(x1,0,x1,Q.fs[Q.fs.length-1],{c:COL.orange,w:1.2,op:.7});}
+    p.seg(R.polys[0].xs[0],0,R.polys[0].xs[0],R.polys[0].fs[0],{c:COL.orange,w:1.2,op:.7});}
+  else for(const s of R.shapes)p.area(s,COL.orange,0.16,COL.orange);
   p.curve(F.f,{c:COL.curve,w:3.5});
-  for(const q of R.nodes)p.dot(q.x,q.f,many?4:6,COL.orange,'top');
+  for(const q of R.nodes){if(!many&&!R.polys.length)p.seg(q.x,0,q.x,q.f,{c:COL.grey,w:1.5,dash:'4 5'},'mid');p.dot(q.x,q.f,many?4.5:7,COL.orange,'top');}
   p.end();
-  const err=R.I-F.exact,rel=Math.abs(err)/Math.max(1e-300,Math.abs(F.exact));
-  setFormula(`${RULE.name}, ${RULE.m===-2?'N':RULE.m===-1?'degree d':'n'} = <b>${n}</b>: &nbsp; I ≈ Σ w<sub>i</sub> f(x<sub>i</sub>) = <b>${fmt(R.I,10)}</b><span class="line2">${weightsText(R,n)}</span>`);
-  const exk=F.exactKind==='exact'?'exact':'reference';
-  if(rel<1e-13)setStatus('ok',`${exk} = ${fmt(F.exact,10)}: correct to machine precision with ${R.evals} evaluation${R.evals>1?'s':''}`);
-  else setStatus(rel<1e-6?'ok':'info',`${exk} = ${fmt(F.exact,10)}, &nbsp; error = ${fmt(err,3)} &nbsp; (${R.evals} evaluation${R.evals>1?"s":""} of f; ${RULE.ord})`);
-  const rows=R.nodes.map((q,i)=>RULE.m===-2?[i,fmt(q.eta,8),fmt(q.x,8),fmt(q.f,8),fmt(q.wref,8),fmt(q.w*q.f,8)]:[i,fmt(q.x,8),fmt(q.f,8),fmt(q.w,8),fmt(q.w*q.f,8)]);
-  const head=RULE.m===-2?['i','η<sub>i</sub>','x<sub>i</sub> = λ(η<sub>i</sub>)','f(x<sub>i</sub>)','w<sub>i</sub>','(b−a)/2 · w<sub>i</sub> f(x<sub>i</sub>)']:['i','x<sub>i</sub>','f(x<sub>i</sub>)','weight','weight × f(x<sub>i</sub>)'];
+  /* read-out */
+  const err=F.exact-R.I,rel=Math.abs(err)/Math.max(1e-300,Math.abs(F.exact)),exk=F.kind==='exact'?'exact':'reference';
+  const exName=F.exName?F.exName+' = ':'';
+  const hTxt=RULE.m>=0?`, &nbsp;h = (b − a)/n = ${fmt(R.h,6)}`:RULE.m===-1?`: ${n+1} equispaced nodes, h = ${fmt(R.h,6)}`:`: η<sub>i</sub> = roots of P<sub>${n}</sub>`;
+  setFormula(`<span class="line1">${RULE.name}, ${sym()} = <b>${n}</b>${hTxt}</span>`+
+    `<span class="line2">${ruleFormula(n)} = <b>${fmt(R.I,10)}</b></span>`+
+    `<span class="line3">${exk}: ${exName}${fmt(F.exact,10)}, &nbsp;error = ${exk} − I = ${fmt(err,3)}, &nbsp;relative ${fmt(rel,2)}</span>`);
+  const ev=R.nodes.length,evTxt=`${ev} evaluation${ev>1?'s':''} of f`;
+  if(rel<1e-13)setStatus('ok',`Exact to machine precision with ${evTxt} (${orderNote(n)})`);
+  else if(k>0){const Rp=applyRule(RULE,F.f,F.a,F.b,nOf(k-1)),ep=Math.abs(F.exact-Rp.I),ratio=Math.abs(err)/ep;
+    const expect=RULE.m>=0?Math.pow(nOf(k-1)/n,RULE.p):null;
+    setStatus('info',`${sym()} = ${nOf(k-1)} → ${n}: |error| × ${fmt(ratio,3)}`+(expect!==null?` &nbsp;(${orderNote(n)} predicts × ${fmt(expect,3)})`:` &nbsp;(${orderNote(n)})`)+`; ${evTxt}`);}
+  else setStatus('info',`${evTxt}; ${orderNote(n)}. Press Step (&rarr;) to add ${RULE.m===-2?'a Gauss point':RULE.m===-1?'a node':RULE.m>1?RULE.m+' strips (one more polynomial piece)':'a strip'}.`);
+  /* nodes and weights */
+  let head,rows;
+  if(RULE.m===-2){head=['i','η<sub>i</sub>','w<sub>i</sub>','x<sub>i</sub> = λ(η<sub>i</sub>)','f(x<sub>i</sub>)','(b − a)/2 · w<sub>i</sub> f(x<sub>i</sub>)'];
+    rows=R.nodes.map((q,i)=>[i,fmt(q.eta,10),fmt(q.wref,10),fmt(q.x,8),fmt(q.f,8),fmt(q.w*q.f,8)]);
+    rows.push(['Σ','','','','','<b>'+fmt(R.I,10)+'</b>']);}
+  else{head=['i','x<sub>i</sub>','f(x<sub>i</sub>)','weight w<sub>i</sub>','w<sub>i</sub> f(x<sub>i</sub>)'];
+    rows=R.nodes.map((q,i)=>[i,fmt(q.x,8),fmt(q.f,8),fmt(q.w,8),fmt(q.w*q.f,8)]);
+    rows.push(['Σ','','',fmt(R.nodes.reduce((s,q)=>s+q.w,0),8),'<b>'+fmt(R.I,10)+'</b>']);}
   renderTable('tbl',head,rows,-1);
+  const last=$('tbl').querySelector('tbody tr:last-child');if(last)last.className='sum';
+  compareAll(n);
 }
-const S=Stepper(render);S.delay=900;
-function setRule(){RULE=RULES.find(r=>r.id===$('rsel').value);const L=list();S.last=L.length-1;$('nR').max=L.length-1;
-  $('nLab').textContent=RULE.m===-2?'Number of Gauss points N':RULE.m===-1?'Polynomial degree d':'Number of strips n';
-  $('nHint').textContent=RULE.m>1?`n must be a multiple of ${RULE.m}: one polynomial of degree ${RULE.m} per ${RULE.m} strips.`:RULE.m===-2?'Points at the roots of the Legendre polynomial; marker rectangles have width w·(b−a)/2.':RULE.m===-1?'High degrees through equispaced nodes can oscillate (Runge phenomenon, Class 4).':'';
-  S.pause();S.set(Math.min(S.k,S.last));}
-function recompute(){F=readF();$('customErr').textContent=F.error||'';S.show();}
+
+/* Every rule at (about) the same n: the composite rules need n to be a multiple of their piece size */
+function compareAll(n){
+  const base=RULE.m>0?n:RULE.m===0?n:n;  // strips (or points / degree) of the current rule
+  const cmpRules=['left','mid','trap','simp','s38','boole','gl'].map(id=>RULES.find(r=>r.id===id));
+  const errs=[],rows=[];
+  for(const r of cmpRules){
+    let m=r.m>0?Math.max(r.m,Math.ceil(base/r.m)*r.m):Math.min(base,r.m===-2?12:base);
+    const R=applyRule(r,F.f,F.a,F.b,m),e=Math.abs(F.exact-R.I);errs.push(e);
+    rows.push({r,m,ev:R.nodes.length,I:R.I,e});}
+  const lmax=Math.log10(Math.max(...errs,1e-16)),lmin=-16;
+  const out=rows.map(q=>{const w=q.e<1e-16?0:Math.max(2,Math.round(70*(Math.log10(q.e)-lmin)/(lmax-lmin)));
+    return[q.r.name.replace(' rule','').replace(' quadrature',''),(q.r.m===-2?'N = ':'n = ')+q.m,q.ev,fmt(q.I,10),
+      `<span class="ebar" style="width:${w}px"></span>${q.e<1e-15?'&lt; 10⁻¹⁵':fmt(q.e,2)}`];});
+  $('cmpHead').textContent=`Every rule with n = ${base} (rounded up where a rule needs a multiple), on the same integrand`;
+  renderTable('cmp',['rule','n / N','evaluations of f','I','|error| (bar: log scale)'],out,-1);
+  const cur=cmpRules.findIndex(r=>r.id===RULE.id);
+  if(cur>=0){const tr=$('cmp').querySelectorAll('tbody tr')[cur];if(tr)tr.className='cur';}
+}
+
+const S=Stepper(render);S.delay=1100;
+function setRule(keepN){const nPrev=nOf(S.k);RULE=RULES.find(r=>r.id===$('rsel').value);
+  S.last=Math.floor((NMAX[String(RULE.m)]-nMin())/stepN());
+  $('nLab').textContent=RULE.m===-2?'Gauss points N':RULE.m===-1?'Degree d':'Strips n';
+  $('n').min=nMin();$('n').step=stepN();$('n').max=NMAX[String(RULE.m)];
+  $('nHint').textContent=RULE.m>1?`n must be a multiple of ${RULE.m}: one polynomial of degree ${RULE.m} through every ${RULE.m+1} nodes.`
+    :RULE.m===-2?'Gauss points are the roots of the Legendre polynomial. Each shaded rectangle has width (b − a)/2 · wᵢ and height f(xᵢ).'
+    :RULE.m===-1?'One polynomial through d + 1 equispaced nodes. High degrees can oscillate (Runge phenomenon, Class 4).'
+    :RULE.id==='upper'||RULE.id==='lower'?'Largest or smallest value of f on each strip (found by sampling the strip).':'';
+  S.pause();S.set(keepN?Math.round((Math.max(nMin(),nPrev)-nMin())/stepN()):S.k);}
+function recompute(){F=readF();$('customErr').textContent=F.error||'';view.xr=null;view.yr=null;S.show();}
 fillSelect('fsel',FPRE);fillSelect('rsel',RULES.map(r=>({id:r.id,label:r.name})));$('rsel').value='simp';
 onSelectChange('fsel',()=>{$('customBox').hidden=$('fsel').value!=='custom';recompute();});
-onSelectChange('rsel',setRule);
-$('nR').addEventListener('input',()=>{S.pause();S.set(+$('nR').value);});
-$('nR').addEventListener('change',()=>$('nR').blur());
+onSelectChange('rsel',()=>setRule(true));
+$('n').addEventListener('input',()=>{const v=Math.round(num('n'));if(!isFinite(v))return;S.pause();S.set(Math.round((Math.max(nMin(),v)-nMin())/stepN()));});
+$('n').addEventListener('keydown',e=>{if(e.key==='Enter')e.target.blur();});
 $('custom').addEventListener('input',debounce(recompute,300));
 for(const id of ['a','b']){$(id).addEventListener('input',debounce(recompute,300));$(id).addEventListener('keydown',e=>{if(e.key==='Enter')e.target.blur();});}
-F=readF();setRule();S.set(2);
+enablePanZoom(plot,view,()=>S.show());
+bindViewControls([view],()=>S.show());
+$('fsel').value='osc';
+F=readF();setRule(false);S.set(0); /* start coarse on an oscillating integrand, where the rules clearly differ */
 </script>
 </body>
 </html>

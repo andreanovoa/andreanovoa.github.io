@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="../theme.js"></script>
+<title>Minimisation as Root Finding</title>
+<link rel="stylesheet" href="../demo.css">
+<style>
+@font-face{font-family:"CMU Sans Serif";src:url("fonts/cmunss.woff2") format("woff2");font-weight:400 600;font-display:swap}
+@font-face{font-family:"CMU Sans Serif";src:url("fonts/cmunsx.woff2") format("woff2");font-weight:700 900;font-display:swap}
+#plotTop{margin-top:2px}
+</style>
+<link rel="stylesheet" href="../theme.css">
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <h1>Minimisation is root finding</h1>
+  <p class="lede">At a smooth minimum the slope is zero, so the minimum of f is a root of f′(x) = 0. Apply bisection or Newton’s method to f′ and follow the iterate on both graphs.</p>
+</header>
+<main class="layout">
+  <section class="plotcard">
+    <p class="panel-title" id="topTitle">f(x): the function to minimise</p>
+    <svg class="plot" id="plotTop" role="img" aria-label="f(x) with the current iterate"></svg>
+    <p class="panel-title" id="botTitle">f′(x): we look for its root</p>
+    <svg class="plot" id="plotBot" role="img" aria-label="f prime of x with the root-finding step"></svg>
+    <p class="plot-hint">Drag to pan · scroll to zoom</p>
+  </section>
+  <aside class="side">
+    <label class="field span2">f(x)<select id="fsel"></select></label>
+    <label class="field">Method on f′<select id="msel"><option value="newton">Newton</option><option value="bis">Bisection</option></select></label>
+    <div class="field" id="x0Box"><label for="x0">Starting value x<sub>0</sub></label><input id="x0" type="number" step="0.1"></div>
+    <div class="field" id="aBox"><label for="a">a (left end)</label><input id="a" type="number" step="0.1"></div>
+    <div class="field" id="bBox"><label for="b">b (right end)</label><input id="b" type="number" step="0.1"></div>
+    <label class="field">Tolerance<select id="tol"></select></label>
+    <div id="customBox" class="field full" hidden>
+      <input id="custom" type="text" value="x^4 - 3x^2 + x" spellcheck="false" autocomplete="off" aria-label="Custom f(x)">
+      <div id="customErr" class="err"></div>
+    </div>
+    <p class="hint" id="methodHint"></p>
+    <p class="hint">Keys: &rarr; step, &larr; back, p play, r reset</p>
+  </aside>
+  <div class="controls btns">
+    <button id="btnBack" type="button" title="Back (left arrow)">&larr; Back</button>
+    <button id="btnStep" type="button" class="primary" title="Step (right arrow)">Step &rarr;</button>
+    <button id="btnPlay" type="button" title="Play / pause (p)">Play</button>
+    <button id="btnReset" type="button" title="Reset (r)">Reset</button>
+    <button id="btnResetView" type="button" title="Restore the original graph view">Reset view</button>
+    <label class="zoom-option"><input id="zoomWithIterations" type="checkbox"> Zoom in with iterations</label>
+  </div>
+  <section class="results-card">
+    <div class="formula" id="formula">&nbsp;</div>
+    <div class="status" id="status">&nbsp;</div>
+    <div class="tablewrap"><table id="tbl"></table></div>
+  </section>
+</main>
+<footer style="margin-top:1rem;color:var(--grey);font-size:.8rem">© Andrea Nóvoa</footer>
+</div>
+<script src="../demo-core.js"></script>
+<script>
+"use strict";
+/* Drag of a light aircraft in level flight: D(V) = ½ρV²S C_D0 + 2kW²/(ρV²S)
+   with ρ = 1.225 kg/m³, S = 16 m², C_D0 = 0.025, k = 0.04, W = 10 kN  ->  D = aV² + b/V² */
+const DA=0.5*1.225*16*0.025,DB=2*0.04*1e8/(1.225*16);
+const PRESETS=[
+ {id:'drag',label:'Aircraft drag D(V) = aV² + b/V²  (N, V in m/s)',xname:'V',f:V=>DA*V*V+DB/(V*V),d1:V=>2*DA*V-2*DB/V**3,d2:V=>2*DA+6*DB/V**4,range:[12,80],x0:40,bis:[20,70],
+   note:`a = ½ρSC<sub>D0</sub> = ${fmt(DA,4)}, b = 2kW²/(ρS) = ${fmt(DB,6)}: minimum-drag speed V* = (b/a)<sup>1/4</sup>`},
+ {id:'quartic',label:'x⁴ − 3x² + x  (two minima and a maximum)',xname:'x',f:x=>x**4-3*x*x+x,d1:x=>4*x**3-6*x+1,d2:x=>12*x*x-6,range:[-2.2,2.2],x0:2,bis:[0.5,2],
+   note:'Try Newton from x₀ = 0.5: it converges to the maximum, where f′ = 0 too'},
+ {id:'quad',label:'(x − 2)² + 1  (a parabola)',xname:'x',f:x=>(x-2)**2+1,d1:x=>2*(x-2),d2:x=>2,range:[-1,5],x0:4.5,bis:[0,5],
+   note:'f′ is a straight line, so Newton lands on the minimum in one step'},
+ {id:'cosx',label:'x²/10 − cos(x)',xname:'x',f:x=>x*x/10-Math.cos(x),d1:x=>x/5+Math.sin(x),d2:x=>0.2+Math.cos(x),range:[-6,6],x0:1.2,bis:[-1,2.5],
+   note:'Newton from x₀ = 3 heads for a maximum or another minimum: check the sign of f″'},
+ {id:'custom',label:'Custom f(x)…',xname:'x'}
+];
+const sgn=v=>v>0?'+':v<0?'−':'0';
+const plotT=new Plot($('plotTop')),plotB=new Plot($('plotBot'));
+const vTop={xr:null,yr:null},vBot={xr:null,yr:null};
+let F=null,R=null,XR=[-2,2],PR=PRESETS[0];
+
+function getF(){const id=$('fsel').value;
+  if(id!=='custom'){const p=PRESETS.find(q=>q.id===id);return{f:p.f,d1:p.d1,d2:p.d2};}
+  try{const f=compileExpr($('custom').value);return{f,d1:numD(f),d2:numD2(f),custom:true};}catch(e){return{error:e.message};}}
+
+/* Newton on f′: x_{n+1} = x_n − f′(x_n)/f″(x_n) */
+function newton(F,x0,tol,max){const r={steps:[],status:null,x0};let x=x0;
+  for(let n=1;n<=max;n++){const d1=F.d1(x),d2=F.d2(x);
+    if(!isFinite(d1)||!isFinite(d2)){r.status={ok:false,msg:'Failed: f′ or f″ is undefined at x<sub>'+(n-1)+'</sub>'};break;}
+    if(Math.abs(d2)<1e-12){r.status={ok:false,msg:`Failed: f″(x<sub>${n-1}</sub>) = 0, the Newton step is undefined`};break;}
+    const y=x-d1/d2;r.steps.push({n,x,d1,d2,y,dx:Math.abs(y-x)});
+    if(!isFinite(y)||Math.abs(y)>1e6){r.status={ok:false,msg:'Diverged: the iterates run away'};break;}
+    if(Math.abs(y-x)<tol){r.status={ok:true,msg:`Converged: |x<sub>${n}</sub> − x<sub>${n-1}</sub>| = ${fmt(Math.abs(y-x))} &lt; tol after ${n} iterations`};x=y;break;}
+    x=y;}
+  if(!r.status)r.status={ok:false,msg:`Failed: no convergence after ${max} iterations`};
+  r.xs=[x0,...r.steps.map(s=>s.y)];r.last=r.steps.length;return r;}
+/* bisection on f′ */
+function bisect(F,a,b,tol,max){if(a>b){const t=a;a=b;b=t;}
+  const r={a0:a,b0:b,ga0:F.d1(a),gb0:F.d1(b),steps:[],status:null};
+  if(!(r.ga0*r.gb0<0)){r.status={ok:false,nb:true,msg:'Not bracketed: f′(a) and f′(b) have the same sign. Move a or b.'};r.last=0;r.xs=[];return r;}
+  let ga=r.ga0,prev=null;
+  for(let n=1;n<=max;n++){const c=(a+b)/2,gc=F.d1(c);
+    const st={n,a,b,c,gc,dc:prev===null?null:Math.abs(c-prev),left:ga*gc<0};r.steps.push(st);
+    if(gc===0){r.status={ok:true,msg:`Converged: f′(c) = 0 exactly after ${n} iterations`};break;}
+    if(st.dc!==null&&st.dc<tol){r.status={ok:true,msg:`Converged: |c<sub>${n}</sub> − c<sub>${n-1}</sub>| = ${fmt(st.dc)} &lt; tol after ${n} iterations`};break;}
+    if(st.left)b=c;else{a=c;ga=gc;}prev=c;}
+  if(!r.status)r.status={ok:false,msg:`Failed: no convergence after ${max} iterations`};
+  r.xs=r.steps.map(s=>s.c);r.last=r.steps.length;return r;}
+
+const isNewton=()=>$('msel').value==='newton';
+/* x shown at step k: Newton x_k; bisection c_k (start: bracket mid-point) */
+function xAt(k){if(!R)return(XR[0]+XR[1])/2;if(isNewton())return R.xs[Math.min(k,R.xs.length-1)];
+  return k<=0?(R.a0+R.b0)/2:R.xs[Math.min(k,R.xs.length)-1];}
+function viewX(zoomK){if($('zoomWithIterations').checked&&R){const z=Math.max(0,Math.min(zoomK,R.last)),lo=Math.floor(z),
+    c=xAt(lo)+(xAt(Math.min(lo+1,R.last))-xAt(lo))*(z-lo),span=(XR[1]-XR[0])*Math.max(0.01,Math.pow(0.55,z));return[c-span/2,c+span/2];}
+  return vTop.xr||XR;}
+
+function render(k,zoomK=k){
+  const xr=viewX(zoomK),zoom=$('zoomWithIterations').checked;
+  if(!F||F.error||!R){plotT.begin(xr,[-1,1]);plotT.axes();plotT.end();plotB.begin(xr,[-1,1]);plotB.axes();plotB.end();
+    setFormula('');setStatus('bad',F&&F.error?F.error:'');renderTable('tbl',[],[],-1);return;}
+  const xn=PR.xname||'x',sub=(i)=>xn+'<sub>'+i+'</sub>';
+  const yrT=(!zoom&&vTop.yr)||autoY([F.f],xr[0],xr[1],{noZero:true,pad:0.12});
+  const yrB=(!zoom&&vBot.yr)||autoY([F.d1],xr[0],xr[1]);
+  const T=plotT.begin(xr,yrT,{hfrac:0.62}),B=plotB.begin(xr,yrB,{hfrac:0.62});
+  T.axes();B.axes();
+  const done=k===R.last,cur=xAt(k);
+  if(!isNewton()){const s=k===0?{a:R.a0,b:R.b0}:R.steps[k-1];
+    for(const P of [T,B])P.band(s.a,s.b,COL.teal,0.14);
+    if(k>0&&s.c!==undefined)for(const P of [T,B])P.band(s.left?s.a:s.c,s.left?s.c:s.b,COL.teal,0.18);}
+  T.curve(F.f,{c:COL.curve,w:3.5});B.curve(F.d1,{c:COL.curve,w:3.5});
+  /* past iterates */
+  const past=isNewton()?R.xs.slice(0,k):R.xs.slice(0,Math.max(0,k-1));
+  for(const x of past){T.dot(x,F.f(x),5,COL.grey,'mid',COL.grey);B.dot(x,0,5,COL.grey,'mid',COL.grey);}
+  if(isNewton()){
+    if(k>0){const s=R.steps[k-1];
+      /* Newton on f′: the tangent to f′ at x_(k−1) crosses zero at x_k */
+      B.line(s.x,s.d1,s.x+1,s.d1+s.d2,{c:COL.orange,w:2.5});
+      B.seg(s.x,0,s.x,s.d1,{c:COL.grey,w:2,dash:'6 6'});
+      B.dot(s.x,s.d1,7,COL.orange);
+      B.text(s.y,0,sub(k),{dy:s.d1>0?24:-16,c:COL.orange,weight:800});}
+  }else if(k===0){for(const [x,nm] of [[R.a0,'a'],[R.b0,'b']]){B.seg(x,0,x,F.d1(x),{c:COL.teal,w:2.5,dash:'6 6'});B.dot(x,F.d1(x),7,COL.teal);
+      B.text(x,F.d1(x),`f′(${nm}) ${sgn(F.d1(x))}`,{dx:12,dy:6,anchor:'start',c:COL.teal,weight:800});}}
+  else{const s=R.steps[k-1];B.seg(s.c,0,s.c,s.gc,{c:COL.orange,w:2.5,dash:'6 6'});B.dot(s.c,s.gc,7,COL.orange);
+    B.text(s.c,s.gc,`f′(c) ${sgn(s.gc)}`,{dx:12,dy:6,anchor:'start',c:COL.orange,weight:800});}
+  /* current iterate on both panels */
+  if(isFinite(cur)){for(const P of [T,B])P.vline(cur,{c:COL.grey,w:1.5,dash:'3 6'},'under');
+    const isMin=done&&R.status.ok&&F.d2(cur)>0,col=isMin?COL.teal:COL.orange;
+    T.dot(cur,F.f(cur),9,col);B.dot(cur,0,8,col);
+    if(done&&R.status.ok)T.text(cur,F.f(cur),fmt(cur,6),{dy:F.d2(cur)>0?30:-16,c:col,weight:800});}
+  T.end();B.end();
+  /* read-out */
+  if(isNewton()){
+    if(k===0){const s=R.steps[0];setFormula(`<span class="line1">Start: ${sub(0)} = ${fmt(R.x0)}, f(${sub(0)}) = ${fmt(F.f(R.x0))}</span>`+
+      `<span class="line2">Newton on f′: ${sub('n+1')} = ${sub('n')} − f′(${sub('n')})/f″(${sub('n')})</span>`+
+      `<span class="line3">${s?`f′(${sub(0)}) = ${fmt(s.d1)}, &nbsp;f″(${sub(0)}) = ${fmt(s.d2)}`:''}</span>`);}
+    else{const s=R.steps[k-1];setFormula(`<span class="line1">${sub(k)} = ${fmt(s.x)} − (${fmt(s.d1)})/(${fmt(s.d2)}) = <b>${fmt(s.y,8)}</b></span>`+
+      `<span class="line2">f(${sub(k)}) = ${fmt(F.f(s.y),8)}, &nbsp;f′(${sub(k)}) = ${fmt(F.d1(s.y),4)}</span>`+
+      `<span class="line3">|${sub(k)} − ${sub(k-1)}| = ${fmt(s.dx,4)}</span>`);}}
+  else{if(k===0){setFormula(`<span class="line1">Start: [a, b] = [${fmt(R.a0)}, ${fmt(R.b0)}]</span>`+
+      `<span class="line2">f′(a) = ${fmt(R.ga0,4)} (${sgn(R.ga0)}), &nbsp;f′(b) = ${fmt(R.gb0,4)} (${sgn(R.gb0)})</span>`+
+      `<span class="line3">${R.status&&R.status.nb?'same sign: no guaranteed stationary point':R.ga0<0?'f falls then rises: a minimum lies inside':'f rises then falls: this bracket holds a maximum'}</span>`);}
+    else{const s=R.steps[k-1];setFormula(`<span class="line1">c<sub>${k}</sub> = (a + b)/2 = (${fmt(s.a)} + ${fmt(s.b)})/2 = <b>${fmt(s.c,8)}</b></span>`+
+      `<span class="line2">f′(c) = ${fmt(s.gc,4)} &nbsp;&rarr;&nbsp; stationary point in ${s.gc===0?'c':s.left?'[a, c]':'[c, b]'}</span>`+
+      `<span class="line3">f(c) = ${fmt(F.f(s.c),8)}</span>`);}}
+  if(done){if(R.status.ok){const xs=cur,d2=F.d2(xs);
+      setStatus(d2>0?'ok':'bad',R.status.msg+(d2>0?`. f″ = ${fmt(d2,3)} &gt; 0: a minimum, f = ${fmt(F.f(xs),6)}`:d2<0?`. But f″ = ${fmt(d2,3)} &lt; 0: this is a maximum, not a minimum`:'. f″ = 0: check higher derivatives'));}
+    else setStatus('bad',R.status.msg);}
+  else setStatus('info',PR.note||'');
+  /* table */
+  if(isNewton()){const rows=[[0,fmt(R.x0,8),fmt(F.f(R.x0),7),fmt(F.d1(R.x0),4),fmt(F.d2(R.x0),4),'']];
+    for(let j=0;j<k;j++){const s=R.steps[j],x=s.y;rows.push([j+1,fmt(x,8),fmt(F.f(x),7),fmt(F.d1(x),4),fmt(F.d2(x),4),fmt(s.dx,3)]);}
+    renderTable('tbl',['n',sub('n'),'f('+sub('n')+')','f′('+sub('n')+')','f″('+sub('n')+')','|'+sub('n')+' − '+sub('n−1')+'|'],rows,k);}
+  else{const rows=[[0,fmt(R.a0,7),fmt(R.b0,7),'','','']];
+    for(let j=0;j<k;j++){const s=R.steps[j];rows.push([s.n,fmt(s.a,7),fmt(s.b,7),fmt(s.c,8),fmt(s.gc,4),fmt(F.f(s.c),7)]);}
+    renderTable('tbl',['n','a','b','c<sub>n</sub>','f′(c<sub>n</sub>)','f(c<sub>n</sub>)'],rows,k);}
+}
+
+const S=Stepper(render);
+function recompute(resetK){F=getF();$('customErr').textContent=F.error||'';
+  const tol=+$('tol').value;
+  if(!F.error){R=isNewton()?(isFinite(num('x0'))?newton(F,num('x0'),tol,40):null):(isFinite(num('a'))&&isFinite(num('b'))?bisect(F,num('a'),num('b'),tol,60):null);
+    if(!R)F={error:'Enter numbers for the starting values'};}
+  else R=null;
+  S.last=R?R.last:0;S.pause();S.set(resetK?0:S.k);}
+function applyMethod(){const nw=isNewton();$('x0Box').hidden=!nw;$('aBox').hidden=nw;$('bBox').hidden=nw;
+  $('methodHint').innerHTML=nw?'Newton for minimisation: x<sub>n+1</sub> = x<sub>n</sub> − f′(x<sub>n</sub>)/f″(x<sub>n</sub>), i.e. Newton’s method applied to f′.'
+    :'Bisection on f′: keep the half of [a, b] where f′ changes sign.';}
+function applyPreset(){PR=PRESETS.find(p=>p.id===$('fsel').value);$('customBox').hidden=PR.id!=='custom';
+  vTop.xr=vTop.yr=vBot.xr=vBot.yr=null;$('zoomWithIterations').checked=false;
+  if(PR.id!=='custom'){XR=PR.range.slice();setVal('x0',PR.x0);setVal('a',PR.bis[0]);setVal('b',PR.bis[1]);}
+  else{XR=[-2.2,2.2];setVal('x0',2);setVal('a',0.5);setVal('b',2);}
+  for(const id of ['x0','a','b'])$(id).step=niceStep(XR[1]-XR[0],40);
+  $('topTitle').textContent=PR.id==='drag'?'D(V): drag to minimise (V in m/s, D in N)':'f(x): the function to minimise';
+  $('botTitle').textContent=PR.id==='drag'?'D′(V): we look for its root':'f′(x): we look for its root';
+  recompute(true);}
+fillSelect('fsel',PRESETS);
+$('tol').innerHTML=[0.1,0.01,0.001,1e-4,1e-6,1e-8].map(v=>`<option value="${v}"${v===1e-6?' selected':''}>${fmt(v)}</option>`).join('');
+onSelectChange('fsel',applyPreset);
+onSelectChange('msel',()=>{applyMethod();recompute(true);});
+onSelectChange('tol',()=>recompute(false));
+for(const id of ['x0','a','b'])onNumber(id,()=>recompute(true));
+$('custom').addEventListener('input',debounce(()=>recompute(true),300));
+/* the two panels share the horizontal range */
+enablePanZoom(plotT,vTop,()=>S.show(),{onView:v=>{vBot.xr=v.xr;if(!vBot.yr)vBot.yr=plotB.yr;}});
+enablePanZoom(plotB,vBot,()=>S.show(),{onView:v=>{vTop.xr=v.xr;if(!vTop.yr)vTop.yr=plotT.yr;}});
+bindViewControls([vTop,vBot],()=>{if($('zoomWithIterations').checked)S.zoomK=0;S.set(S.k);});
+applyMethod();applyPreset();
+</script>
+</body>
+</html>

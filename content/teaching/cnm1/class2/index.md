@@ -41,6 +41,10 @@ build:
     <summary><svg class="module-demo-icon" viewBox="0 0 96 72" aria-hidden="true"><path d="M8 61H88M12 56C28 55 34 39 45 21S68 18 85 8" fill="none" stroke="#0072B2" stroke-width="2.5"/><path d="M12 58L82 13" fill="none" stroke="#D55E00" stroke-width="2.5"/><path d="M12 58C32 56 47 35 58 23S74 16 85 10" fill="none" stroke="#009E73" stroke-width="2.5"/><path d="M12 58C35 56 54 44 85 10" fill="none" stroke="#767676" stroke-width="2.5" stroke-dasharray="5 4"/></svg><span>Compare all four methods</span></summary>
     <iframe class="module-demo-frame" src="compare.html" title="Comparison of the four root-finding methods" loading="lazy"></iframe>
   </details>
+  <details class="module-demo">
+    <summary><svg class="module-demo-icon" viewBox="0 0 96 72" aria-hidden="true"><path d="M10 10C24 44 36 52 48 52S72 44 86 10" fill="none" stroke="#0072B2" stroke-width="3"/><path d="M8 64H88" stroke="#767676" stroke-width="2"/><path d="M20 70L76 58" stroke="#D55E00" stroke-width="3"/><path d="M48 52V64" stroke="#767676" stroke-width="2" stroke-dasharray="4 4"/><circle cx="48" cy="52" r="5" fill="#009E73"/></svg><span>Further: minimisation is root finding</span></summary>
+    <iframe class="module-demo-frame" src="optimisation.html" title="Minimisation as root finding demo" loading="lazy"></iframe>
+  </details>
 </div>
 
 <script src="module-demos.js"></script>

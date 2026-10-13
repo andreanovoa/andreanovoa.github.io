@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="../theme.js"></script>
+<title>Lagrange Basis</title>
+<link rel="stylesheet" href="../demo.css">
+<style>
+@font-face{font-family:"CMU Sans Serif";src:url("fonts/cmunss.woff2") format("woff2");font-weight:400 600;font-display:swap}
+@font-face{font-family:"CMU Sans Serif";src:url("fonts/cmunsx.woff2") format("woff2");font-weight:700 900;font-display:swap}
+/* two extra Okabe-Ito hues for the basis polynomials, readable in both themes */
+:root{--pink:#B5508F;--amber:#B77400}
+:root.dark{--pink:#E3A3CB;--amber:#F2B33D}
+.custom-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+@media (max-width:600px){.custom-row{grid-template-columns:1fr}}
+#plot2{margin-top:2px}
+</style>
+<link rel="stylesheet" href="../theme.css">
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <h1>Lagrange basis</h1>
+  <p class="lede">Each basis polynomial l<sub>j</sub>(x) is 1 at its own node and 0 at all the others. Weighting each by y<sub>j</sub> and adding gives the interpolating polynomial.</p>
+</header>
+<main class="layout">
+  <section class="plotcard">
+    <p class="panel-title">Basis polynomials l<sub>j</sub>(x)</p>
+    <svg class="plot" id="plot" role="img" aria-label="Lagrange basis polynomials"></svg>
+    <p class="panel-title">Weighted terms y<sub>j</sub> l<sub>j</sub>(x) and their running sum</p>
+    <svg class="plot" id="plot2" role="img" aria-label="Weighted basis polynomials and their sum through the data points"></svg>
+    <p class="plot-hint">Drag to pan · scroll to zoom</p>
+  </section>
+  <aside class="side">
+    <label class="field span3">Data<select id="preset"></select></label>
+    <label class="field" id="nBox">Nodes N + 1<input id="n" type="number" min="2" max="21" step="1" value="5"></label>
+    <label class="field span2">Evaluate at x<input id="xe" type="number" step="0.05" value="0.8"></label>
+    <div id="customBox" class="full" hidden>
+      <div class="custom-row">
+        <label class="field">x values<input id="cx" type="text" value="4, 1, 6" spellcheck="false" autocomplete="off"></label>
+        <label class="field">y values<input id="cy" type="text" value="2, 0, -3" spellcheck="false" autocomplete="off"></label>
+      </div>
+      <div id="customErr" class="err"></div>
+    </div>
+    <p class="hint">Steps 1 to N + 1 add the basis polynomials; the next N + 1 steps add the weighted terms to the sum.</p>
+    <p class="hint">Keys: &rarr; step, &larr; back, p play, r reset</p>
+  </aside>
+  <div class="controls btns">
+    <button id="btnBack" type="button" title="Back (left arrow)">&larr; Back</button>
+    <button id="btnStep" type="button" class="primary" title="Step (right arrow)">Step &rarr;</button>
+    <button id="btnPlay" type="button" title="Play / pause (p)">Play</button>
+    <button id="btnReset" type="button" title="Reset (r)">Reset</button>
+    <button id="btnResetView" type="button" title="Restore the original graph view">Reset view</button>
+  </div>
+  <section class="results-card">
+    <div class="formula wrap" id="formula">&nbsp;</div>
+    <div class="status" id="status">&nbsp;</div>
+    <div class="tablewrap scroll"><table id="tbl"></table></div>
+  </section>
+</main>
+<footer style="margin-top:1rem;color:var(--grey);font-size:.8rem">© Andrea Nóvoa</footer>
+</div>
+<script src="../demo-core.js"></script>
+<script>
+"use strict";
+/* direct labels in the right margin, at the height where each line leaves the plot; never overlapping
+   (like endLabels in demo-core.js, but pushed back inside when they would stack beyond the top or bottom) */
+function marginLabels(p,items){const gap=p.fs+6,lo=p.m.t+p.fs,hi=p.m.t+p.ph-4;
+  const L=items.map(o=>Object.assign({},o,{Y:Math.max(lo,Math.min(hi,o.Y+p.fs*0.35))})).sort((u,v)=>u.Y-v.Y);
+  for(let i=1;i<L.length;i++)if(L[i].Y<L[i-1].Y+gap)L[i].Y=L[i-1].Y+gap;
+  const over=L.length?L[L.length-1].Y-hi:0;if(over>0)for(const l of L)l.Y-=over;
+  for(const l of L)p.ptext(p.m.l+p.pw+10,l.Y,l.t,{anchor:'start',c:l.c,weight:800});}
+/* ---------- interpolation helpers (Class 4) ---------- */
+const linspace=(a,b,n)=>Array.from({length:n},(_,i)=>n===1?a:a+(b-a)*i/(n-1));
+/* Chebyshev nodes on [−1, 1]: x_i = −cos((2i + 1)π / (2N + 2)), i = 0..N */
+const chebNodes=n=>Array.from({length:n},(_,i)=>-Math.cos((2*i+1)*Math.PI/(2*n)));
+const runge=x=>1/(1+25*x*x);
+function lagBasis(xs,j,x){let v=1;for(let k=0;k<xs.length;k++)if(k!==j)v*=(x-xs[k])/(xs[j]-xs[k]);return v;}
+const fac=a=>a===0?'x':`(x ${a<0?'+':'−'} ${fmt(Math.abs(a),4)})`;
+const tsub=(b,i)=>b+`<tspan dy="0.3em" font-size="72%">${i}</tspan>`;
+/* basis colours: theme roles plus two extra Okabe-Ito hues (read at render time) */
+function basisColors(){const cs=getComputedStyle(document.documentElement);
+  return[COL.curve,COL.teal,cs.getPropertyValue('--pink').trim(),cs.getPropertyValue('--amber').trim(),COL.navy];}
+
+const PRESETS=[
+ {id:'eq',label:'1/(1 + 25x²), equispaced nodes on [−1, 1]',nodes:n=>linspace(-1,1,n),f:runge},
+ {id:'ch',label:'1/(1 + 25x²), Chebyshev nodes on [−1, 1]',nodes:chebNodes,f:runge},
+ {id:'ex',label:'Worked example: x = 0, 1, −1, 2, −2',x:[0,1,-1,2,-2],y:[-5,-3,-15,39,-9],xe:1.5},
+ {id:'custom',label:'Your own data…'}
+];
+fillSelect('preset',PRESETS);
+
+const plot=new Plot($('plot')),plot2=new Plot($('plot2'));
+const view={xr:null,yr:null},view2={xr:null,yr:null};
+let PR=PRESETS[0],X=[],Y=[],err='';
+function parseList(s){const v=s.split(/[,;\s]+/).filter(t=>t.length).map(Number);if(v.some(t=>!isFinite(t)))throw new Error('Use numbers separated by commas');return v;}
+function load(resetX){PR=PRESETS.find(p=>p.id===$('preset').value);err='';
+  $('customBox').hidden=PR.id!=='custom';$('nBox').hidden=!PR.nodes;
+  if(PR.nodes){let n=Math.round(num('n'));if(!(n>=2&&n<=21)){n=Math.max(2,Math.min(21,n||5));}
+    X=PR.nodes(n);Y=X.map(PR.f);}
+  else if(PR.id==='custom'){try{X=parseList($('cx').value);Y=parseList($('cy').value);
+      if(X.length!==Y.length)throw new Error('x and y need the same number of values');
+      if(X.length<2||X.length>10)throw new Error('Use between 2 and 10 points');
+      if(new Set(X).size!==X.length)throw new Error('The x values must be distinct');}
+    catch(e){err=e.message;X=[0,1];Y=[0,1];}}
+  else{X=PR.x.slice();Y=PR.y.slice();}
+  $('customErr').textContent=err;
+  if(resetX){const a=Math.min(...X),b=Math.max(...X);$('xe').value=PR.xe!=null?PR.xe:PR.nodes?0.8:+(a+0.37*(b-a)).toFixed(3);}
+  view.xr=view.yr=view2.xr=view2.yr=null;
+  S.last=2*X.length;S.pause();S.set(0);}
+
+function basisText(j){const num=[],den=[];
+  for(let k=0;k<X.length;k++)if(k!==j){num.push(fac(X[k]));den.push(`(${fmt(X[j],4)} − ${P(+X[k].toPrecision(4))})`);}
+  return `${sb('l',j)}(x) = ${num.join('')} / [${den.join('')}]`;}
+
+function render(k){
+  const n=X.length,xe=num('xe'),C=basisColors(),col=j=>C[j%C.length];
+  const bStep=k>=1&&k<=n?k-1:-1;             /* basis polynomial being added */
+  const nb=Math.min(k,n);                      /* basis polynomials shown */
+  const nt=Math.max(0,k-n);                    /* weighted terms added to the sum */
+  const tStep=nt>0?nt-1:-1,done=k===2*n;
+  const a=Math.min(...X),b=Math.max(...X),pad=(b-a)*0.08||0.5;
+  const xr0=[a-pad,b+pad];
+  const L=(j,x)=>lagBasis(X,j,x);
+  const partial=(m,x)=>{let s=0;for(let j=0;j<m;j++)s+=Y[j]*L(j,x);return s;};
+  const full=x=>partial(n,x);
+
+  /* top: basis polynomials */
+  const xr=view.xr||xr0;
+  const fns=[];for(let j=0;j<n;j++)fns.push(x=>L(j,x));
+  const yr=view.yr||autoY(fns,a,b,{extra:[-0.2,1.15],noClip:true});
+  const p=plot.begin(xr,yr,{hfrac:.62});p.m.r=p.small?40:56;p.pw=p.W-p.m.l-p.m.r;p.axes();
+  p.hline(1,{c:COL.grey,w:1.2,dash:'3 5'},'under');
+  const labs=[];
+  for(let j=0;j<nb;j++){const cur=j===bStep;
+    /* drawn between the first and last node; the label sits at the end of the line, in the margin */
+    p.curve(x=>L(j,x),{c:cur?COL.orange:col(j),w:cur?4:2.2,op:cur||bStep<0?1:0.45},a,b);
+    if(n<=7||cur)labs.push({X:p.m.l+p.pw-0.01,Y:p.Y(L(j,Math.min(b,p.x1))),t:tsub('l',j),c:cur?COL.orange:col(j)});}
+  for(let i=0;i<n;i++){if(bStep>=0&&i===bStep)continue;p.ring(X[i],0,5,bStep>=0?COL.orange:COL.grey);}
+  if(bStep>=0)p.dot(X[bStep],1,8,COL.orange);
+  if(isFinite(xe)){p.vline(xe,{c:COL.grey,w:1.5,dash:'4 5'},'under');if(bStep>=0)p.dot(xe,L(bStep,xe),6,COL.orange,'top');}
+  marginLabels(p,labs);
+  p.end();
+
+  /* bottom: weighted terms and the running sum */
+  const xr2=view2.xr||view.xr||xr0;
+  const fns2=[full];if(PR.f)fns2.push(PR.f);
+  const yr2=view2.yr||autoY(fns2,a,b,{extra:Y});
+  const q=plot2.begin(xr2,yr2,{hfrac:.72});q.m.r=p.m.r;q.pw=q.W-q.m.l-q.m.r;q.axes();
+  const labs2=[];
+  if(PR.f){q.curve(PR.f,{c:COL.curve,w:2.5,op:.8});labs2.push({X:q.m.l+q.pw-0.01,Y:q.Y(PR.f(q.x1)),t:'f',c:COL.curve});}
+  for(let j=0;j<nt;j++){const cur=j===tStep&&!done,g=x=>Y[j]*L(j,x);
+    q.curve(g,{c:cur?col(j):COL.grey,w:cur?3:1.6,dash:'7 6',op:cur?1:0.7});}
+  if(nt>0){const s=x=>partial(nt,x);q.curve(s,{c:done?COL.teal:COL.orange,w:3.8});
+    labs2.push({X:q.m.l+q.pw-0.01,Y:q.Y(s(q.x1)),t:'sum',c:done?COL.teal:COL.orange});
+    if(isFinite(xe))q.dot(xe,s(xe),6,done?COL.teal:COL.orange,'top');}
+  if(isFinite(xe))q.vline(xe,{c:COL.grey,w:1.5,dash:'4 5'},'under');
+  for(let i=0;i<n;i++){if(done||i<nt)q.dot(X[i],Y[i],7,done?COL.teal:COL.navy);else q.ring(X[i],Y[i],6,COL.navy);}
+  marginLabels(q,labs2);
+  q.end();
+
+  /* formula and status */
+  const xs=fmt(xe,4);
+  if(k===0){setFormula(`<span class="line1">${sb('l','j')}(x) = ∏<sub>k≠j</sub> (x − ${sb('x','k')}) / (${sb('x','j')} − ${sb('x','k')}), &nbsp; ${sb('l','j')}(${sb('x','i')}) = δ<sub>ij</sub></span><span class="line2">y(x) = Σ ${sb('y','j')} ${sb('l','j')}(x), &nbsp;j = 0, …, ${n-1}</span>`);
+    setStatus(err?'bad':'info',err||`${n} nodes. Press Step (&rarr;) to build the first basis polynomial.`);}
+  else if(bStep>=0){const j=bStep;
+    setFormula(`<span class="line1">${basisText(j)}</span><span class="line2">${sb('l',j)}(${xs}) = <b>${fmt(L(j,xe),6)}</b></span><span class="line3">${sb('l',j)}(${sb('x',j)}) = 1 and ${sb('l',j)} = 0 at the other ${n-1} node${n>2?'s':''}</span>`);
+    setStatus('info',`Basis polynomial ${j+1} of ${n}.${j===n-1?' Next: weight each by its y<sub>j</sub> and add.':''}`);}
+  else{const j=tStep,s=partial(nt,xe);
+    const terms=Array.from({length:nt},(_,i)=>`${P(+Y[i].toPrecision(4))}·${sb('l',i)}(x)`);
+    setFormula(`<span class="line1">y(x) ≈ ${terms.join(' + ')}</span><span class="line2">${sb('y',j)} ${sb('l',j)}(${xs}) = ${fmt(Y[j],6)} × ${P(L(j,xe))} = ${fmt(Y[j]*L(j,xe),6)}; &nbsp;sum = <b>${fmt(s,8)}</b></span>`+
+      (PR.f?`<span class="line3">f(${xs}) = ${fmt(PR.f(xe),8)}, &nbsp;error = ${fmt(PR.f(xe)-s,3)}</span>`:''));
+    if(done){let emax=0;if(PR.f){for(let i=0;i<=1000;i++){const x=a+(b-a)*i/1000;emax=Math.max(emax,Math.abs(PR.f(x)-full(x)));}}
+      setStatus('ok',`The sum passes through every data point: y(x<sub>i</sub>) = Σ y<sub>j</sub> δ<sub>ij</sub> = y<sub>i</sub>`+(PR.f?`. Max error on [${fmt(a,3)}, ${fmt(b,3)}]: ${fmt(emax,3)}`:''));}
+    else setStatus('info',`Term ${nt} of ${n}: the partial sum equals y<sub>i</sub> at the first ${nt===1?'node':nt+' nodes'} and 0 at the other${n-nt>1?'s':''}.`);}
+
+  /* table */
+  const rows=[];let run=0;
+  for(let j=0;j<n;j++){const l=L(j,xe),shownL=j<nb,shownT=j<nt;if(shownT)run+=Y[j]*l;
+    rows.push([j,fmt(X[j],6),fmt(Y[j],6),shownL?fmt(l,6):'',shownT?fmt(Y[j]*l,6):'',shownT?fmt(run,8):'']);}
+  renderTable('tbl',['j','x<sub>j</sub>','y<sub>j</sub>',`l<sub>j</sub>(${xs})`,`y<sub>j</sub> l<sub>j</sub>(${xs})`,'running sum'],rows,bStep>=0?bStep:tStep);
+}
+const S=Stepper(render);S.delay=1100;
+onSelectChange('preset',()=>load(true));
+onNumber('n',debounce(()=>load(false),250));
+onNumber('xe',()=>S.show());
+for(const id of ['cx','cy']){$(id).addEventListener('input',debounce(()=>load(false),400));$(id).addEventListener('keydown',e=>{if(e.key==='Enter')e.target.blur();});}
+/* shared x range: panning either plot moves both */
+enablePanZoom(plot,view,()=>S.show(),{onView:v=>{view2.xr=v.xr.slice();}});
+enablePanZoom(plot2,view2,()=>S.show(),{onView:v=>{view.xr=v.xr.slice();}});
+bindViewControls([view,view2],()=>S.show());
+load(true);
+</script>
+</body>
+</html>

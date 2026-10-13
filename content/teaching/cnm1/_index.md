@@ -21,7 +21,7 @@ compare the methods. The lecture slides and notes are on Blackboard.
 
 <div class="projects-grid">
 
-<div class="project">
+<div class="project course-card">
   <div class="project-body">
     <h2 class="project-name"><a href="class1/" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none">1. How computers count</a></h2>
     <p class="project-desc">Binary representation, integer and floating-point storage, rounding and chopping, overflow and underflow, and how errors propagate through a calculation.</p>
@@ -29,7 +29,7 @@ compare the methods. The lecture slides and notes are on Blackboard.
   </div>
 </div>
 
-<div class="project">
+<div class="project course-card">
   <div class="project-body">
     <h2 class="project-name"><a href="class2/" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none">2. Solving unsolvable equations</a></h2>
     <p class="project-desc">Root finding: bisection, Newton–Raphson, the secant method and fixed-point iteration, with their convergence and failure modes.</p>
@@ -41,7 +41,7 @@ compare the methods. The lecture slides and notes are on Blackboard.
   </div>
 </div>
 
-<div class="project">
+<div class="project course-card">
   <div class="project-body">
     <h2 class="project-name"><a href="class3/" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none">3. Integrating unintegrable functions</a></h2>
     <p class="project-desc">Numerical integration: Riemann sums, the trapezium rule, Simpson's rule, Newton–Cotes formulae and Gauss–Legendre quadrature.</p>
@@ -49,7 +49,7 @@ compare the methods. The lecture slides and notes are on Blackboard.
   </div>
 </div>
 
-<div class="project">
+<div class="project course-card">
   <div class="project-body">
     <h2 class="project-name"><a href="class4/" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none">4. Curve fitting and interpolation</a></h2>
     <p class="project-desc">Polynomial interpolation in the monomial, Newton and Lagrange forms, why they give the same polynomial, and cubic splines.</p>

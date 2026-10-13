@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="../theme.js"></script>
+<title>Newton's Divided Differences</title>
+<link rel="stylesheet" href="../demo.css">
+<style>
+@font-face{font-family:"CMU Sans Serif";src:url("fonts/cmunss.woff2") format("woff2");font-weight:400 600;font-display:swap}
+@font-face{font-family:"CMU Sans Serif";src:url("fonts/cmunsx.woff2") format("woff2");font-weight:700 900;font-display:swap}
+#tbl td.par{box-shadow:inset 0 0 0 2px var(--grey)}
+#tbl td.coef{color:var(--teal);font-weight:750}
+.custom-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+@media (max-width:600px){.custom-row{grid-template-columns:1fr}}
+</style>
+<link rel="stylesheet" href="../theme.css">
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <h1>Newton's divided differences</h1>
+  <p class="lede">Each step computes one entry of the divided-difference table. The top row gives the coefficients: every new one adds a term c<sub>k</sub>(x − x<sub>0</sub>)…(x − x<sub>k</sub>) that is zero at all the earlier points.</p>
+</header>
+<main class="layout">
+  <section class="plotcard">
+    <svg class="plot" id="plot" role="img" aria-label="Data points and the Newton interpolating polynomials built so far"></svg>
+    <p class="plot-hint">Drag to pan · scroll to zoom</p>
+  </section>
+  <aside class="side">
+    <label class="field span3">Data<select id="preset"></select></label>
+    <label class="field span3">Fill the table<select id="order">
+      <option value="col">Column by column</option>
+      <option value="pt">Point by point (one diagonal per new point)</option>
+    </select></label>
+    <div id="customBox" class="full" hidden>
+      <div class="custom-row">
+        <label class="field">x values<input id="cx" type="text" value="0, 2, 3, 5" spellcheck="false" autocomplete="off"></label>
+        <label class="field">y values<input id="cy" type="text" value="1, 3, 7, -9" spellcheck="false" autocomplete="off"></label>
+      </div>
+      <div id="customErr" class="err"></div>
+    </div>
+    <p class="hint">Points are used in the order listed. Between 2 and 8 points with distinct x.</p>
+    <p class="hint">Keys: &rarr; step, &larr; back, p play, r reset</p>
+  </aside>
+  <div class="controls btns">
+    <button id="btnBack" type="button" title="Back (left arrow)">&larr; Back</button>
+    <button id="btnStep" type="button" class="primary" title="Step (right arrow)">Step &rarr;</button>
+    <button id="btnPlay" type="button" title="Play / pause (p)">Play</button>
+    <button id="btnReset" type="button" title="Reset (r)">Reset</button>
+    <button id="btnResetView" type="button" title="Restore the original graph view">Reset view</button>
+  </div>
+  <section class="results-card">
+    <div class="formula wrap" id="formula">&nbsp;</div>
+    <div class="status" id="status">&nbsp;</div>
+    <div class="tablewrap scroll"><table id="tbl"></table></div>
+  </section>
+</main>
+<footer style="margin-top:1rem;color:var(--grey);font-size:.8rem">© Andrea Nóvoa</footer>
+</div>
+<script src="../demo-core.js"></script>
+<script>
+"use strict";
+/* direct labels in the right margin, at the height where each line leaves the plot; never overlapping
+   (like endLabels in demo-core.js, but pushed back inside when they would stack beyond the top or bottom) */
+function marginLabels(p,items){const gap=p.fs+6,lo=p.m.t+p.fs,hi=p.m.t+p.ph-4;
+  const L=items.map(o=>Object.assign({},o,{Y:Math.max(lo,Math.min(hi,o.Y+p.fs*0.35))})).sort((u,v)=>u.Y-v.Y);
+  for(let i=1;i<L.length;i++)if(L[i].Y<L[i-1].Y+gap)L[i].Y=L[i-1].Y+gap;
+  const over=L.length?L[L.length-1].Y-hi:0;if(over>0)for(const l of L)l.Y-=over;
+  for(const l of L)p.ptext(p.m.l+p.pw+10,l.Y,l.t,{anchor:'start',c:l.c,weight:800});}
+/* ---------- interpolation helpers (Class 4) ---------- */
+const linspace=(a,b,n)=>Array.from({length:n},(_,i)=>n===1?a:a+(b-a)*i/(n-1));
+const runge=x=>1/(1+25*x*x);
+/* ISA troposphere density (kg/m³), h in km */
+const isa=h=>1.225*Math.pow((288.15-6.5*h)/288.15,4.2559);
+/* divided-difference table D[i][j] = f[x_i, ..., x_{i+j}] */
+function divDiff(xs,ys){const n=xs.length,D=[];for(let i=0;i<n;i++){D.push(new Array(n).fill(null));D[i][0]=ys[i];}
+  for(let j=1;j<n;j++)for(let i=0;i<n-j;i++)D[i][j]=(D[i+1][j-1]-D[i][j-1])/(xs[i+j]-xs[i]);return D;}
+function newtonEval(xs,c,x){let v=0,b=1;for(let k=0;k<c.length;k++){v+=c[k]*b;b*=(x-xs[k]);}return v;}
+function lagEval(xs,ys,x){let s=0;for(let j=0;j<xs.length;j++){let l=1;for(let k=0;k<xs.length;k++)if(k!==j)l*=(x-xs[k])/(xs[j]-xs[k]);s+=ys[j]*l;}return s;}
+const sup=t=>`<sup>${t}</sup>`;
+const tsup=t=>`<tspan dy="-0.5em" font-size="72%">${t}</tspan>`;
+/* (x − a) factor with the sign written out */
+const fac=a=>a===0?'x':`(x ${a<0?'+':'−'} ${fmt(Math.abs(a),6)})`;
+/* f[x_i, ..., x_{i+j}] */
+function ddName(i,j){if(j===0)return `f[${sb('x',i)}]`;if(j===1)return `f[${sb('x',i)}, ${sb('x',i+1)}]`;
+  if(j===2)return `f[${sb('x',i)}, ${sb('x',i+1)}, ${sb('x',i+2)}]`;return `f[${sb('x',i)}, …, ${sb('x',i+j)}]`;}
+const ordinal=j=>j===1?'1st':j===2?'2nd':j===3?'3rd':j+'th';
+
+const PRESETS=[
+ {id:'ex',label:'Worked example: x = 0, 1, −1, 2, −2',x:[0,1,-1,2,-2],y:[-5,-3,-15,39,-9]},
+ {id:'runge',label:'1/(1 + 25x²) at 5 equispaced nodes on [−1, 1]',x:linspace(-1,1,5),y:linspace(-1,1,5).map(runge)},
+ {id:'sin',label:'sin x at x = 0, 0.75, 1.5, 2.25, 3',x:linspace(0,3,5),y:linspace(0,3,5).map(Math.sin)},
+ {id:'isa',label:'ISA density (kg/m³), h = 0, 4, 8, 2, 6, 10 km',x:[0,4,8,2,6,10],y:[0,4,8,2,6,10].map(isa)},
+ {id:'custom',label:'Your own data…'}
+];
+fillSelect('preset',PRESETS);
+
+const plot=new Plot($('plot'));
+const view={xr:null,yr:null};
+let X=[],Y=[],D=[],ORD=[],err='';
+function parseList(s){const v=s.split(/[,;\s]+/).filter(t=>t.length).map(Number);if(v.some(t=>!isFinite(t)))throw new Error('Use numbers separated by commas');return v;}
+function load(){const id=$('preset').value;$('customBox').hidden=id!=='custom';err='';
+  if(id==='custom'){try{X=parseList($('cx').value);Y=parseList($('cy').value);
+      if(X.length!==Y.length)throw new Error('x and y need the same number of values');
+      if(X.length<2||X.length>8)throw new Error('Use between 2 and 8 points');
+      if(new Set(X).size!==X.length)throw new Error('The x values must be distinct');}
+    catch(e){err=e.message;X=[0,1];Y=[0,1];}}
+  else{const p=PRESETS.find(q=>q.id===id);X=p.x.slice();Y=p.y.slice();}
+  $('customErr').textContent=err;
+  D=divDiff(X,Y);const n=X.length;ORD=[];
+  if($('order').value==='col'){for(let j=1;j<n;j++)for(let i=0;i<n-j;i++)ORD.push([i,j]);}
+  else{for(let k=1;k<n;k++)for(let j=1;j<=k;j++)ORD.push([k-j,j]);}
+  view.xr=null;view.yr=null;
+  S.last=ORD.length;S.pause();S.set(0);}
+/* which entries are known after k steps */
+function knownSet(k){const s=new Set(ORD.slice(0,k).map(([i,j])=>i+','+j));return(i,j)=>j===0||s.has(i+','+j);}
+/* Newton form with numbers: −5 + 2x − 4x(x − 1) + … */
+function newtonString(c){let s=fmt(c[0],6);
+  for(let k=1;k<c.length;k++){let f='';for(let i=0;i<k;i++)f+=fac(X[i]);
+    if(c[k]===0){s+=` + 0·${f}`;continue;}
+    s+=` ${c[k]<0?'−':'+'} ${Math.abs(c[k])===1?'':fmt(Math.abs(c[k]),6)}${f}`;}
+  return s;}
+
+function render(k){
+  const n=X.length,isK=knownSet(k),cur=k>0?ORD[k-1]:null;
+  let m=0;while(m+1<n&&isK(0,m+1))m++;          /* top-row entries D[0][0..m] known: y^(m) through x_0..x_m */
+  const c=D[0].slice(0,m+1);
+  const poly=x=>newtonEval(X,c,x);
+  const full=D[0];
+  const span=Math.max(...X)-Math.min(...X)||1;
+  const xr=view.xr||[Math.min(...X)-0.12*span,Math.max(...X)+0.12*span];
+  const yr=view.yr||autoY([x=>newtonEval(X,full,x)],xr[0],xr[1],{extra:Y,noClip:true});
+  const p=plot.begin(xr,yr);
+  /* room on the right for direct labels at the ends of the curves */
+  p.m.r=p.small?72:112;p.pw=p.W-p.m.l-p.m.r;
+  p.axes();
+  const labels=[],endY=f=>p.Y(f(p.x1));
+  for(let q=0;q<m;q++){const cq=D[0].slice(0,q+1),fq=x=>newtonEval(X,cq,x);
+    p.curve(fq,{c:COL.grey,w:q===m-1?2.5:1.8,op:q===m-1?0.9:0.5});
+    if(q===m-1)labels.push({X:p.m.l+p.pw-0.01,Y:endY(fq),t:'y'+tsup('('+q+')'),c:COL.grey});}
+  /* the new term c_{m−1}(x − x_0)…(x − x_{m−1}): zero at all the earlier points */
+  if(m>=1){const cm=D[0][m],term=x=>{let b=cm;for(let i=0;i<m;i++)b*=(x-X[i]);return b;};
+    p.curve(term,{c:COL.orange,w:2,dash:'7 6',op:.85});
+    labels.push({X:p.m.l+p.pw-0.01,Y:endY(term),t:p.small?'term':'new term',c:COL.orange});
+    for(let i=0;i<m;i++)p.ring(X[i],0,5,COL.orange,'mid');}
+  p.curve(poly,{c:COL.orange,w:3.5});
+  labels.push({X:p.m.l+p.pw-0.01,Y:endY(poly),t:'y'+tsup('('+m+')'),c:COL.orange});
+  for(let i=0;i<n;i++){if(i<m)p.dot(X[i],Y[i],7,COL.curve);else if(i===m)p.dot(X[i],Y[i],9,COL.orange);else p.ring(X[i],Y[i],6,COL.grey);}
+  marginLabels(p,labels);
+  p.end();
+
+  /* formula: the entry just computed, and the polynomial so far */
+  const done=k===S.last;
+  let l1,l2;
+  if(!cur){l1=`Column 0 holds the data: f[${sb('x','i')}] = ${sb('y','i')}`;
+    l2=`Top row: ${sb('y',0)} = ${fmt(Y[0],6)}, the constant through the first point`;}
+  else{const [i,j]=cur,a=D[i+1][j-1],b=D[i][j-1];
+    l1=`${ddName(i,j)} = (${ddName(i+1,j-1)} − ${ddName(i,j-1)}) / (${sb('x',i+j)} − ${sb('x',i)}) = (${fmt(a,6)} − ${P(b)}) / (${fmt(X[i+j],6)} − ${P(X[i])}) = <b>${fmt(D[i][j],6)}</b>`;
+    l2=i===0?`Top row, so ${sb('c',j-1)} = ${fmt(D[0][j],6)}: the polynomial gains the term ${sb('c',j-1)}${Array.from({length:j},(_,q)=>fac(X[q])).join('')}`
+      :`Inner entry, needed for the ${ordinal(j+1)} differences`;}
+  setFormula(`<span class="line1">${l1}</span><span class="line2">${l2}</span><span class="line3">y${sup('('+m+')')}(x) = ${newtonString(c)}</span>`);
+  if(err)setStatus('bad',err);
+  else if(done){let dmax=0;const a=Math.min(...X),b=Math.max(...X);
+    for(let q=0;q<=400;q++){const x=a+(b-a)*q/400;dmax=Math.max(dmax,Math.abs(newtonEval(X,full,x)-lagEval(X,Y,x)));}
+    const sc=Math.max(1,...Y.map(Math.abs));
+    setStatus('ok',`y(x) = ${newtonString(full)}: the same polynomial as the Lagrange form (largest difference on [${fmt(a,4)}, ${fmt(b,4)}]: ${dmax/sc<1e-12?'rounding only, '+sci(dmax,2):sci(dmax,2)})`);}
+  else if(!cur)setStatus('info',`y${sup('(0)')}(x) passes through 1 of ${n} points. Press Step (&rarr;) to compute the first divided difference.`);
+  else setStatus('info',`y${sup('('+m+')')}(x) passes through ${m+1} of ${n} points; ${S.last-k} table ${S.last-k===1?'entry':'entries'} left.`);
+
+  /* divided-difference table */
+  const par=cur?[[cur[0],cur[1]-1],[cur[0]+1,cur[1]-1]]:[];
+  const head=['i','x<sub>i</sub>','y<sub>i</sub>'];for(let j=1;j<n;j++)head.push(ordinal(j));
+  const rows=[];for(let i=0;i<n;i++){const r=[i,fmt(X[i],6)];for(let j=0;j<n;j++)r.push(i+j<n&&isK(i,j)?fmt(D[i][j],6):'');rows.push(r);}
+  renderTable('tbl',head,rows,-1,{cellClass:(i,col)=>{const j=col-2;if(j<0||i+j>=n||!isK(i,j))return '';const cls=[];
+      if(cur&&cur[0]===i&&cur[1]===j)cls.push('new');else if(par.some(q=>q[0]===i&&q[1]===j))cls.push('par');
+      if(i===0&&(done||!(cur&&cur[0]===0&&cur[1]===j)))cls.push('coef');return cls.join(' ');}});
+}
+const S=Stepper(render);S.delay=1100;
+onSelectChange('preset',load);onSelectChange('order',load);
+for(const id of ['cx','cy']){$(id).addEventListener('input',debounce(load,400));$(id).addEventListener('keydown',e=>{if(e.key==='Enter')e.target.blur();});}
+enablePanZoom(plot,view,()=>S.show());
+bindViewControls([view],()=>S.show());
+load();
+</script>
+</body>
+</html>
