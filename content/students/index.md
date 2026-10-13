@@ -36,7 +36,7 @@ hideAuthor: true
 
 ## Master & Undergraduate Students
 
-#### Current
+#### Past
 
 <table class="students-table">
   <thead>
@@ -60,21 +60,6 @@ hideAuthor: true
       <td><strong>Bidirectional digital twins for the control of chaotic systems</strong></td>
       <td>2026</td>
     </tr>
-  </tbody>
-</table>
-
-#### Past
-
-<table class="students-table">
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Degree</th>
-      <th>Thesis/Project title</th>
-      <th>Year</th>
-    </tr>
-  </thead>
-  <tbody>
     <tr>
       <td>Konstantinos Barmpounis</td>
       <td>MSc Advanced Aeronautical Engineering<br><sub>Aeronautics, Imperial</sub></td>

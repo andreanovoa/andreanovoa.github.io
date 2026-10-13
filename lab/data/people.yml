@@ -26,20 +26,20 @@ current:
       scholar: "https://scholar.google.com/citations?user=wUmO9q8AAAAJ&hl=en"
       orcid: "https://orcid.org/0009-0009-8594-082X"
 
+alumni:
   - name: "Lukas Campbell"
     role: "UROP student"
-    since: "2026"
+    years: "2026"
     affiliation: "Aeronautics, Imperial College London"
     photo: "img/people/lukas-campbell.jpg"
     project: "Autoencoder-based reduced-order modelling"
 
   - name: "Tarek Obegi"
     role: "Undergraduate summer researcher"
-    since: "2026"
+    years: "2026"
     affiliation: "Aeronautics, Imperial College London"
     project: "Bidirectional digital twins for the control of chaotic systems"
 
-alumni:
   - name: "Konstantinos Barmpounis"
     role: "MSc student"
     years: "2026"
