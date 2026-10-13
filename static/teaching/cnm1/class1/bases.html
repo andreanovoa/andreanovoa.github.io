@@ -11,7 +11,6 @@
 @font-face{font-family:"CMU Sans Serif";src:url("../fonts/cmunsx.woff2") format("woff2");font-weight:700 900;font-display:swap}
 :root{--pink:#B8559A}
 :root.dark{--pink:#E39CC9}
-.ovl{text-decoration:overline;text-decoration-thickness:2px}
 .plot-hint,#status,.formula{overflow-wrap:anywhere}
 .sumline{margin:6px 0 0;font-size:1.05rem;line-height:1.5;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .sumline b{font-weight:750}
@@ -37,6 +36,7 @@
     <p class="panel-title" id="pvTitle">Digit × place value</p>
     <svg class="plot static" id="pv" role="img" aria-label="The number written in the chosen base: each digit with its place value and contribution"></svg>
     <p class="sumline" id="sumline">&nbsp;</p>
+    <p class="plot-hint" id="digitKey" hidden></p>
     <p class="panel-title" style="margin-top:16px">Grouping bits: 3 bits make 1 octal digit, 4 bits make 1 hexadecimal digit</p>
     <svg class="plot static" id="groups" role="img" aria-label="The binary digits grouped in threes (octal) and fours (hexadecimal)"></svg>
     <p class="plot-hint" id="groupsHint"></p>
@@ -135,14 +135,16 @@ function expand(X,b){
   const exact=r===0n,rec=start>=0;
   let nF=exact?frac.length:rec?start+period:frac.length;const capped=nF>MAXF||(!exact&&!rec);nF=Math.min(nF,MAXF);
   return{b,B,D,W,whole,frac,start,period,exact,rec,capped,nW:whole.length,nF};}
-/* written form: (1101.101)_2; repeating digits overlined; o.group4 groups bits in fours from the point */
+/* written form: (1101.101)_2. Repeating digits are put in brackets, as in the notes: 0.1 = (0.0(0011))_2.
+   o.group groups the whole part in fours (bits) from the point; the fraction is never split, so the brackets stay clear */
 function repStr(E,o){o=o||{};const b=E.b,sep=b===60?';':'';
   let w=E.nW?E.whole.map(r=>digPlain(r.d,b)).reverse():['0'];
   const n=E.capped?Math.min(MAXF,E.frac.length):E.nF;
-  const f=E.frac.slice(0,n).map((r,i)=>({t:digPlain(r.d,b),rep:E.rec&&!E.capped&&i>=E.start}));
+  const f=E.frac.slice(0,n).map(r=>digPlain(r.d,b)),rep=E.rec&&!E.capped;
   const g=o.group?o.group:0;
-  let ws=g?w.map((t,i)=>(i>0&&(w.length-i)%g===0?' ':'')+t).join(''):w.join(sep);
-  let fs='';f.forEach((q,i)=>{const sp=i>0?(g&&i%g===0?' ':sep):'';fs+=q.rep?`<span class="ovl">${sp}${q.t}</span>`:sp+q.t;});
+  const ws=g?w.map((t,i)=>(i>0&&(w.length-i)%g===0?'\u2009':'')+t).join(''):w.join(sep);
+  let fs='';f.forEach((d,i)=>{if(rep&&i===E.start)fs+=(i>0?sep:'')+'(';else if(i>0)fs+=sep;fs+=d;});
+  if(rep)fs+=')';
   if(E.capped)fs+='…';
   return ws+(fs?'.'+fs:'');}
 
@@ -254,7 +256,7 @@ function drawGroups(){
   const r2=E2.nW?E2.whole.map(r=>r.d).reverse().join(''):'0';
   const E8=expand(X,8),E16=expand(X,16);
   $('groupsHint').innerHTML=(Lw>wb.length||Lf>fb.length?'Grey boxes are padding zeros that only complete a group. ':'')+
-    (more?'Only the first 12 fraction bits are shown. ':'')+
+    (more?'The boxes show the first 12 fraction bits; the full expansions are: ':'')+
     `${X.neg?'−':''}${xTxt().replace(/^−/,'')} = (${repStr(E2,{group:4})})${sub(2)} = (${repStr(E8)})${sub(8)} = (${repStr(E16)})${sub(16)}`;}
 
 /* number of digits of the whole part in every base */
@@ -295,6 +297,11 @@ function render(k){
   const b=E.b,done=k===S.last,ki=Math.min(k,E.nW),kf=Math.max(0,k-E.nW);
   $('pvTitle').textContent=`${xTxt()} in base ${b}: digit × place value = contribution`;
   drawPV(k);drawGroups();drawBars();digitsPanel();basesTable();
+  const key=$('digitKey');
+  if(b>10&&b<=16){key.hidden=false;key.innerHTML=`Base ${b} needs ${b} digit symbols, so the digits above 9 are written as letters: `+
+    Array.from({length:b-10},(_,i)=>`${SYM[10+i]} = ${10+i}`).join(', ')+'.';}
+  else if(b===60){key.hidden=false;key.innerHTML='Base 60 needs 60 digit symbols: each digit (0 to 59) is written as a decimal number, and the digits are separated by “;”, as on a clock.';}
+  else key.hidden=true;
   const known=()=>{const w=E.whole.slice(0,ki).map(r=>digPlain(r.d,b)).reverse().join(b===60?';':''),
     f=E.frac.slice(0,kf).map(r=>digPlain(r.d,b)).join(b===60?';':'');
     const ws=ki===E.nW?(w||'0'):'…'+w;return '('+ws+(kf?'.'+f:'')+')'+sub(b);};
@@ -308,7 +315,7 @@ function render(k){
     l2=`Check: ${group(r.q.toString())} × ${b} + ${r.d} = ${group(r.x.toString())}`;
     l3=r.q===0n?`Quotient 0: whole part done. Read the remainders upwards: ${known()}`:`Digits so far, read upwards: ${known()}`;}
   else{const j=kf,r=E.frac[j-1];
-    l1=`${b} × ${fd(r.f,E.D)} = ${fd(r.p,E.D)} &rarr; integer part ${r.d} &rarr; <b>d<sub>−${j}</sub> = ${digPlain(r.d,b)}</b>`;
+    l1=`${b} × ${fd(r.f,E.D)} = ${fd(r.p,E.D)} &rarr; integer part ${r.d} &rarr; <b>d<sub>−${j}</sub> = ${digPlain(r.d,b)}</b>${r.d>9&&b<=16?` (${SYM[r.d]} = ${r.d})`:''}`;
     if(r.r===0n)l2='The fractional part is 0: the expansion terminates.';
     else if(E.rec&&j===E.start+E.period)l2=`Keep the fractional part ${fd(r.r,E.D)}: the same as before step ${E.start+1}, so the digits from d<sub>−${E.start+1}</sub> repeat for ever`;
     else l2=`Keep the fractional part ${fd(r.r,E.D)} and multiply again`;
