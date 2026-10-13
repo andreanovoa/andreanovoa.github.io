@@ -9,11 +9,38 @@
 <style>
 @font-face{font-family:"CMU Sans Serif";src:url("fonts/cmunss.woff2") format("woff2");font-weight:400 600;font-display:swap}
 @font-face{font-family:"CMU Sans Serif";src:url("fonts/cmunsx.woff2") format("woff2");font-weight:700 900;font-display:swap}
-.checks{display:flex;flex-wrap:wrap;gap:4px 16px}
-.checks .check{min-height:30px}
-#sum td:first-child,#sum th:first-child{text-align:left}
+:root{--pink:#CC79A7}
+/* same arrangement as "Compare the four methods" (Class 2): settings and function preview on top,
+   error plot with summary on the left, progress and step table on the right */
+.side{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(240px,.7fr);align-items:start;gap:12px}
+.method-settings{display:flex;flex-direction:column;gap:12px;min-width:0}
+.function-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;align-items:end}
+.methods-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.methods-head h2{margin:0;font-size:1rem}
+.methods-head button{min-height:30px;padding:3px 10px;font-size:.8rem}
+.method-options{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:8px}
+.method-option{display:grid;grid-template-columns:auto auto minmax(0,1fr);grid-template-rows:auto auto;column-gap:8px;align-items:center;padding:6px 10px;border:1px solid var(--border);border-radius:9px;background:var(--entry);cursor:pointer;font-weight:650;font-size:.95rem;min-width:0}
+.method-option input{width:18px;height:18px;grid-row:1/span 2}
+.method-option .swatch{grid-row:1/span 2}
+.method-option .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.method-option .swatch{margin-right:0;flex:none}
+.method-option .order{grid-column:3;font-size:.78rem;font-weight:500;opacity:.75;white-space:nowrap}
+.method-option.off{opacity:.55}
 .custom-row{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr);gap:10px}
-@media (max-width:600px){.custom-row{grid-template-columns:1fr 1fr}.custom-row>:first-child{grid-column:1/-1}}
+.function-preview{min-width:0;padding:10px;border:1px solid var(--border);border-radius:9px;background:var(--entry)}
+.function-preview h2{margin:0 0 6px;font-size:1rem}
+.function-preview p{margin:6px 0 0;font-size:.9rem}
+svg.function-plot{display:block;width:100%;height:auto;user-select:none}
+.compare-progress{display:grid;grid-template-columns:minmax(150px,.8fr) minmax(0,1.2fr);gap:14px;align-items:start}
+.compare-progress-main,.compare-progress-methods{display:grid;gap:4px}
+.compare-method{display:grid;grid-template-columns:minmax(120px,1fr) minmax(0,1fr);gap:8px;align-items:start;font-size:1rem}
+.formula.progress{display:block;height:auto;min-height:calc(4.5em + 20px)}
+#sum td:first-child,#sum th:first-child{text-align:left}
+#sum th,#tbl th{white-space:normal;vertical-align:bottom}
+#tbl th{font-size:.8rem}
+.summary-wrap{margin-top:14px}
+@media (max-width:720px){.side{grid-template-columns:1fr}}
+@media (max-width:600px){.method-options{grid-template-columns:repeat(2,minmax(0,1fr))}.method-option .order{font-size:.72rem}.compare-progress{grid-template-columns:1fr;gap:8px}.custom-row{grid-template-columns:1fr 1fr}.custom-row>:first-child{grid-column:1/-1}}
 </style>
 <link rel="stylesheet" href="../theme.css">
 </head>
@@ -21,26 +48,37 @@
 <div class="wrap">
 <header class="top">
   <h1>Convergence of the integration rules</h1>
-  <p class="lede">Error against the number of strips on log–log axes: a straight line of slope −p means error ∝ h<sup>p</sup>. Each step doubles n; Gauss–Legendre uses N = step + 1 points.</p>
+  <p class="lede">Error against the number of strips on log–log axes: a straight line of slope −p means error ∝ h<sup>p</sup>. Each step doubles n; Gauss–Legendre uses N = step + 1 points. Tick any rules you want to race.</p>
 </header>
 <main class="layout">
   <section class="plotcard">
     <svg class="plot" id="plot" role="img" aria-label="Absolute error against number of strips, log-log axes"></svg>
     <p class="plot-hint">Drag to pan · scroll to zoom</p>
+    <div class="tablewrap summary-wrap"><table id="sum"></table></div>
   </section>
   <aside class="side">
-    <label class="field span2">f(x) and interval<select id="fsel"></select></label>
-    <label class="field">Horizontal axis<select id="xaxis"><option value="n">strips n</option><option value="ev">evaluations of f</option></select></label>
-    <div class="field span3"><span>Rules</span><div class="checks" id="checks"></div></div>
-    <div id="customBox" class="full" hidden>
-      <div class="custom-row">
-        <label class="field">Custom f(x)<input id="custom" type="text" value="exp(-x^2)" spellcheck="false" autocomplete="off"></label>
-        <label class="field">a<input id="a" type="number" step="0.1" value="0"></label>
-        <label class="field">b<input id="b" type="number" step="0.1" value="1"></label>
+    <div class="method-settings">
+      <div class="function-options">
+        <label class="field">f(x) and interval<select id="fsel"></select></label>
+        <label class="field">Horizontal axis<select id="xaxis"><option value="n">strips n (points N for Gauss)</option><option value="ev">evaluations of f</option></select></label>
       </div>
-      <div id="customErr" class="err"></div>
+      <div id="customBox" hidden>
+        <div class="custom-row">
+          <label class="field">Custom f(x)<input id="custom" type="text" value="exp(-x^2)" spellcheck="false" autocomplete="off"></label>
+          <label class="field">a<input id="a" type="number" step="0.1" value="0"></label>
+          <label class="field">b<input id="b" type="number" step="0.1" value="1"></label>
+        </div>
+        <div id="customErr" class="err"></div>
+      </div>
+      <div class="methods-head"><h2>Rules</h2><button id="btnAll" type="button">All</button><button id="btnDefault" type="button">Default</button><button id="btnNone" type="button">None</button></div>
+      <div class="method-options" id="checks" aria-label="Integration rules to compare"></div>
+      <p class="hint">Keys: &rarr; step, &larr; back, p play, r reset, End show all</p>
     </div>
-    <p class="hint">Keys: &rarr; step, &larr; back, p play, r reset, End show all</p>
+    <section class="function-preview">
+      <h2>Selected integrand</h2>
+      <svg class="function-plot plot static" id="functionPlot" role="img" aria-label="Graph of the integrand with the area to integrate"></svg>
+      <p id="exactLine">&nbsp;</p>
+    </section>
   </aside>
   <div class="controls btns">
     <button id="btnBack" type="button" title="Back (left arrow)">&larr; Back</button>
@@ -51,9 +89,8 @@
     <button id="btnResetView" type="button" title="Restore the original graph view">Reset view</button>
   </div>
   <section class="results-card">
-    <div class="formula wrap" id="formula">&nbsp;</div>
+    <div class="formula progress" id="formula">&nbsp;</div>
     <div class="status" id="status">&nbsp;</div>
-    <div class="tablewrap"><table id="sum"></table></div>
     <div class="tablewrap"><table id="tbl"></table></div>
   </section>
 </main>
@@ -62,25 +99,35 @@
 <script src="../demo-core.js"></script>
 <script>
 "use strict";
+COL.pink=getComputedStyle(document.documentElement).getPropertyValue('--pink').trim()||'#CC79A7';
 const FPRE=[
- {id:'pi',label:'4/(1 + x²) on [0, 1]   (exact: π)',f:x=>4/(1+x*x),a:0,b:1,exact:Math.PI},
+ {id:'osc',label:'1 + sin(5x) on [0, π]   (oscillating)',f:x=>1+Math.sin(5*x),a:0,b:Math.PI,exact:Math.PI+0.4,exName:'π + 0.4'},
+ {id:'damp',label:'e^(−x) cos(4x) on [0, 3]   (decaying oscillation)',f:x=>Math.exp(-x)*Math.cos(4*x),a:0,b:3,exact:(Math.exp(-3)*(4*Math.sin(12)-Math.cos(12))+1)/17},
+ {id:'runge',label:'1/(1 + 25x²) on [−1, 1]   (sharp peak)',f:x=>1/(1+25*x*x),a:-1,b:1,exact:0.4*Math.atan(5),exName:'(2/5) arctan 5'},
+ {id:'sqrt',label:'√x on [0, 1]   (infinite slope at 0)',f:x=>Math.sqrt(Math.max(0,x)),a:0,b:1,exact:2/3,exName:'2/3'},
+ {id:'lift',label:'√(1 − x²) on [0, 1]   (infinite slope at x = 1)',f:x=>Math.sqrt(Math.max(0,1-x*x)),a:0,b:1,exact:Math.PI/4,exName:'π/4'},
+ {id:'pi',label:'4/(1 + x²) on [0, 1]   (exact: π; worked example)',f:x=>4/(1+x*x),a:0,b:1,exact:Math.PI,exName:'π'},
  {id:'exp',label:'e^(−x²) on [0, 1]',f:x=>Math.exp(-x*x),a:0,b:1,exact:0.746824132812427},
- {id:'xex',label:'x eˣ on [0, 2]   (exact: e² + 1)',f:x=>x*Math.exp(x),a:0,b:2,exact:Math.exp(2)+1},
+ {id:'xex',label:'x eˣ on [0, 2]   (exact: e² + 1)',f:x=>x*Math.exp(x),a:0,b:2,exact:Math.exp(2)+1,exName:'e² + 1'},
  {id:'one',label:'1 − e^(−x) on [0, 2]',f:x=>1-Math.exp(-x),a:0,b:2,exact:1+Math.exp(-2)},
- {id:'wavy',label:'2 + sin(1.5x) + 0.2x on [0, 4]',f:x=>2+Math.sin(1.5*x)+0.2*x,a:0,b:4,exact:8+(1-Math.cos(6))/1.5+1.6},
- {id:'lift',label:'√(1 − x²) on [0, 1]   (exact: π/4; infinite slope at x = 1)',f:x=>Math.sqrt(Math.max(0,1-x*x)),a:0,b:1,exact:Math.PI/4},
  {id:'custom',label:'Custom f(x)…'}
 ];
-/* colour roles are looked up at render time so the page follows the theme */
+/* every rule taught in Class 3; colour roles are looked up at render time so the page follows the theme */
 const SERIES=[
- {id:'left',name:'Left Riemann',c:'grey',dash:'10 7',p:1,on:true},
- {id:'mid',name:'Mid-point',c:'teal',dash:null,p:2,on:true},
- {id:'trap',name:'Trapezium',c:'yellow',dash:'4 5',p:2,on:true},
- {id:'simp',name:'Simpson 1/3',c:'curve',dash:null,p:4,on:true},
- {id:'gl',name:'Gauss–Legendre',c:'orange',dash:null,p:null,on:true}
+ {id:'left', name:'Left Riemann', c:'grey',  dash:'10 7',p:1,on:true},
+ {id:'right',name:'Right Riemann',c:'grey',  dash:'2 6', p:1,on:false},
+ {id:'upper',name:'Upper Riemann',c:'navy',  dash:'10 7',p:1,on:false},
+ {id:'lower',name:'Lower Riemann',c:'navy',  dash:'2 6', p:1,on:false},
+ {id:'mid',  name:'Mid-point',    c:'teal',  dash:null,  p:2,on:true},
+ {id:'trap', name:'Trapezium',    c:'yellow',dash:null,  p:2,on:true},
+ {id:'simp', name:'Simpson 1/3',  c:'curve', dash:null,  p:4,on:true},
+ {id:'s38',  name:'Simpson 3/8',  c:'curve', dash:'9 6', p:4,on:false},
+ {id:'boole',name:'Boole',        c:'pink',  dash:null,  p:6,on:true},
+ {id:'gl',   name:'Gauss–Legendre',c:'orange',dash:null, p:null,on:true}
 ];
 const KMAX=10,FLOOR=1e-16;
-$('checks').innerHTML=SERIES.map(s=>`<label class="check"><input type="checkbox" id="c_${s.id}"${s.on?' checked':''}><span id="l_${s.id}">${s.name}</span></label>`).join('');
+$('checks').innerHTML=SERIES.map(s=>`<label class="method-option" id="o_${s.id}"><input type="checkbox" id="c_${s.id}"${s.on?' checked':''}><span class="swatch" id="w_${s.id}"></span><span class="nm">${s.name}</span><span class="order">${s.p?'error ∝ h'+sup(s.p):'faster than any hᵖ'}</span></label>`).join('');
+function sup(t){return `<sup>${t}</sup>`;}
 
 /* Gauss–Legendre points and weights on [−1, 1] */
 const GLCACHE={};
@@ -93,19 +140,28 @@ function gaussLegendre(N){if(GLCACHE[N])return GLCACHE[N];const x=new Array(N),w
   return GLCACHE[N]={x,w};}
 function reference(f,a,b){const {x,w}=gaussLegendre(20);const P=200,H=(b-a)/P;let s=0;
   for(let p=0;p<P;p++){const c=a+(p+0.5)*H;for(let i=0;i<20;i++)s+=w[i]*f(c+H/2*x[i]);}return s*H/2;}
-/* the five rules: integral and number of evaluations of f */
+/* composite closed Newton–Cotes weights per piece (per unit spacing) */
+const NC={trap:{d:1,w:[1/2,1/2]},simp:{d:2,w:[1/3,4/3,1/3]},s38:{d:3,w:[3/8,9/8,9/8,3/8]},boole:{d:4,w:[14/45,64/45,24/45,64/45,14/45]}};
+/* one rule with n strips (or N points): integral and number of evaluations of f */
 function rule(id,f,a,b,n){const h=(b-a)/n;let s=0;
   if(id==='left'){for(let i=0;i<n;i++)s+=f(a+i*h);return{I:h*s,ev:n};}
+  if(id==='right'){for(let i=1;i<=n;i++)s+=f(a+i*h);return{I:h*s,ev:n};}
   if(id==='mid'){for(let i=0;i<n;i++)s+=f(a+(i+0.5)*h);return{I:h*s,ev:n};}
-  if(id==='trap'){s=(f(a)+f(b))/2;for(let i=1;i<n;i++)s+=f(a+i*h);return{I:h*s,ev:n+1};}
-  if(id==='simp'){s=f(a)+f(b);for(let i=1;i<n;i++)s+=(i%2?4:2)*f(a+i*h);return{I:h/3*s,ev:n+1};}
+  if(id==='upper'||id==='lower'){const up=id==='upper',K=Math.max(4,Math.min(64,Math.round(4096/n)));
+    for(let i=0;i<n;i++){let best=f(a+i*h);for(let q=1;q<=K;q++){const v=f(a+i*h+h*q/K);if(up?v>best:v<best)best=v;}s+=best;}
+    return{I:h*s,ev:n};}
+  if(NC[id]){const {d,w}=NC[id],P=n/d,v=new Array(n+1).fill(0);
+    for(let p=0;p<P;p++)for(let j=0;j<=d;j++)v[p*d+j]+=w[j];
+    for(let i=0;i<=n;i++)s+=v[i]*f(a+i*h);return{I:h*s,ev:n+1};}
   const {x,w}=gaussLegendre(n);for(let i=0;i<n;i++)s+=w[i]*f((a+b)/2+(b-a)/2*x[i]);return{I:(b-a)/2*s,ev:n};}
-/* step k: strips n = 2^k (Simpson needs n even: 2^(k+1)), Gauss–Legendre N = k + 1 points */
-const nAt=(id,k)=>id==='gl'?k+1:id==='simp'?2**(k+1):2**k;
+/* step k: n = 2^k strips, times the piece size for Simpson (2), Simpson 3/8 (3) and Boole (4); Gauss N = k + 1 */
+const PIECE={simp:2,s38:3,boole:4};
+const nAt=(id,k)=>id==='gl'?k+1:(PIECE[id]||1)*2**k;
 
-const plot=new Plot($('plot'));
+const plot=new Plot($('plot')),fplot=new Plot($('functionPlot'));
 const view={xr:null,yr:null};
 let F=null,DATA=[];
+const on=()=>DATA.filter(d=>$('c_'+d.s.id).checked);
 function readF(){const id=$('fsel').value;
   if(id!=='custom'){const p=FPRE.find(q=>q.id===id);return{...p,kind:'exact'};}
   const a=num('a'),b=num('b');if(!(isFinite(a)&&isFinite(b)&&b>a))return{error:'Enter limits with a < b'};
@@ -116,46 +172,74 @@ function compute(){DATA=SERIES.map(s=>{const pts=[];
   return{s,pts};});}
 const xOf=q=>$('xaxis').value==='ev'?q.ev:q.n;
 function slope(pts,k){if(k<1)return null;const a=pts[k-1],b=pts[k];if(!(a.e>1e-14&&b.e>1e-14))return null;return Math.log(b.e/a.e)/Math.log(xOf(b)/xOf(a));}
+/* labels to the right of each line end; any two whose boxes would overlap are moved apart vertically
+   (first downwards, upwards if that leaves the plot), so text never sits on another label */
+function stackLabels(p,labels,w){const gap=p.fs+5,lo=p.m.t+p.fs+2,hi=p.m.t+p.ph-6,placed=[];
+  labels.forEach(L=>{L.right=L.X>p.m.l+p.pw-w;L.X=L.right?L.X-12:L.X+12;L.Y=Math.max(lo,Math.min(hi,L.Y+p.fs*0.35));});
+  labels.sort((u,v)=>u.Y-v.Y);
+  const clash=(L,Y)=>placed.some(q=>Math.abs(q.Y-Y)<gap&&Math.abs((q.right?q.X-w:q.X)-(L.right?L.X-w:L.X))<w);
+  for(const L of labels){let Y=L.Y;while(clash(L,Y)&&Y<=hi)Y+=gap;
+    if(Y>hi){Y=L.Y;while(clash(L,Y)&&Y>=lo)Y-=gap;}
+    L.Y=Math.max(lo,Math.min(hi,Y));placed.push(L);
+    p.ptext(L.X,L.Y,L.t,{anchor:L.right?'end':'start',c:L.c,weight:800});}}
+const swatch=s=>`<span class="swatch" style="border-color:${COL[s.c]};${s.dash?'border-top-style:'+(s.dash.startsWith('2')?'dotted':'dashed'):''}"></span>`;
+
+function renderPreview(){
+  if(!F||F.error){fplot.begin([0,1],[-1,1],{h:170});fplot.axes();fplot.end();$('exactLine').innerHTML=F?`<span class="err">${F.error}</span>`:'';return;}
+  const pad=(F.b-F.a)*0.08,xr=[F.a-pad,F.b+pad],yr=autoY([F.f],F.a,F.b);
+  const p=fplot.begin(xr,yr,{h:fplot.svg.parentElement.clientWidth<400?160:190});p.axes({xticks:[F.a,F.b].concat(ticks(F.a,F.b,3)).filter((v,i,A)=>A.indexOf(v)===i)});
+  const pts=[[F.a,0]];for(let i=0;i<=200;i++){const x=F.a+(F.b-F.a)*i/200;pts.push([x,F.f(x)]);}pts.push([F.b,0]);
+  p.area(pts,COL.curve,0.18,null,'under');
+  p.curve(F.f,{c:COL.curve,w:3});p.end();
+  $('exactLine').innerHTML=`${F.kind==='exact'?'Exact':'Reference'} value: <b>${F.exName?F.exName+' = ':''}${fmt(F.exact,12)}</b>`;}
 
 function render(k){
-  SERIES.forEach(s=>{$('l_'+s.id).style.color=COL[s.c];});
+  SERIES.forEach(s=>{$('w_'+s.id).outerHTML=swatch(s).replace('<span class="swatch"',`<span class="swatch" id="w_${s.id}"`);$('o_'+s.id).classList.toggle('off',!$('c_'+s.id).checked);});
   if(!F||F.error){plot.begin([1,10],[1e-16,1],{log:true,logx:true});plot.axes();plot.end();setFormula('');setStatus('bad',F?F.error:'');renderTable('sum',[],[],-1);renderTable('tbl',[],[],-1);return;}
-  let emax=1e-3,xmax=2;DATA.forEach(d=>d.pts.forEach(q=>{if(q.e>emax)emax=q.e;if(xOf(q)>xmax)xmax=xOf(q);}));
+  const ON=on();
+  let emax=1e-3,xmax=8;const kx=Math.max(k,3);ON.forEach(d=>d.pts.forEach(q=>{if(q.e>emax)emax=q.e;if(q.k<=kx&&xOf(q)>xmax)xmax=xOf(q);}));
   const pwEst=Math.max(200,($('plot').parentElement.clientWidth||600)-92),frac=Math.min(0.6,(pwEst<500?165:215)/pwEst);
   const xr=view.xr||[0.8,0.8*Math.pow(xmax/0.8,1/(1-frac))],yr=view.yr||[FLOOR/30,Math.pow(10,Math.ceil(Math.log10(emax)+0.3))];
   const p=plot.begin(xr,yr,{log:true,logx:true});p.axes({xlabel:$('xaxis').value==='ev'?'evaluations of f':'n'});
   p.hline(2.2e-16,{c:COL.grey,w:1.5,dash:'3 6'},'under');
   const labels=[];
-  DATA.forEach(d=>{if(!$('c_'+d.s.id).checked)return;const c=COL[d.s.c];const pts=[];
+  ON.forEach(d=>{const c=COL[d.s.c];const pts=[];
     for(const q of d.pts.filter(q=>q.k<=k)){pts.push([xOf(q),Math.max(FLOOR,q.e)]);if(q.e<FLOOR)break;}
     p.path(pts,{c,w:3.5,dash:d.s.dash});pts.forEach(([x,e],i)=>p.dot(x,e,i===pts.length-1?6.5:4.5,c,'top',i===pts.length-1?null:c));
     const sl=slope(d.pts,Math.min(k,pts.length-1)),[x,e]=pts[pts.length-1];
     labels.push({X:p.X(x),Y:p.Y(e),t:d.s.name+(sl!==null&&d.s.id!=='gl'?` (${fmt(sl,2)})`:''),c});});
-  endLabels(p,labels,{w:p.small?160:210});
+  stackLabels(p,labels,p.small?150:200);
   p.end();
-  const n=2**k;
-  setFormula(`<span class="line1">Step ${k}: strips n = <b>${n}</b> (Simpson ${2**(k+1)}), Gauss points N = <b>${k+1}</b></span>`+
-    `<span class="line2">${F.kind==='exact'?'exact':'reference'} value ${fmt(F.exact,12)}; &nbsp;observed slope = log(e<sub>new</sub>/e<sub>old</sub>) / log(n<sub>new</sub>/n<sub>old</sub>)</span>`);
-  if(k===0)setStatus('info','Press Step (&rarr;) to double the number of strips');
-  else if(k<KMAX)setStatus('info','Slopes approach −1 (left sum), −2 (mid-point, trapezium) and −4 (Simpson); the Gauss–Legendre error falls faster than any power of n');
-  else setStatus('ok','Expected: slope −1 left sum, −2 mid-point and trapezium, −4 Simpson. A steeper slope can appear when the leading error term cancels (e.g. Simpson on 4/(1 + x²)). Dashed grey line: round-off level 2.2 × 10<sup>−16</sup>.');
-  renderTable('sum',['Rule','n','evaluations','value','|error|','observed slope','expected'],DATA.filter(d=>$('c_'+d.s.id).checked).map(d=>{const q=d.pts[k],sl=slope(d.pts,k);
-    return[`<span class="swatch" style="border-color:${COL[d.s.c]};${d.s.dash?'border-top-style:dashed':''}"></span>${d.s.name}`,q.n,q.ev,fmt(q.I,12),fmt(q.e,3),sl===null?'–':fmt(sl,3),d.s.p?'−'+d.s.p:'faster'];}),-1);
-  const on=DATA.filter(d=>$('c_'+d.s.id).checked);
-  const rows=[];for(let j=0;j<=k;j++)rows.push([j,2**j,...on.map(d=>fmt(d.pts[j].e,3))]);
-  renderTable('tbl',['step','n',...on.map(d=>d.s.name+(d.s.id==='gl'?' (N = step + 1)':d.s.id==='simp'?' (2n strips)':''))],rows,k);
+  /* progress: error of every ticked rule at this step, in its colour (as in the Class 2 comparison) */
+  setFormula(`<div class="compare-progress"><div class="compare-progress-main"><div>step <b>${k}</b></div><div>n = <b>${2**k}</b> strips</div><div>Gauss N = <b>${k+1}</b></div><div style="font-size:.9rem;opacity:.8">|error| = |I − I<sub>rule</sub>|</div></div><div class="compare-progress-methods">`+
+    ON.map(d=>{const q=d.pts[k];return `<div class="compare-method" style="color:${COL[d.s.c]}"><b>${d.s.name}</b><span>${q.e<1e-15?'&lt; 10<sup>−15</sup>':sci(q.e,3)}</span></div>`;}).join('')+'</div></div>');
+  if(!ON.length)setStatus('bad','Tick at least one rule');
+  else if(k===0)setStatus('info','Press Step (&rarr;) or Play to double the number of strips');
+  else if(k<KMAX)setStatus('info','Slopes approach −1 (Riemann sums), −2 (mid-point, trapezium), −4 (Simpson), −6 (Boole); the Gauss–Legendre error falls faster than any power of n for a smooth integrand');
+  else setStatus('ok','A smooth integrand shows the expected slopes. A kink, a sharp peak or an infinite slope (√x) slows every rule down to the same rate, and a cancelling error term can give a steeper slope. Dashed grey line: round-off level 2.2 × 10<sup>−16</sup>.');
+  /* summary under the plot */
+  renderTable('sum',['Rule','n / N','evaluations','value','|error|','observed slope','expected'],ON.map(d=>{const q=d.pts[k],sl=slope(d.pts,k);
+    return[swatch(d.s)+d.s.name,(d.s.id==='gl'?'N = ':'')+q.n,q.ev,fmt(q.I,10),q.e<1e-15?'&lt; 10<sup>−15</sup>':sci(q.e,3),sl===null?'–':fmt(sl,3),d.s.p?'−'+d.s.p:'faster'];}),-1);
+  /* step table: errors so far */
+  const rows=[];for(let j=0;j<=k;j++)rows.push([j,...ON.map(d=>d.pts[j].e<1e-15?'&lt; 10<sup>−15</sup>':sci(d.pts[j].e,2))]);
+  renderTable('tbl',['step',...ON.map(d=>`<span style="color:${COL[d.s.c]}">${d.s.name}</span><br><span style="font-weight:500;font-size:.85em">n = ${d.s.id==='gl'?'step + 1':(PIECE[d.s.id]||1)===1?'2<sup>step</sup>':PIECE[d.s.id]+'·2<sup>step</sup>'}</span>`)],rows,k);
+  if(window.parent!==window)window.parent.postMessage({type:'module-demo-resize'},location.origin);
 }
 const S=Stepper(render);S.delay=800;S.last=KMAX;
-function recompute(){F=readF();$('customErr').textContent=F.error||'';if(!F.error)compute();view.xr=null;view.yr=null;S.show();}
+function recompute(){F=readF();$('customErr').textContent=F.error||'';if(!F.error)compute();view.xr=null;view.yr=null;renderPreview();S.show();}
 fillSelect('fsel',FPRE);
 onSelectChange('fsel',()=>{$('customBox').hidden=$('fsel').value!=='custom';recompute();});
 onSelectChange('xaxis',()=>{view.xr=null;view.yr=null;S.show();});
 $('custom').addEventListener('input',debounce(recompute,300));
 for(const id of ['a','b']){$(id).addEventListener('input',debounce(recompute,300));$(id).addEventListener('keydown',e=>{if(e.key==='Enter')e.target.blur();});}
-SERIES.forEach(s=>$('c_'+s.id).addEventListener('change',()=>S.show()));
+const setChecks=fn=>{SERIES.forEach(s=>{$('c_'+s.id).checked=fn(s);});view.xr=null;view.yr=null;S.show();};
+SERIES.forEach(s=>$('c_'+s.id).addEventListener('change',()=>{view.xr=null;view.yr=null;S.show();}));
+$('btnAll').onclick=()=>setChecks(()=>true);$('btnNone').onclick=()=>setChecks(()=>false);$('btnDefault').onclick=()=>setChecks(s=>s.on);
 enablePanZoom(plot,view,()=>S.show());
 bindViewControls([view],()=>S.show());
-$('fsel').value='xex';F=readF();compute();S.set(4);
+onThemeChange(()=>{COL.pink=getComputedStyle(document.documentElement).getPropertyValue('--pink').trim()||'#CC79A7';renderPreview();});
+window.addEventListener('resize',debounce(renderPreview,100));
+$('fsel').value='osc';F=readF();compute();renderPreview();S.set(4);
 </script>
 </body>
 </html>
