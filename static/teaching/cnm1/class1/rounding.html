@@ -4,18 +4,34 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="../theme.js"></script>
-<title>Rounding and Errors</title>
+<title>Rounding, Chopping and Error Propagation</title>
 <link rel="stylesheet" href="../demo.css">
 <style>
-@font-face{font-family:"CMU Sans Serif";src:url("fonts/cmunss.woff2") format("woff2");font-weight:400 600;font-display:swap}
-@font-face{font-family:"CMU Sans Serif";src:url("fonts/cmunsx.woff2") format("woff2");font-weight:700 900;font-display:swap}
+@font-face{font-family:"CMU Sans Serif";src:url("../fonts/cmunss.woff2") format("woff2");font-weight:400 600;font-display:swap}
+@font-face{font-family:"CMU Sans Serif";src:url("../fonts/cmunsx.woff2") format("woff2");font-weight:700 900;font-display:swap}
 .grp{display:contents}
-.grp>.span2{grid-column:span 2}
+.grp>.s1{grid-column:span 1}
+.grp>.s2{grid-column:span 2}
+.grp>.s3{grid-column:span 3}
+.grp>.s4{grid-column:span 4}
 .grp>.full{grid-column:1/-1}
-@media (max-width:600px){.grp>.span2{grid-column:1/-1}}
+@media (max-width:980px){.grp>.s3,.grp>.s4{grid-column:1/-1}}
+@media (max-width:600px){.grp>.s2,.grp>.s3,.grp>.s4{grid-column:1/-1}}
 .k-r{color:var(--orange);font-weight:700}
 .k-c{color:var(--curve);font-weight:700}
-.k-x{color:var(--teal);font-weight:700}
+.k-t{color:var(--teal);font-weight:700}
+.disc{color:var(--grey)}
+.xdig{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92em;overflow-wrap:anywhere}
+.xdig b{font-weight:800}
+.legend{margin:6px 0 0;font-size:.88rem;line-height:1.55}
+.legend>span{display:inline-block;margin-right:14px}
+.legend i{display:inline-block;width:22px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:6px;border:2px solid}
+.legend i.ln{height:0;border-width:3px 0 0;border-radius:0;vertical-align:4px}
+.legend i.dl{height:0;border-width:3px 0 0;border-style:dashed;border-radius:0;vertical-align:4px}
+.plot-title{margin:0;font-size:.98rem;font-weight:700}
+#plot2Box{margin-top:16px}
+#tbl th{white-space:normal;vertical-align:bottom;background:linear-gradient(var(--soft),var(--soft)),var(--bg)}
+#tbl td.lft{text-align:left}
 </style>
 <link rel="stylesheet" href="../theme.css">
 </head>
@@ -23,39 +39,59 @@
 <div class="wrap">
 <header class="top">
   <h1>Rounding, chopping and error propagation</h1>
-  <p class="lede" id="lede">Chopping discards the extra digits; rounding goes to the nearest candidate, and a tie goes to the even digit. Each step keeps one digit fewer.</p>
+  <p class="lede" id="lede">&nbsp;</p>
 </header>
 <main class="layout">
   <section class="plotcard">
-    <svg class="plot" id="plot" role="img" aria-label="Number line with the candidate values, x, the rounded and the chopped value"></svg>
+    <p class="plot-title" id="plotTitle">&nbsp;</p>
+    <svg class="plot" id="plot" role="img" aria-label="Demo plot"></svg>
     <p class="plot-hint" id="plotHint">Drag to pan · scroll to zoom</p>
+    <div class="legend" id="legend"></div>
+    <div id="plot2Box">
+      <p class="plot-title" id="plot2Title">&nbsp;</p>
+      <svg class="plot static" id="plot2" role="img" aria-label="Second plot"></svg>
+      <div class="legend" id="legend2"></div>
+    </div>
   </section>
   <aside class="side">
-    <label class="field span2">Part<select id="part"><option value="round">Rounding and chopping</option><option value="prop">Error propagation (worst case)</option></select></label>
+    <label class="field span2">Part<select id="part">
+      <option value="round">1. Rounding and chopping</option>
+      <option value="accum">2. Accumulated rounding error</option>
+      <option value="prop">3. Error propagation (worst case)</option>
+    </select></label>
     <div class="grp" id="grpA">
-      <label class="field span2">Preset<select id="presetA"></select></label>
-      <label class="field span2">Number x (decimal or p/q)<input id="num" type="text" value="1.3475" spellcheck="false" autocomplete="off"></label>
-      <label class="field span2">Keep<select id="mode"><option value="dp">decimal places</option><option value="sig">significant digits</option></select></label>
-      <label class="field">n (start)<input id="n" type="number" step="1" min="0" max="30" value="3"></label>
-      <div id="numErr" class="err full"></div>
+      <label class="field s4">Preset<select id="presetA"></select></label>
+      <label class="field s2">Number x (decimal or p/q)<input id="num" type="text" value="1.3475" spellcheck="false" autocomplete="off"></label>
+      <label class="field s1">Base<select id="base"><option value="10">10 (decimal)</option><option value="2">2 (binary)</option></select></label>
+      <label class="field s1">Keep<select id="mode"><option value="dp">decimal places</option><option value="sig">significant digits</option></select></label>
+      <label class="field s1">n from<input id="n0" type="number" step="1" min="0" max="60" value="1"></label>
+      <label class="field s1">n to<input id="n1" type="number" step="1" min="0" max="60" value="4"></label>
+      <div id="errA" class="err full"></div>
     </div>
     <div class="grp" id="grpB" hidden>
-      <label class="field span2">Preset<select id="presetB"></select></label>
-      <label class="field span2">Operation f<select id="op"><option value="+">f = x + y</option><option value="-">f = x − y</option><option value="*">f = x × y</option><option value="/">f = x / y</option></select></label>
-      <label class="field">x<input id="vx" type="number" step="any" value="82.31"></label>
-      <label class="field">δx<input id="dx" type="number" step="any" min="0" value="0.05"></label>
-      <label class="field">y<input id="vy" type="number" step="any" value="21.89"></label>
-      <label class="field">δy<input id="dy" type="number" step="any" min="0" value="0.02"></label>
-      <div id="propErr" class="err full"></div>
+      <label class="field s4">Preset<select id="presetB"></select></label>
+      <label class="field s2">Constant c added each time (decimal or p/q)<input id="cval" type="text" value="0.1" spellcheck="false" autocomplete="off"></label>
+      <label class="field s2">Largest N<select id="nmax"></select></label>
+      <div id="errB" class="err full"></div>
     </div>
-    <p class="hint" id="partHint"></p>
-    <p class="hint">Keys: &rarr; step, &larr; back, p play, r reset</p>
+    <div class="grp" id="grpC" hidden>
+      <label class="field s4">Preset<select id="presetC"></select></label>
+      <label class="field s2">Operation f<select id="op"><option value="+">f = x + y</option><option value="-">f = x − y</option><option value="*">f = x × y</option><option value="/">f = x / y</option></select></label>
+      <label class="field s1">x<input id="vx" type="number" step="any" value="82.31"></label>
+      <label class="field s1">δx<input id="dx" type="number" step="any" min="0" value="0.05"></label>
+      <label class="field s1">y<input id="vy" type="number" step="any" value="21.89"></label>
+      <label class="field s1">δy<input id="dy" type="number" step="any" min="0" value="0.02"></label>
+      <div id="errC" class="err full"></div>
+    </div>
+    <p class="hint" id="partHint">&nbsp;</p>
+    <p class="hint">Keys: &rarr; step, &larr; back, p play, r reset, End show all</p>
   </aside>
   <div class="controls btns">
     <button id="btnBack" type="button" title="Back (left arrow)">&larr; Back</button>
     <button id="btnStep" type="button" class="primary" title="Step (right arrow)">Step &rarr;</button>
     <button id="btnPlay" type="button" title="Play / pause (p)">Play</button>
     <button id="btnReset" type="button" title="Reset (r)">Reset</button>
+    <button id="btnEnd" type="button" title="Show all (End)">Show all</button>
     <button id="btnResetView" type="button" title="Restore the original graph view">Reset view</button>
   </div>
   <section class="results-card">
@@ -69,11 +105,15 @@
 <script src="../demo-core.js"></script>
 <script>
 "use strict";
-/* ---------- exact decimal arithmetic (BigInt): rounding never goes through binary floats ---------- */
-const pow10=n=>10n**BigInt(n);
-const bitlen=a=>a===0n?0:a.toString(2).length;
+/* =====================================================================================
+   Exact rational arithmetic (BigInt): rounding and chopping never go through binary floats.
+   A number is {neg, N, D} with N, D > 0 coprime BigInts.
+   ===================================================================================== */
 const babs=a=>a<0n?-a:a;
+const BP=(b,n)=>BigInt(b)**BigInt(n);
+const bitlen=a=>a===0n?0:a.toString(2).length;
 function gcd(a,b){a=babs(a);b=babs(b);while(b){const t=a%b;a=b;b=t;}return a||1n;}
+/* a / b as a Number (b > 0) */
 function ratio(a,b){if(a===0n)return 0;const neg=a<0n;if(neg)a=-a;
   const sh=bitlen(b)-bitlen(a)+64;const q=sh>=0?(a<<BigInt(sh))/b:a/(b<<BigInt(-sh));
   let v=Number(q),e=-sh;while(e>900){v*=2**900;e-=900;}while(e<-900){v*=2**-900;e+=900;}v*=2**e;return neg?-v:v;}
@@ -86,205 +126,456 @@ function parseX(str){
   if(!m||(!m[2]&&!m[3]))throw new Error('Type a decimal number such as 1.3475, or a fraction such as 2/3.');
   const ip=m[2]||'',fp=m[3]||'',ex=m[4]?parseInt(m[4],10):0;
   if(Math.abs(ex)>60||(ip+fp).length>60)throw new Error('Use at most 60 digits and |exponent| ≤ 60.');
-  let N=BigInt((ip+fp)||'0'),D=pow10(fp.length);if(ex>0)N*=pow10(ex);else if(ex<0)D*=pow10(-ex);
+  let N=BigInt((ip+fp)||'0'),D=BP(10,fp.length);if(ex>0)N*=BP(10,ex);else if(ex<0)D*=BP(10,-ex);
   const g=gcd(N,D);return{neg:m[1]==='-'&&N>0n,N:N/g,D:D/g};}
-/* m × 10^−k as a decimal string */
-function decStr(m,k,neg){let s;
-  if(k<=0)s=(m*pow10(-k)).toString();else{const t=m.toString().padStart(k+1,'0');s=t.slice(0,-k)+'.'+t.slice(-k);}
-  return (neg&&m!==0n?'−':'')+s;}
-/* exact decimal of n/d if it terminates within maxDig places, else null */
-function ratDec(n,d,maxDig){if(n===0n)return '0';const g=gcd(n,d);n/=g;d/=g;let r=d,a=0,b=0;
-  while(r%2n===0n){r/=2n;a++;}while(r%5n===0n){r/=5n;b++;}if(r!==1n)return null;const k=Math.max(a,b);if(k>maxDig)return null;
-  const m=n*pow10(k)/d;return decStr(babs(m),k,m<0n);}
-/* decimal expansion of x, cut at maxSig significant digits (… if longer) */
-function showX(x,maxSig){maxSig=maxSig||24;const ex=ratDec(x.N,x.D,80);
-  if(ex&&ex.replace(/[^0-9]/g,'').replace(/^0+/,'').length<=maxSig)return (x.neg?'−':'')+ex;
-  const e=E10(x),k=Math.max(0,maxSig-1-e),t=x.N*pow10(k)/x.D;return (x.neg?'−':'')+decStr(t,k,false)+'…';}
-/* floor(log10 |x|) */
-function E10(x){let g=x.N.toString().length-x.D.toString().length;
-  const geq=g=>g>=0?x.N>=x.D*pow10(g):x.N*pow10(-g)>=x.D;
+/* floor(log_b |x|) */
+function Eb(x,b){const B=BigInt(b);let g=Math.floor(Math.log(ratio(x.N,x.D))/Math.log(b));
+  const geq=g=>g>=0?x.N>=x.D*B**BigInt(g):x.N*B**BigInt(-g)>=x.D;
   while(!geq(g))g--;while(geq(g+1))g++;return g;}
-/* keep k decimal places (k may be negative): chopped magnitude t, rounded magnitude rr (ties to even) */
-function quant(x,k){const sn=k>=0?x.N*pow10(k):x.N,sd=k>=0?x.D:x.D*pow10(-k);
+/* keep k places after the point in base b (k may be negative): chopped magnitude t, rounded rr (ties to even) */
+function quant(x,k,b){const B=BigInt(b),sn=k>=0?x.N*B**BigInt(k):x.N,sd=k>=0?x.D:x.D*B**BigInt(-k);
   const t=sn/sd,r=sn-t*sd,tie=2n*r===sd,above=2n*r>sd,up=above||(tie&&(t&1n)===1n);
   return{k,t,r,sd,tie,above,exact:r===0n,rr:up?t+1n:t,up,f:ratio(r,sd)};}
-/* ε = x − x̃ and ε_r = ε / x for x̃ = ±m × 10^−k (exact fractions) */
-function errs(x,m,k){const s=x.neg?-1n:1n;
-  const R=k>=0?{n:x.N*pow10(k)-m*x.D,d:x.D*pow10(k)}:{n:x.N-m*pow10(-k)*x.D,d:x.D};
-  return{n:s*R.n,d:R.d,e:ratio(s*R.n,R.d),er:x.N===0n?0:ratio(R.n*x.D,R.d*x.N),dec:ratDec(s*R.n,R.d,30)};}
-/* sci() with enough digits for numbers of 1 000 and above */
-function sciS(v,s){const a=Math.abs(v);return sci(v,a>=1&&a<1e6?Math.max(s||3,Math.floor(Math.log10(a))+1):s);}
-const sg=s=>String(s).replace(/-/g,'−');
-const eTxt=E=>E.n===0n?'0':(E.dec&&E.dec.replace(/[^0-9]/g,'').replace(/^0+/,'').length<=8?E.dec:sciS(E.e,3));
-const erTxt=E=>E.n===0n?'0':sci(E.er,3);
+/* ε = x − x̃ and ε_r = ε / x for x̃ = ±m × b^−k */
+function errs(x,m,k,b){const B=BigInt(b),s=x.neg?-1n:1n;
+  const R=k>=0?{n:x.N*B**BigInt(k)-m*x.D,d:x.D*B**BigInt(k)}:{n:x.N-m*B**BigInt(-k)*x.D,d:x.D};
+  return{zero:R.n===0n,e:ratio(s*R.n,R.d),er:ratio(R.n*x.D,R.d*x.N)};}
+/* m × 10^−k as a decimal string */
+function decStr(m,k,neg){let s;
+  if(k<=0)s=m===0n?'0':(m*BP(10,-k)).toString();else{const t=m.toString().padStart(k+1,'0');s=t.slice(0,-k)+'.'+t.slice(-k);}
+  return (neg&&m!==0n?'−':'')+s;}
+/* m × b^−k written in base b */
+function digStr(m,k,b,neg){let s;const t=m.toString(b);
+  if(k<=0)s=m===0n?'0':t+'0'.repeat(-k);else{const p=t.padStart(k+1,'0');s=p.slice(0,-k)+'.'+p.slice(-k);}
+  return (neg&&m!==0n?'−':'')+s;}
+/* cut a decimal string after maxSig significant digits (only after the point) */
+function cutSig(str,maxSig){let cnt=0,seen=false,pt=false;
+  for(let i=0;i<str.length;i++){const ch=str[i];if(ch==='.'){pt=true;continue;}if(!/\d/.test(ch))continue;
+    if(ch!=='0')seen=true;if(seen)cnt++;if(cnt===maxSig&&pt&&i<str.length-1)return str.slice(0,i+1)+'…';}
+  return str;}
+/* decimal value of m × 2^−k (exact; it always terminates) */
+function binDec(m,k,neg,maxSig){let s;
+  if(k<=0)s=(m*BP(2,-k)).toString();else{s=decStr(m*BP(5,k),k,false);if(s.includes('.'))s=s.replace(/0+$/,'').replace(/\.$/,'');}
+  return (neg&&m!==0n?'−':'')+cutSig(s,maxSig||20);}
+/* digits of |x| in base b: integer part and up to nFrac fractional digits */
+function expand(x,b,nFrac){const B=BigInt(b);const ip=(x.N/x.D).toString(b);let r=x.N%x.D,fr='';
+  for(let i=0;i<nFrac&&r!==0n;i++){r*=B;fr+=(r/x.D).toString(b);r%=x.D;}return{ip,fr,more:r!==0n};}
+/* decimal expansion of x for display */
+function showX(x,maxSig){const e=expand(x,10,70);let s=e.ip+(e.fr?'.'+e.fr:'');s=cutSig(s,maxSig||24);if(e.more&&!s.endsWith('…'))s+='…';return (x.neg?'−':'')+s;}
 
-/* ---------- presets ---------- */
+/* ---------- small helpers ---------- */
+const sg=s=>String(s).replace(/-/g,'−');
+const powH=(b,e)=>e===0?'1':e===1?String(b):`${b}<sup>${sg(e)}</sup>`;
+const powS=(b,e)=>`${b}<tspan dy="-0.5em" font-size="72%">${e}</tspan>`;
+const tw=(t,fs)=>String(t).replace(/<[^>]+>/g,'').length*fs*0.56;
+const thin=n=>String(n).replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+const sciA=(v,s)=>v===0?'0':sci(v,s||3);
+/* |error| values: whole numbers with thin spaces from 1000 up */
+const errA=v=>Math.abs(v)>=1000?thin(Math.round(v)):sciA(v);
+function post(){if(window.parent!==window)try{window.parent.postMessage({type:'module-demo-resize'},location.origin);}catch(e){}}
+/* filled rectangle from data x = xa to xb, with pixel half-height hh around data y */
+function rectX(p,xa,xb,y,hh,fill,op,stroke,layer){const a=p.X(Math.min(xa,xb)),b=p.X(Math.max(xa,xb)),Y=p.Y(y);
+  p.L[layer||'under'].push(`<rect x="${a}" y="${Y-hh}" width="${Math.max(0,b-a)}" height="${2*hh}" fill="${fill}" fill-opacity="${op}"${stroke?` stroke="${stroke}" stroke-width="2"`:''}/>`);}
+/* labels beside the end of lines; overlapping ones move apart vertically (as in the Class 3 demo) */
+function stackLabels(p,labels,w){const gap=p.fs+5,lo=p.m.t+p.fs+2,hi=p.m.t+p.ph-6,placed=[];
+  labels.forEach(L=>{L.right=L.X>p.m.l+p.pw-w;L.X=L.right?L.X-12:L.X+12;L.Y=Math.max(lo,Math.min(hi,L.Y+p.fs*0.35));});
+  labels.sort((u,v)=>u.Y-v.Y);
+  const clash=(L,Y)=>placed.some(q=>Math.abs(q.Y-Y)<gap&&Math.abs((q.right?q.X-w:q.X)-(L.right?L.X-w:L.X))<w);
+  for(const L of labels){let Y=L.Y;while(clash(L,Y)&&Y<=hi)Y+=gap;
+    if(Y>hi){Y=L.Y;while(clash(L,Y)&&Y>=lo)Y-=gap;}
+    L.Y=Math.max(lo,Math.min(hi,Y));placed.push(L);
+    p.ptext(L.X,L.Y,L.t,{anchor:L.right?'end':'start',c:L.c,weight:800});}}
+const narrow=()=>($('plot').parentElement.clientWidth||700)<600;
+
+const plot=new Plot($('plot')),plot2=new Plot($('plot2'));
+const view={xr:null,yr:null},panOpts={lockY:true};
+let PART='round';
+
+/* =====================================================================================
+   Part 1: rounding and chopping on a grid
+   ===================================================================================== */
 const PI40='3.141592653589793238462643383279502884197';
 const PRE_A=[
- {id:'1.3472',v:'1.3472',mode:'dp',n:3,label:'1.3472, 3 decimal places'},
- {id:'1.3477',v:'1.3477',mode:'dp',n:3,label:'1.3477, 3 decimal places'},
- {id:'1.3475',v:'1.3475',mode:'dp',n:3,label:'1.3475, 3 decimal places (a tie)'},
- {id:'1.3465',v:'1.3465',mode:'dp',n:3,label:'1.3465, 3 decimal places (a tie)'},
- {id:'pi',v:PI40,mode:'sig',n:10,label:'π (40 digits), 10 significant digits'},
- {id:'23',v:'2/3',mode:'sig',n:10,label:'2/3, 10 significant digits'},
- {id:'82.31',v:'82.31',mode:'sig',n:4,label:'82.31, 4 significant digits'},
+ {id:'tie',v:'1.3475',b:10,mode:'dp',n0:1,n1:4,label:'1.3475, 1 to 4 decimal places (a tie at 3)'},
+ {id:'tie2',v:'1.3465',b:10,mode:'dp',n0:1,n1:4,label:'1.3465, 1 to 4 decimal places (a tie at 3; 6 is even)'},
+ {id:'1.3477',v:'1.3477',b:10,mode:'dp',n0:1,n1:4,label:'1.3477, 1 to 4 decimal places'},
+ {id:'23',v:'2/3',b:10,mode:'sig',n0:1,n1:12,label:'2/3, 1 to 12 significant digits'},
+ {id:'pi',v:PI40,b:10,mode:'sig',n0:1,n1:15,label:'π, 1 to 15 significant digits'},
+ {id:'82',v:'82.31',b:10,mode:'sig',n0:1,n1:5,label:'82.31, 1 to 5 significant digits'},
+ {id:'01',v:'0.1',b:2,mode:'sig',n0:1,n1:30,label:'0.1 in binary, 1 to 30 significant bits (single precision: 24)'},
+ {id:'patriot',v:'0.1',b:2,mode:'dp',n0:1,n1:30,label:'0.1 in binary, 1 to 30 bits after the point (Patriot: 23, chopped)'},
+ {id:'03',v:'0.3',b:2,mode:'sig',n0:1,n1:16,label:'0.3 in binary, 1 to 16 significant bits (notes: 6 and 11)'},
  {id:'custom',label:'Custom: type a number'}];
+const NAMES={10:{dp:['decimal place','decimal places'],sig:['significant digit','significant digits']},
+             2:{dp:['bit after the binary point','bits after the binary point'],sig:['significant bit','significant bits']}};
+let A=null;
+function computeA(){
+  const bad=s=>({error:s});let x;
+  try{x=parseX($('num').value);}catch(e){return bad(e.message);}
+  if(x.N===0n)return bad('Use a non-zero number.');
+  const b=+$('base').value,sig=$('mode').value==='sig',n0=Math.round(num('n0')),n1=Math.round(num('n1'));
+  if(!isFinite(n0)||!isFinite(n1))return bad('Enter whole numbers for n.');
+  if(sig&&n0<1)return bad('Keep at least 1 significant '+(b===2?'bit':'digit')+'.');
+  if(n0<0)return bad('n must be 0 or more.');
+  if(n1<n0)return bad('“n to” must be at least “n from”.');
+  if(n1>60)return bad('Use n ≤ 60.');
+  const E=Eb(x,b),rows=[];
+  for(let n=n0;n<=n1;n++){const k=sig?n-1-E:n,q=quant(x,k,b);rows.push({n,k,q,R:errs(x,q.rr,k,b),C:errs(x,q.t,k,b)});}
+  return{x,b,sig,n0,n1,E,rows,one10:x.N===1n&&x.D===10n&&!x.neg};}
+/* x with the kept digits in bold and the discarded ones in grey */
+function xDigits(k){const x=A.x,b=A.b,e=expand(x,b,Math.max(k,0)+(b===2?10:6));let kept,disc;
+  if(k>=0){kept=e.ip+(k>0&&e.fr?'.'+e.fr.slice(0,k):'');disc=(k===0&&e.fr?'.':'')+e.fr.slice(k);}
+  else{const c=e.ip.length+k;kept=e.ip.slice(0,c);disc=e.ip.slice(c)+(e.fr?'.'+e.fr:'');}
+  if(e.more)disc+='…';
+  return `<span class="xdig">${x.neg?'−':''}<b>${kept}</b><span class="disc">${disc}</span>${b===2?'<sub>2</sub>':''}</span>`;}
+const valB=(m,k,neg)=>digStr(m,k,A.b,neg);
+/* table: decimal values (binary strings are in the formula panel and on the number line) */
+const valT=(m,k,neg)=>A.b===10?digStr(m,k,10,neg):binDec(m,k,neg,12);
+const valFull=(m,k,neg)=>A.b===10?digStr(m,k,10,neg):digStr(m,k,2,neg)+'<sub>2</sub> = '+binDec(m,k,neg,18);
+
+function drawLine(R){
+  const p=plot,small=narrow(),H=small?300:330,b=A.b,Q=R.q,s=A.x.neg?-1:1;
+  const uX=s*Q.f,uR=s*Number(Q.rr-Q.t),uH=s*0.5;
+  const xr=view.xr||[uH-2.1,uH+2.1];
+  p.begin(xr,[0,1],{h:H,ml:12});
+  const fs=p.fs,yA=0.25,yC=0.5,yR=0.72,yT=0.9,bh=small?8:9;
+  const pxu=p.pw/(xr[1]-xr[0]),i0=Math.ceil(xr[0]-1e-9),i1=Math.floor(xr[1]+1e-9);
+  /* number line, the finer grid of the next digit, and the values that can be stored at this precision */
+  p.seg(xr[0],yA,xr[1],yA,{c:COL.navy,w:2.5},'under');
+  if(pxu/b>=7&&(i1-i0)*b<4000)for(let i=Math.floor(xr[0]*b);i<=Math.ceil(xr[1]*b);i++){if(i%b===0)continue;const u=i/b;p.seg(u,yA-0.025,u,yA+0.025,{c:COL.grey,w:1.5},'under');}
+  const gridOK=pxu>=4&&i1-i0<3000;
+  if(gridOK)for(let i=i0;i<=i1;i++)p.seg(i,yA-0.06,i,yA+0.06,{c:COL.navy,w:3},'under');
+  /* tick labels: the value of each grid point, shortened from the left when space is short */
+  if(gridOK){const lab=i=>{const m=(A.x.neg?-Q.t:Q.t)+BigInt(i);return valB(babs(m),Q.k,m<0n);};
+    const wFull=tw(lab(0),fs-1)+16;let step=1,maxc=Infinity;
+    if(pxu<wFull){if(pxu>=72)maxc=Math.max(4,Math.floor((pxu-16)/((fs-1)*0.56)));else{for(const st of [2,5,10,20,50,100,200,500,1000,2000,5000]){step=st;if(st*pxu>=wFull)break;}}}
+    for(let i=i0;i<=i1;i++){if(i%step!==0)continue;let t=lab(i);if(t.length>maxc)t='…'+t.slice(-(maxc-1));
+      const Xp=p.X(i),hw=tw(t,fs-1)/2;if(Xp-hw<0||Xp+hw>p.W)continue;
+      p.L.front.push(`<text x="${Xp}" y="${p.Y(yA)+fs+10}" fill="${COL.navy}" font-size="${fs-1}" text-anchor="middle" font-weight="${i===0||i===s?700:500}">${t}</text>`);}}
+  /* half-way point between the two neighbouring grid values */
+  if(!Q.exact){p.seg(uH,yA-0.07,uH,yC+0.07,{c:COL.grey,w:2,dash:'5 5'},'mid');
+    const Xh=p.X(uH);if(Xh>p.m.l+30&&Xh<p.m.l+p.pw-30)p.ptext(Xh,p.Y(yA)+2*fs+16,'half-way',{c:COL.grey,weight:700,size:fs-2});}
+  /* bands: every number in a band gives the same chopped / rounded value */
+  rectX(p,0,s,yC,bh,COL.curve,0.2,COL.curve);
+  rectX(p,uR-0.5,uR+0.5,yR,bh,COL.orange,0.2,COL.orange);
+  /* drop lines from the stored values to the grid */
+  p.seg(0,yC,0,yA,{c:COL.curve,w:1.8,dash:'2 5'},'under');
+  p.seg(uR,yR,uR,yA,{c:COL.orange,w:1.8,dash:'2 5'},'under');
+  /* the errors ε = x − x̃ */
+  p.seg(0,yC,uX,yC,{c:COL.curve,w:5},'mid');p.seg(uR,yR,uX,yR,{c:COL.orange,w:5},'mid');
+  /* x */
+  p.seg(uX,yA,uX,yT-0.06,{c:COL.teal,w:3},'top');p.dot(uX,yA,6,COL.teal,'top');
+  p.ring(0,yC,8,COL.curve);p.dot(uR,yR,7.5,COL.orange,'top');
+  const Xx=p.X(uX);if(Xx>=p.m.l-2&&Xx<=p.m.l+p.pw+2)p.ptext(Xx,p.Y(yT)+4,'x',{c:COL.teal,weight:800,size:fs+2});
+  /* labels beside the bands (never on them) */
+  const bandLabel=(a,c,y,t1,t2,col)=>{const Xa=p.X(Math.min(a,c)),Xb=p.X(Math.max(a,c)),w=Math.max(tw(t1,fs),tw(t2,fs-2))+4,lo=p.m.l+2,hi=p.m.l+p.pw-2,Y=p.Y(y);
+    let X,an;if(Xa-14-w>=lo){X=Xa-14;an='end';}else if(Xb+14+w<=hi){X=Xb+14;an='start';}else{X=lo+2;an='start';}
+    p.ptext(X,Y-3,t1,{anchor:an,c:col,weight:800});p.ptext(X,Y+fs-2,t2,{anchor:an,c:col,weight:650,size:fs-2});};
+  bandLabel(0,s,yC,'chopped','|ε| < 1 unit',COL.curve);
+  bandLabel(uR-0.5,uR+0.5,yR,'rounded','|ε| ≤ ½ unit',COL.orange);
+  p.end();}
+
+function drawErrPlot(j){
+  const p=plot2,small=narrow(),H=small?240:270,b=A.b,sig=A.sig,rows=A.rows;
+  const bc=n=>sig?b**(1-n):b**(-n),br=n=>bc(n)/2,val=(r,w)=>Math.abs(sig?r[w].er:r[w].e);
+  const all=[bc(A.n0),br(A.n1)];rows.forEach(r=>{for(const w of ['R','C']){const v=val(r,w);if(v>0&&!r[w].zero)all.push(v);}});
+  const ymin=10**Math.floor(Math.log10(Math.min(...all))-0.3),ymax=10**Math.ceil(Math.log10(Math.max(...all))+0.2);
+  const Lpx=small?100:225,W=Math.max(260,p.svg.parentElement.clientWidth||600),pwEst=W-(small?50:70)-(small?12:22);
+  const U=A.n1-A.n0+1,xr=[A.n0-0.5,A.n1+0.5+Lpx*U/Math.max(60,pwEst-Lpx)];
+  p.begin(xr,[ymin,ymax],{log:true,h:H});
+  const st=Math.max(1,Math.round(niceStep(A.n1-A.n0+1,small?5:10))),xt=[];for(let n=Math.ceil(A.n0/st)*st;n<=A.n1;n+=st)xt.push(n);
+  p.axes({xticks:xt,xfmt:v=>String(v)});
+  const e1=sig?'1−n':'−n',half=small?'½·':'½ · ';
+  p.path([[A.n0,bc(A.n0)],[A.n1,bc(A.n1)]],{c:COL.curve,w:2.2,dash:'8 6'});
+  p.path([[A.n0,br(A.n0)],[A.n1,br(A.n1)]],{c:COL.orange,w:2.2,dash:'8 6'});
+  for(const [w,c] of [['C',COL.curve],['R',COL.orange]]){const pts=[];
+    for(let i=0;i<=j;i++){const r=rows[i];pts.push(r[w].zero?null:[r.n,val(r,w)]);}
+    p.path(pts,{c,w:3});pts.forEach((q,i)=>{if(q)p.dot(q[0],q[1],i===j?6.5:4.5,c,'top',i===j?null:c);});}
+  endLabels(p,[{X:p.X(A.n1),Y:p.Y(bc(A.n1)),t:(small?'':'chopping bound ')+powS(b,e1),c:COL.curve},
+               {X:p.X(A.n1),Y:p.Y(br(A.n1)),t:(small?'':'rounding bound ')+half+powS(b,e1),c:COL.orange}],{w:Lpx-14});
+  p.end();}
+
+function renderRound(j){
+  if(!A||A.error){emptyPlots();setFormula('');setStatus('bad',A?A.error:'');renderTable('tbl',[],[],-1);return;}
+  const R=A.rows[j],Q=R.q,b=A.b,neg=A.x.neg,nm=NAMES[b][A.sig?'sig':'dp'],n=R.n;
+  drawLine(R);drawErrPlot(j);
+  const rS=valFull(Q.rr,Q.k,neg),cS=valFull(Q.t,Q.k,neg);
+  const xs=b===2?' = '+showX(A.x,20):'';
+  setFormula(`<span class="line1">x = ${xDigits(Q.k)}${xs}</span>`+
+    `<span class="line2">n = <b>${n}</b> ${n===1?nm[0]:nm[1]}: grid spacing (1 unit in the last place) ${powH(b,-Q.k)}</span>`+
+    `<span class="line2"><span class="k-r">rounded</span> x̃ = <b>${rS}</b>; &nbsp;ε = ${sciA(R.R.e)}, &nbsp;ε<sub>r</sub> = ${sciA(R.R.er)}</span>`+
+    `<span class="line3"><span class="k-c">chopped</span> x̃ = <b>${cS}</b>; &nbsp;ε = ${sciA(R.C.e)}, &nbsp;ε<sub>r</sub> = ${sciA(R.C.er)}</span>`);
+  let why;const evenD=b===10?'even digit':'even bit (0)';
+  if(Q.exact)why=`Nothing is discarded: x is stored exactly with ${n} ${n===1?nm[0]:nm[1]}.`;
+  else if(Q.tie)why=`The discarded part is exactly half a unit in the last place: a tie. Rounding goes to the ${evenD}, ${Q.up?'up':'down'} to ${digStr(Q.rr,Q.k,b,neg)}.`;
+  else why=`The discarded part is ${Q.above?'more':'less'} than half a unit in the last place, so rounding goes ${Q.above?'up':'down'}${Q.above?'':' (the same as chopping)'}. Chopping always goes towards zero.`;
+  const bnd=A.sig?`Bounds: |ε<sub>r</sub>| &lt; ${powH(b,1-n)} (chopping), |ε<sub>r</sub>| ≤ ½ × ${powH(b,1-n)} (rounding).`
+    :`Bounds: |ε| &lt; ${powH(b,-n)} (chopping), |ε| ≤ ½ × ${powH(b,-n)} (rounding).`;
+  let extra='';
+  if(b===2&&A.sig&&n===24)extra=' 24 significant bits is IEEE single precision (1 + 23 stored bits): rounding gives |ε<sub>r</sub>| ≤ ε/2 = 2<sup>−24</sup> ≈ 5.96 × 10<sup>−8</sup>.';
+  if(b===2&&A.sig&&n===53)extra=' 53 significant bits is IEEE double precision (1 + 52 stored bits).';
+  if(b===2&&!A.sig&&n===23&&A.one10)extra=' This is the Patriot clock value: 0.1 chopped after 23 bits, an error of 9.54 × 10<sup>−8</sup> s at every tick (Part 2).';
+  setStatus(Q.exact?'ok':'info',why+' '+bnd+extra);
+  const head=['n',A.b===2?'rounded (decimal value)':'rounded',A.b===2?'chopped (decimal value)':'chopped','|ε| rounded','|ε| chopped','|ε<sub>r</sub>| rounded','|ε<sub>r</sub>| chopped'];
+  const rows=[];for(let i=0;i<=j;i++){const r=A.rows[i];
+    rows.push([r.n,valT(r.q.rr,r.q.k,neg),valT(r.q.t,r.q.k,neg),sciA(Math.abs(r.R.e)),sciA(Math.abs(r.C.e)),sciA(Math.abs(r.R.er)),sciA(Math.abs(r.C.er))]);}
+  renderTable('tbl',head,rows,j);}
+
+/* =====================================================================================
+   Part 2: accumulated rounding error of a running sum
+   ===================================================================================== */
 const PRE_B=[
+ {id:'patriot',c:'0.1',nmax:3600000,label:'Patriot: 0.1 s clock ticks for 100 h'},
+ {id:'million',c:'0.1',nmax:1000000,label:'Add 0.1 one million times'},
+ {id:'half',c:'0.5',nmax:1000000,label:'Add 0.5 one million times (stored exactly)'},
+ {id:'third',c:'1/3',nmax:1000000,label:'Add 1/3 one million times'},
+ {id:'custom',label:'Custom: type a constant'}];
+const NMAX=[[1000,'10³'],[10000,'10⁴'],[100000,'10⁵'],[1000000,'10⁶'],[3600000,'3.6 × 10⁶ (100 h of 0.1 s ticks)'],[10000000,'10⁷']];
+const SPEED=1676;
+let Bst=null;
+const dv=new DataView(new ArrayBuffer(8));
+/* a double as m × 2^e, exactly */
+function dblRat(v){if(v===0)return{m:0n,e:0};dv.setFloat64(0,v);const hi=dv.getUint32(0),lo=dv.getUint32(4);
+  const ex=(hi>>>20)&0x7ff;let mant=(BigInt(hi&0xfffff)<<32n)|BigInt(lo),e;
+  if(ex===0)e=-1074;else{mant|=1n<<52n;e=ex-1075;}return{m:(hi>>>31)?-mant:mant,e};}
+/* v − N·c, computed exactly, returned as a Number */
+function diffExact(v,N,c){const {m,e}=dblRat(v),Pn=(c.neg?-c.N:c.N)*BigInt(N),Q=c.D;
+  if(e>=0)return ratio((m<<BigInt(e))*Q-Pn,Q);
+  return ratio(m*Q-(Pn<<BigInt(-e)),Q<<BigInt(-e));}
+function computeB(){
+  let c;try{c=parseX($('cval').value);}catch(e){return{error:e.message};}
+  if(c.neg||c.N===0n)return{error:'Use a positive constant c.'};
+  const cn=(c.N<=2n**53n&&c.D<=2n**53n)?Number(c.N)/Number(c.D):ratio(c.N,c.D);
+  if(cn>1000)return{error:'Use c ≤ 1000.'};
+  const nmax=+$('nmax').value,steps=[];for(let N=1;N<nmax;N*=10)steps.push(N);steps.push(nmax);
+  /* sample N: every N up to 30, then about 60 per decade */
+  const set=new Set(steps);for(let N=1;N<=Math.min(30,nmax);N++)set.add(N);
+  for(let e=Math.log10(30);e<=Math.log10(nmax)+1e-9;e+=1/60)set.add(Math.min(nmax,Math.round(10**e)));
+  const S=[...set].sort((a,b)=>a-b);
+  const c32=Math.fround(cn);let s32=0,s64=0,si=0;const sN=[],v32=[],v64=[];
+  for(let N=1;N<=nmax;N++){s32=Math.fround(s32+c32);s64+=cn;if(N===S[si]){sN.push(N);v32.push(s32);v64.push(s64);si++;}}
+  const e32=sN.map((N,i)=>diffExact(v32[i],N,c)),e64=sN.map((N,i)=>diffExact(v64[i],N,c));
+  /* the Patriot register: c chopped after 23 bits after the binary point (as in the notes) */
+  const mP=(c.N<<23n)/c.D,dP=ratio((c.N<<23n)-mP*c.D,c.D<<23n);
+  const d32=diffExact(c32,1,c),d64=diffExact(cn,1,c);
+  const idx=new Map(sN.map((N,i)=>[N,i]));
+  return{c,cn,c32,nmax,steps,sN,v32,v64,e32,e64,dP,mP,d32,d64,at:N=>idx.get(N),cStr:$('cval').value.trim(),patriot:$('presetB').value==='patriot'};}
+function SER(){const B=Bst;return[{id:'s',name:'single',c:COL.curve,e:B.e32,d:B.d32},
+  {id:'d',name:'double',c:COL.teal,e:B.e64,d:B.d64},
+  {id:'p',name:B.patriot?'Patriot':'24-bit chopped',c:COL.orange,e:B.sN.map(N=>N*B.dP),d:B.dP}];}
+function drawAccum(j){
+  const p=plot,small=narrow(),B=Bst,Nj=B.steps[j],ser=SER();
+  let lo=Infinity,hi=0;for(const s of ser){for(const v of s.e){const a=Math.abs(v);if(a>0){lo=Math.min(lo,a);hi=Math.max(hi,a);}}
+    if(s.d){lo=Math.min(lo,Math.abs(s.d));hi=Math.max(hi,Math.abs(s.d)*B.nmax);}}
+  if(!(hi>0)){lo=1e-20;hi=1;}
+  const yr=view.yr||[10**Math.floor(Math.log10(lo)-0.3),10**Math.ceil(Math.log10(hi)+0.3)];
+  const W=Math.max(260,p.svg.parentElement.clientWidth||600),pwEst=W-(small?62:92),Lw=Math.max(...ser.map(s=>tw(s.name,small?15:18)))+28,frac=Math.min(0.45,Lw/pwEst);
+  const xr=view.xr||[0.7,0.7*Math.pow(B.nmax/0.7,1/(1-frac))];
+  p.begin(xr,yr,{log:true,logx:true});
+  p.axes();
+  p.vline(Nj,{c:COL.grey,w:1.5,dash:'4 6'},'under');
+  const labels=[];
+  for(const s of ser){const pts=[];
+    for(let i=0;i<B.sN.length&&B.sN[i]<=Nj;i++){const a=Math.abs(s.e[i]);pts.push(a>0?[B.sN[i],a]:null);}
+    if(s.id!=='p'&&s.d)p.path([[1,Math.abs(s.d)],[Nj,Nj*Math.abs(s.d)]],{c:s.c,w:2,dash:'3 6'});
+    p.path(pts,{c:s.c,w:3.2});
+    const a=Math.abs(s.e[B.at(Nj)]);if(a>0){p.dot(Nj,a,6.5,s.c,'top');labels.push({X:p.X(Nj),Y:p.Y(a),t:s.name,c:s.c});}}
+  stackLabels(p,labels,Lw-10);
+  p.end();}
+function renderAccum(j){
+  if(!Bst||Bst.error){emptyPlots();setFormula('');setStatus('bad',Bst?Bst.error:'');renderTable('tbl',[],[],-1);return;}
+  const B=Bst,N=B.steps[j],i=B.at(N),u=B.patriot?' s':'',last=j===B.steps.length-1;
+  drawAccum(j);
+  const exact=showX({neg:false,N:B.c.N*BigInt(N),D:B.c.D},12);
+  const eP=N*B.dP;
+  const l1=B.patriot?`N = <b>${thin(N)}</b> tick${N===1?'':'s'} of 0.1 s, t = ${sciA(N/36000,4)} h (exact time ${exact} s)`
+    :`N = <b>${thin(N)}</b> addition${N===1?'':'s'} of c = ${B.cStr}; exact sum ${exact}`;
+  const l2=`<span class="k-c">single</span>: ${fmt(B.v32[i],9)} (|error| ${errA(Math.abs(B.e32[i]))}${u}); &nbsp;<span class="k-t">double</span>: ${sg(String(B.v64[i]))} (|error| ${sciA(Math.abs(B.e64[i]))}${u})`;
+  const l3=B.patriot?`<span class="k-r">Patriot</span>: ${thin(N)} × ${sci(B.dP,3)} s = <b>${sciA(eP)} s</b>; at ${SPEED} m/s a Scud travels <b>${fmt(eP*SPEED,3)} m</b> in this time`
+    :`<span class="k-r">24-bit chopped</span>: ${thin(N)} × ${sciA(B.dP)} = <b>${sciA(eP)}</b>`;
+  setFormula(`<span class="line1">${l1}</span><span class="line2">${l2}</span><span class="line3">${l3}</span>`);
+  const allZero=B.d32===0&&B.d64===0&&B.dP===0&&B.e32.every(v=>v===0)&&B.e64.every(v=>v===0);
+  if(allZero)setStatus('ok',`c = ${B.cStr} is stored exactly in every format, and so is every partial sum: the error stays 0 (nothing to show on log axes).`);
+  else if(j===0)setStatus('info',`Error in storing c: single ${sciA(Math.abs(B.d32))}${u}, double ${sciA(Math.abs(B.d64))}${u}, 24-bit chopped ${sciA(B.dP)}${u}. Press Step (&rarr;) to multiply N by 10.`);
+  else if(B.patriot&&last)setStatus('ok',`After 100 h (${thin(N)} ticks) the Patriot clock was ${fmt(eP,3)} s behind: a Scud at ${SPEED} m/s travels about ${fmt(eP*SPEED,3)} m in that time.`);
+  else setStatus('info','Chopped: every addition adds the same error, so the error grows exactly as N × (error in c). Single precision grows faster than its dashed line: each addition is rounded too, and the spacing of the floats grows with the sum.');
+  const head=['N','single-precision sum','single |error|','double |error|',B.patriot?'Patriot |error| (s)':'24-bit chopped |error|'];if(B.patriot)head.push('distance (m)');
+  const rows=[];for(let q=0;q<=j;q++){const Nq=B.steps[q],iq=B.at(Nq),r=[thin(Nq)];
+    r.push(fmt(B.v32[iq],9),errA(Math.abs(B.e32[iq])),sciA(Math.abs(B.e64[iq])),sciA(Nq*B.dP));if(B.patriot)r.push(fmt(Nq*B.dP*SPEED,4));rows.push(r);}
+  renderTable('tbl',head,rows,j);}
+
+/* =====================================================================================
+   Part 3: worst-case error propagation
+   ===================================================================================== */
+const PRE_C=[
  {id:'sum',label:'m₁ + m₂ (two masses)',x:82.31,dx:0.05,y:21.89,dy:0.02,op:'+',nx:'m₁',ny:'m₂',nf:'m₁ + m₂',ux:'kg',uy:'kg',uf:'kg'},
  {id:'diff',label:'m₁ − m₂ (two masses)',x:82.31,dx:0.05,y:21.89,dy:0.02,op:'-',nx:'m₁',ny:'m₂',nf:'m₁ − m₂',ux:'kg',uy:'kg',uf:'kg'},
  {id:'W',label:'Weight W = m₁ g',x:82.31,dx:0.05,y:9.81,dy:0.01,op:'*',nx:'m₁',ny:'g',nf:'W',ux:'kg',uy:'m/s²',uf:'N'},
+ {id:'dp',label:'Pressure difference p₁ − p₂ (cancellation)',x:101.32,dx:0.01,y:101.30,dy:0.01,op:'-',nx:'p₁',ny:'p₂',nf:'p₁ − p₂',ux:'kPa',uy:'kPa',uf:'kPa'},
  {id:'custom',label:'Custom: type the values'}];
 const OPS={'+':'+','-':'−','*':'×','/':'/'};
-
-let PART='round',X=null,XS='',N0=3,PB=PRE_B[0],B=null;
-const view={xr:null,yr:null};
-const plot=new Plot($('plot'));
-const isSig=()=>$('mode').value==='sig';
-/* decimal places kept at step k */
-function nAt(k){return N0-k;}
-function kdp(n){return isSig()?n-1-E10(X):n;}
-
-/* ---------- Part 1: number line around x, in units of the last kept place ---------- */
-function lineFrame(p,xr,labFn,small){const m=p.m,Bk=p.L.back,fs=p.fs;
-  Bk.push(`<rect x="${m.l}" y="${m.t}" width="${p.pw}" height="${p.ph}" fill="none" stroke="${COL.grey}" stroke-width="1.5"/>`);
-  return {tick:(u,lab)=>{const Xp=p.X(u);if(Xp<m.l-0.5||Xp>m.l+p.pw+0.5)return;
-    Bk.push(`<line x1="${Xp}" y1="${m.t+p.ph}" x2="${Xp}" y2="${m.t+p.ph-6}" stroke="${COL.grey}" stroke-width="1.5"/>`);
-    const hw=String(lab==null?'':lab).replace(/<[^>]+>/g,'').length*fs*0.29+2;
-    if(lab!=null&&Xp-hw>=0&&Xp+hw<=p.W)Bk.push(`<text x="${Xp}" y="${m.t+p.ph+fs+8}" fill="${COL.navy}" font-size="${fs-1}" text-anchor="middle">${lab}</text>`);}};}
-function drawRound(n){
-  const p=plot,small=($('plot').parentElement.clientWidth||700)<600,H=small?200:240;
-  const k=kdp(n),Q=quant(X,k),sgn=X.neg?-1:1,f=Q.f;
-  const uC=-sgn*f,uR=sgn*Number(Q.rr-Q.t)-sgn*f,uH=sgn*(0.5-f);
-  const xr=view.xr||[uH-1.75,uH+1.75];
-  p.begin(xr,[0,1],{h:H,ml:16});const fr=lineFrame(p,xr,null,small);
-  /* candidate values: every multiple of the last kept place */
-  const pxu=p.pw/(xr[1]-xr[0]),i0=Math.ceil(xr[0]+sgn*f),i1=Math.floor(xr[1]+sgn*f);
-  const lab=i=>{const m=(X.neg?-Q.t:Q.t)+BigInt(i);return decStr(babs(m),k,m<0n);};
-  const wLab=(lab(0).length+1)*p.fs*0.55+18;let step=1;for(const s of [1,2,5,10,20,50,100,200,500,1000,2000,5000,1e4,2e4,5e4,1e5]){step=s;if(s*pxu>=wLab)break;}
-  if(pxu>=3&&i1-i0<4000){for(let i=i0;i<=i1;i++){const u=i-sgn*f;p.seg(u,0.38,u,0.62,{c:COL.grey,w:2});
-      const m=(X.neg?-Q.t:Q.t)+BigInt(i);fr.tick(u,(m%BigInt(step)===0n)?lab(i):null);}}
-  else p.band(xr[0],xr[1],COL.grey,0.12);
-  p.seg(xr[0],0.5,xr[1],0.5,{c:COL.navy,w:2},'under');
-  if(!Q.exact)p.seg(uH,0.3,uH,0.7,{c:COL.grey,w:2,dash:'5 5'});
-  p.ring(uC,0.5,10,COL.curve);p.dot(uR,0.5,6.5,COL.orange,'top',COL.orange);
-  p.seg(0,0.27,0,0.73,{c:COL.teal,w:3.5},'top');
-  /* labels above the line, spread so they never overlap; the half-way label below */
-  const same=Q.rr===Q.t,L=[[p.X(0),'x',COL.teal]];
-  if(same)L.push([p.X(uR),Q.exact?'rounded = chopped = x':'rounded = chopped',COL.orange]);else{L.push([p.X(uR),'rounded',COL.orange]);L.push([p.X(uC),'chopped',COL.curve]);}
-  if(Q.exact)L.splice(0,1);
-  L.sort((a,b)=>a[0]-b[0]);const XS2=spread(L.map(l=>l[0]),small?86:104,p.m.l+44,p.m.l+p.pw-44);
-  L.forEach((l,i)=>p.ptext(XS2[i],p.Y(0.84),l[1],{c:l[2],weight:800}));
-  if(!Q.exact){const Xh=Math.max(p.m.l+40,Math.min(p.m.l+p.pw-40,p.X(uH)));p.ptext(Xh,p.Y(0.13),'half-way',{c:COL.grey,weight:700,size:p.fs-2});}
-  p.end();return Q;}
-
-function renderRound(k){
-  if(!X){plot.begin([0,1],[0,1],{h:200,ml:16});plot.end();setFormula('');setStatus('bad',$('numErr').textContent);renderTable('tbl',[],[],-1);return;}
-  const n=nAt(k),Q=drawRound(n),unit=isSig()?'significant digit':'decimal place',neg=X.neg;
-  const rS=decStr(Q.rr,Q.k,neg),cS=decStr(Q.t,Q.k,neg),Er=errs(X,Q.rr,Q.k),Ec=errs(X,Q.t,Q.k);
-  const last=Q.k>0?'10<sup>−'+Q.k+'</sup>':Q.k===0?'1':'10<sup>'+(-Q.k)+'</sup>';
-  setFormula(`<span class="line1">x = <span class="k-x">${XS}</span>, keep n = <b>${n}</b> ${unit}${n===1?'':'s'} (last place ${last})</span>`+
-    `<span class="line2"><span class="k-r">rounded</span> x̃ = <b>${rS}</b>: &nbsp;ε = x − x̃ = ${eTxt(Er)}, &nbsp;ε<sub>r</sub> = ${erTxt(Er)}</span>`+
-    `<span class="line3"><span class="k-c">chopped</span> x̃ = <b>${cS}</b>: &nbsp;ε = ${eTxt(Ec)}, &nbsp;ε<sub>r</sub> = ${erTxt(Ec)}</span>`);
-  let why;
-  if(Q.exact)why=`Nothing is discarded: x already has at most ${n} ${unit}s.`;
-  else if(Q.tie)why=`The discarded part is exactly half the last place: a tie, so round to the even digit (${Q.up?'up':'down'} to ${rS}).`;
-  else why=`The discarded part is ${Q.above?'more':'less'} than half the last place: round ${Q.above?'up':'down'}. Chopping always goes towards zero.`;
-  setStatus(Q.exact?'ok':'info',why);
-  const head=['n','rounded','chopped','|ε| rounded','|ε<sub>r</sub>| rounded','|ε| chopped','|ε<sub>r</sub>| chopped'];
-  const rows=[];for(let j=0;j<=k;j++){const nn=nAt(j),q=quant(X,kdp(nn)),a=errs(X,q.rr,q.k),b=errs(X,q.t,q.k);
-    const ab=E=>({...E,n:babs(E.n),e:Math.abs(E.e),er:Math.abs(E.er),dec:E.dec?E.dec.replace('−',''):null});
-    rows.push([nn,decStr(q.rr,q.k,neg),decStr(q.t,q.k,neg),eTxt(ab(a)),erTxt(ab(a)),eTxt(ab(b)),erTxt(ab(b))]);}
-  renderTable('tbl',head,rows,k);}
-
-/* ---------- Part 2: worst-case propagation, drawn to scale ---------- */
-function readB(){const x=num('vx'),dx=num('dx'),y=num('vy'),dy=num('dy'),op=$('op').value;
+let PC=PRE_C[0],Cst=null;
+function readC(){const x=num('vx'),dx=num('dx'),y=num('vy'),dy=num('dy'),op=$('op').value;
   if(![x,dx,y,dy].every(isFinite))return{error:'Enter numbers for x, δx, y and δy.'};
   if(dx<0||dy<0)return{error:'δx and δy are error bounds: use values ≥ 0.'};
   const rel=op==='*'||op==='/';
   if(rel&&(x===0||y===0))return{error:'Relative errors need x ≠ 0 and y ≠ 0.'};
   if(op==='/'&&Math.abs(y)<=dy)return{error:'The interval of y contains 0: x / y is unbounded.'};
-  const f=op==='+'?x+y:op==='-'?x-y:op==='*'?x*y:x/y;
-  const ends=[];for(const a of [x-dx,x+dx])for(const b of [y-dy,y+dy])ends.push(op==='+'?a+b:op==='-'?a-b:op==='*'?a*b:a/b);
-  const rx=dx/Math.abs(x),ry=dy/Math.abs(y),df=rel?Math.abs(f)*(rx+ry):dx+dy;
-  return{x,dx,y,dy,op,f,df,rel,rx,ry,rf:f!==0?df/Math.abs(f):Infinity,lo:Math.min(...ends),hi:Math.max(...ends)};}
-const F7=v=>fmt(v,7),F3=v=>fmt(v,3);
+  /* results rounded to 12 significant digits of the inputs' scale, so binary round-off (e.g. 101.32 − 101.30) does not show */
+  const scale=rel?1:Math.max(Math.abs(x),Math.abs(y),dx,dy),cln=v=>Math.abs(v)<1e-12*(rel?Math.abs(v)||1:scale)?0:+v.toPrecision(12);
+  const F=(a,b)=>cln(op==='+'?a+b:op==='-'?a-b:op==='*'?a*b:a/b),f=F(x,y);
+  const corners=[];for(const sx of [1,-1])for(const sy of [1,-1])corners.push({sx,sy,v:F(x+sx*dx,y+sy*dy)});
+  const rx=dx/Math.abs(x),ry=dy/Math.abs(y),df=cln(rel?Math.abs(f)*(rx+ry):dx+dy);
+  const lo=Math.min(...corners.map(q=>q.v)),hi=Math.max(...corners.map(q=>q.v));
+  return{x,dx,y,dy,op,f,df,rel,rx,ry,rf:f!==0?df/Math.abs(f):Infinity,lo,hi,corners,rt:f!==0?Math.max(hi-f,f-lo)/Math.abs(f):Infinity};}
+const F7=v=>fmt(v,7),F3=v=>fmt(v,3),R3=v=>sciA(v,3),OFF=v=>v===0?'0':(v>0?'+':'−')+F3(Math.abs(v));
 function drawProp(k){
-  const p=plot,small=($('plot').parentElement.clientWidth||700)<600,H=small?260:300,b=B;
-  /* ± : absolute offsets (same units for every row); × ÷ : relative offsets */
+  const p=plot,small=narrow(),H=small?360:380,b=Cst,P0=PC;
   const sc=(v,c)=>b.rel?v/Math.abs(c):v;
-  const rows=[{y:2.5,h:sc(b.dx,b.x),c:COL.curve,t:`${PB.nx} = ${F7(b.x)} ± ${F7(b.dx)} ${PB.ux}`,on:true},
-    {y:1.5,h:sc(b.dy,b.y),c:COL.curve,t:`${PB.ny} = ${F7(b.y)} ± ${F7(b.dy)} ${PB.uy}`,on:k>=1},
-    {y:0.5,h:sc(b.df,b.f),c:COL.orange,t:`${PB.nf} = ${F7(b.f)} ± ${F3(b.df)} ${PB.uf}`,on:k>=2}];
+  const rows=[{y:3.8,h:sc(b.dx,b.x),c:COL.curve,t:`${P0.nx} = ${F7(b.x)} ± ${F7(b.dx)} ${P0.ux}`,lo:b.x-b.dx,hi:b.x+b.dx,on:true},
+    {y:2.85,h:sc(b.dy,b.y),c:COL.curve,t:`${P0.ny} = ${F7(b.y)} ± ${F7(b.dy)} ${P0.uy}`,lo:b.y-b.dy,hi:b.y+b.dy,on:k>=1},
+    {y:1.9,h:sc(b.df,b.f),c:COL.orange,t:`${P0.nf} = ${F7(b.f)} ± ${F3(b.df)} ${P0.uf} (worst case)`,lo:b.f-b.df,hi:b.f+b.df,on:k>=2}];
   const tlo=sc(b.lo-b.f,b.f),thi=sc(b.hi-b.f,b.f),M=Math.max(rows[0].h,rows[1].h,rows[2].h,Math.abs(tlo),Math.abs(thi))||1;
-  const xr=view.xr||[-1.35*M,1.35*M];
-  p.begin(xr,[-0.32,3.2],{h:H,ml:16});const fr=lineFrame(p,xr,null,small);
-  for(const t of ticks(xr[0],xr[1],Math.max(3,Math.round(p.pw/(small?80:110)))))fr.tick(t,b.rel?(t>0?'+':'')+sg(fmt(100*t,3))+'%':(t>0?'+':'')+sg(fmt(t,3)));
-  for(const r of rows){if(!r.on)continue;
-    p.seg(-r.h,r.y,r.h,r.y,{c:r.c,w:9});
-    for(const e of [-r.h,r.h])p.seg(e,r.y-0.13,e,r.y+0.13,{c:r.c,w:2.5});
+  const xr=view.xr||(small?[-2.2*M,2.2*M]:[-1.8*M,1.8*M]);
+  p.begin(xr,[0,4.5],{h:H,ml:12});
+  const fs=p.fs,yA=0.3,uy=4.5/p.ph;
+  /* offset axis with faint grid lines */
+  p.seg(xr[0],yA,xr[1],yA,{c:COL.navy,w:2},'under');
+  for(const t of ticks(xr[0],xr[1],Math.max(3,Math.round(p.pw/(small?85:110))))){p.seg(t,yA-5*uy,t,yA+5*uy,{c:COL.navy,w:2},'under');
+    const lab=b.rel?(t>0?'+':'')+sg(fmt(100*t,3))+' %':(t>0?'+':'')+sg(fmt(t,3));const X=p.X(t);
+    if(X-tw(lab,fs-2)/2>=0&&X+tw(lab,fs-2)/2<=p.W)p.L.front.push(`<text x="${X}" y="${p.Y(yA)+fs+8}" fill="${COL.navy}" font-size="${fs-2}" text-anchor="middle">${lab}</text>`);}
+  for(const r of rows){if(!r.on)continue;const tc=r.c===COL.orange?COL.orange:COL.navy;
+    rectX(p,-r.h,r.h,r.y,5,r.c,1,null,'mid');
+    for(const e of [-r.h,r.h])p.seg(e,r.y-9*uy,e,r.y+9*uy,{c:r.c,w:2.5});
     p.dot(0,r.y,5,COL.navy,'top');
-    p.ptext(p.m.l+10,p.Y(r.y+0.38),r.t,{anchor:'start',c:r.c===COL.orange?COL.orange:COL.navy,weight:750,size:p.fs-1});}
-  if(k>=3){const yy=0.5-0.27;p.seg(tlo,yy,thi,yy,{c:COL.teal,w:4});for(const e of [tlo,thi])p.seg(e,yy-0.08,e,yy+0.08,{c:COL.teal,w:2.5});
-    p.ptext(p.m.l+p.pw-10,p.Y(-0.2),'true range (interval ends)',{anchor:'end',c:COL.teal,weight:750,size:p.fs-2});}
+    p.ptext(p.m.l+4,p.Y(r.y)-17,r.t,{anchor:'start',c:tc,weight:750,size:fs-1});
+    p.ptext(p.X(-r.h)-10,p.Y(r.y)+fs*0.35,F7(r.lo),{anchor:'end',c:tc,weight:700,size:fs-2});
+    p.ptext(p.X(r.h)+10,p.Y(r.y)+fs*0.35,F7(r.hi),{anchor:'start',c:tc,weight:700,size:fs-2});}
+  if(k>=3){const yy=1.0;rectX(p,tlo,thi,yy,3,COL.teal,1,null,'mid');
+    for(const e of [tlo,thi])p.seg(e,yy-8*uy,e,yy+8*uy,{c:COL.teal,w:2.5});
+    for(const q of b.corners)p.dot(sc(q.v-b.f,b.f),yy,5,COL.teal,'top');
+    p.ptext(p.m.l+4,p.Y(yy)-15,'true extremes (the 4 corners)',{anchor:'start',c:COL.teal,weight:750,size:fs-2});
+    p.ptext(p.X(tlo)-10,p.Y(yy)+fs*0.35,F7(b.lo),{anchor:'end',c:COL.teal,weight:700,size:fs-2});
+    p.ptext(p.X(thi)+10,p.Y(yy)+fs*0.35,F7(b.hi),{anchor:'start',c:COL.teal,weight:700,size:fs-2});}
+  p.end();}
+function drawRelBars(k){
+  const p=plot2,small=narrow(),b=Cst,P0=PC,H=small?270:280;
+  const pc=v=>isFinite(v)?`${fmt(100*v,3)} %`:'∞';
+  const rows=[{t:`${P0.nx}: δ${P0.nx} / |${P0.nx}|`,v:b.rx,c:COL.curve,on:true},{t:`${P0.ny}: δ${P0.ny} / |${P0.ny}|`,v:b.ry,c:COL.curve,on:k>=1},
+    {t:`${P0.nf}: worst-case bound δf / |f|`,v:b.rf,c:COL.orange,on:k>=2},{t:`${P0.nf}: true extremes`,v:b.rt,c:COL.teal,on:k>=3}];
+  const vmax=Math.max(...rows.map(r=>isFinite(r.v)?r.v:0))||1,valW=small?80:110;
+  const W=Math.max(260,p.svg.parentElement.clientWidth||600),pw=W-12-(small?12:22);
+  p.begin([0,vmax*pw/Math.max(40,pw-valW)],[0,4.3],{h:H,ml:12});
+  const fs=p.fs,uy=4.3/p.ph,yA=0.3;
+  p.seg(0,yA,p.xr[1],yA,{c:COL.navy,w:2},'under');
+  for(const t of ticks(0,p.xr[1],Math.max(3,Math.round(p.pw/(small?85:110))))){if(t<0)continue;p.seg(t,yA-5*uy,t,yA+5*uy,{c:COL.navy,w:2},'under');
+    const lab=sg(fmt(100*t,3))+' %',X=p.X(t),hw=tw(lab,fs-2)/2;if(X+hw<=p.W&&X-hw>=0)p.L.front.push(`<text x="${X}" y="${p.Y(yA)+fs+8}" fill="${COL.navy}" font-size="${fs-2}" text-anchor="middle">${lab}</text>`);}
+  rows.forEach((r,i)=>{if(!r.on)return;const y=3.65-i*0.9,v=isFinite(r.v)?r.v:p.xr[1],tc=r.c===COL.curve?COL.navy:r.c;
+    rectX(p,0,v,y,7,r.c,0.85,null,'mid');
+    p.ptext(p.m.l+4,p.Y(y)-16,r.t,{anchor:'start',c:tc,weight:700,size:fs-2});
+    p.ptext(p.X(v)+8,p.Y(y)+fs*0.35,pc(r.v),{anchor:'start',c:tc,weight:750,size:fs-2});});
   p.end();}
 function renderProp(k){
-  if(!B||B.error){plot.begin([0,1],[0,1],{h:200,ml:16});plot.end();setFormula('');setStatus('bad',B?B.error:'');renderTable('tbl',[],[],-1);return;}
-  drawProp(k);const b=B,P=PB,o=OPS[b.op];
+  if(!Cst||Cst.error){emptyPlots();setFormula('');setStatus('bad',Cst?Cst.error:'');renderTable('tbl',[],[],-1);return;}
+  drawProp(k);drawRelBars(k);const b=Cst,P0=PC,o=OPS[b.op];
   const iv=(c,d)=>`[${F7(c-d)}, ${F7(c+d)}]`;
   let l1,l2,l3;
-  if(k===0){l1=`x: ${P.nx} = ${F7(b.x)} ± ${F7(b.dx)} ${P.ux}`;l2=`${P.nx} lies somewhere in ${iv(b.x,b.dx)}: an interval of width 2δx.`;l3='&nbsp;';}
-  else if(k===1){l1=`y: ${P.ny} = ${F7(b.y)} ± ${F7(b.dy)} ${P.uy}`;l2=`${P.ny} lies somewhere in ${iv(b.y,b.dy)}.`;l3=`Worst case: assume the two errors combine to the largest possible error.`;}
-  else{l1=`f = ${P.nf==='f'?'x '+o+' y':P.nf} = ${F7(b.x)} ${o} ${F7(b.y)} = <b>${F7(b.f)}</b> ${P.uf}`;
-    if(!b.rel){l2=`δf = δx + δy = ${F7(b.dx)} + ${F7(b.dy)} = <b>${F3(b.df)}</b> ${P.uf}`;}
-    else l2=`δf/|f| = δx/|x| + δy/|y| = ${F7(b.dx)}/${F7(Math.abs(b.x))} + ${F7(b.dy)}/${F7(Math.abs(b.y))} = ${F3(b.rx)} + ${F3(b.ry)} = <b>${F3(b.rf)}</b>`;
-    l3=(b.rel?`δf = ${F3(b.rf)} × ${F7(Math.abs(b.f))} = ${F3(b.df)} ${P.uf}, so `:'')+`<span class="k-r">${P.nf} = ${F7(b.f)} ± ${F3(b.df)} ${P.uf}</span>`;}
+  if(k===0){l1=`x: ${P0.nx} = ${F7(b.x)} ± ${F7(b.dx)} ${P0.ux}`;l2=`${P0.nx} lies somewhere in ${iv(b.x,b.dx)}, an interval of width 2δx.`;l3=`Relative error δx/|x| = ${R3(b.rx)} = ${F3(100*b.rx)} %`;}
+  else if(k===1){l1=`y: ${P0.ny} = ${F7(b.y)} ± ${F7(b.dy)} ${P0.uy}`;l2=`${P0.ny} lies somewhere in ${iv(b.y,b.dy)}; δy/|y| = ${R3(b.ry)}.`;l3=`Worst case: the two errors combine to give the largest possible error.`;}
+  else{l1=`f = ${P0.nf==='f'?'x '+o+' y':P0.nf} = ${F7(b.x)} ${o} ${F7(b.y)} = <b>${F7(b.f)}</b> ${P0.uf}`;
+    if(!b.rel)l2=`δf = δx + δy = ${F7(b.dx)} + ${F7(b.dy)} = <b>${F3(b.df)}</b> ${P0.uf}`;
+    else l2=`δf/|f| = δx/|x| + δy/|y| = ${R3(b.rx)} + ${R3(b.ry)} = <b>${R3(b.rf)}</b>`;
+    l3=(b.rel?`δf = ${R3(b.rf)} × ${F7(Math.abs(b.f))} = ${F3(b.df)} ${P0.uf}, so `:'')+`<span class="k-r">${P0.nf} = ${F7(b.f)} ± ${F3(b.df)} ${P0.uf}</span>`;}
   setFormula(`<span class="line1">${l1}</span><span class="line2">${l2}</span><span class="line3">${l3}</span>`);
-  if(k<2)setStatus('info',`Step ${k} of ${S.last}. Press Step (&rarr;) to ${k===0?'add the second value':'combine the errors'}.`);
-  else if(k===2)setStatus('ok',`Worst case: ${b.rel?'relative errors add':'absolute errors add'}. ${P.nf} = ${F7(b.f)} ± ${F3(b.df)} ${P.uf}`);
-  else{const dlo=b.f-b.lo,dhi=b.hi-b.f;
-    if(!b.rel)setStatus('ok',`From the interval ends: ${P.nf} ∈ [${F7(b.lo)}, ${F7(b.hi)}], exactly f ± δf: for + and − the worst-case bound is the true range.`);
-    else setStatus('info',`From the interval ends: ${P.nf} ∈ [${F7(b.lo)}, ${F7(b.hi)}], i.e. f − ${fmt(dlo,5)} to f + ${fmt(dhi,5)}. The first-order bound δf = ${fmt(b.df,5)} drops terms of order δx·δy${b.op==='*'?' (here δx·δy = '+fmt(b.dx*b.dy,3)+')':''}, so it is approximate.`);}
-  const rowsT=[[P.nx,F7(b.x),F7(b.dx),F3(b.dx/Math.abs(b.x)),iv(b.x,b.dx)]];
-  if(k>=1)rowsT.push([P.ny,F7(b.y),F7(b.dy),F3(b.dy/Math.abs(b.y)),iv(b.y,b.dy)]);
-  if(k>=2)rowsT.push([P.nf+' (worst case)',F7(b.f),F3(b.df),b.f!==0?F3(b.rf):'—',iv(b.f,b.df)]);
-  if(k>=3)rowsT.push([P.nf+' (interval ends)',F7(b.f),'−'+F3(b.f-b.lo)+', +'+F3(b.hi-b.f),'—',`[${F7(b.lo)}, ${F7(b.hi)}]`]);
-  renderTable('tbl',['quantity','value','δ','δ / |value|','interval'],rowsT,-1,{cellClass:i=>i===k?'new':''});}
+  const cancel=!b.rel&&isFinite(b.rf)&&b.rf>10*Math.max(b.rx,b.ry);
+  if(k<2)setStatus('info',`Step ${k} of 3. Press Step (&rarr;) to ${k===0?'add the second value':'combine the errors'}.`);
+  else if(k===2)setStatus(cancel?'bad':'ok',`Worst case: ${b.rel?'relative errors add':'absolute errors add'}. ${P0.nf} = ${F7(b.f)} ± ${F3(b.df)} ${P0.uf}.`+
+    (cancel?` Cancellation: the absolute error is small, but so is the difference, so its relative error (${fmt(100*b.rf,3)} %) is far larger than that of either input.`:''));
+  else{const best=b.corners.reduce((a,q)=>Math.abs(q.v-b.f)>Math.abs(a.v-b.f)+1e-12?q:a);
+    const cs=q=>`${P0.nx} ${q.sx>0?'+':'−'} δ${P0.nx}, ${P0.ny} ${q.sy>0?'+':'−'} δ${P0.ny}`;
+    if(!b.rel)setStatus('ok',`The 4 corners give ${P0.nf} ∈ [${F7(b.lo)}, ${F7(b.hi)}], exactly f ± δf: for + and − the worst-case bound is reached (for example at ${cs(best)}).`);
+    else setStatus('info',`The 4 corners give ${P0.nf} ∈ [${F7(b.lo)}, ${F7(b.hi)}], from f − ${fmt(b.f-b.lo,4)} to f + ${fmt(b.hi-b.f,4)}. The bound δf = ${fmt(b.df,4)} is first order: it drops the δx·δy term, so for × and ÷ it is approximate.`);}
+  const rowsT=[[P0.nx,F7(b.x),F7(b.dx),R3(b.rx),iv(b.x,b.dx)]];
+  if(k>=1)rowsT.push([P0.ny,F7(b.y),F7(b.dy),R3(b.ry),iv(b.y,b.dy)]);
+  if(k>=2)rowsT.push([P0.nf+' (worst case)',F7(b.f),F3(b.df),isFinite(b.rf)?R3(b.rf):'—',iv(b.f,b.df)]);
+  if(k>=3){for(const q of b.corners)rowsT.push([`corner ${P0.nx} ${q.sx>0?'+':'−'} δ${P0.nx}, ${P0.ny} ${q.sy>0?'+':'−'} δ${P0.ny}`,F7(q.v),OFF(+(q.v-b.f).toPrecision(10)),'','']);
+    rowsT.push([P0.nf+' (true extremes)',F7(b.f),'−'+F3(+(b.f-b.lo).toPrecision(10))+', +'+F3(+(b.hi-b.f).toPrecision(10)),isFinite(b.rt)?R3(b.rt):'—',`[${F7(b.lo)}, ${F7(b.hi)}]`]);}
+  renderTable('tbl',['quantity','value','δ (offset)','δ / |value|','interval'],rowsT,Math.min(k,2)===k?k:rowsT.length-1);
+  $('tbl').querySelectorAll('td:first-child').forEach(td=>td.classList.add('lft'));}
 
-/* ---------- wiring ---------- */
-function render(k){if(PART==='round')renderRound(k);else renderProp(k);}
-const S=Stepper(render);S.delay=1300;
-/* a new step changes the unit of the number line, so the view resets */
+/* =====================================================================================
+   Wiring
+   ===================================================================================== */
+function emptyPlots(){plot.begin([0,1],[0,1],{h:200,ml:12});plot.end();plot2.begin([0,1],[0,1],{h:120,ml:12});plot2.end();}
+function render(k){if(PART==='round')renderRound(k);else if(PART==='accum')renderAccum(k);else renderProp(k);post();}
+const S=Stepper(render);S.delay=1100;
+/* in Part 1 every step changes the unit of the number line, so the view resets */
 const set0=S.set;S.set=k=>{if(PART==='round'&&k!==S.k){view.xr=null;view.yr=null;}set0(k);};
-function recomputeA(){$('numErr').textContent='';
-  try{X=parseX($('num').value);if(X.N===0n)throw new Error('Use a non-zero number.');}catch(e){X=null;$('numErr').textContent=e.message;}
-  N0=Math.max(isSig()?1:0,Math.min(30,Math.round(num('n'))||0));
-  const P=PRE_A.find(q=>q.id===$('presetA').value);
-  XS=X?(P&&P.id==='pi'?'π = '+showX(X,24):P&&P.id==='23'?'2/3 = '+showX(X,24):showX(X,30)):'';
-  S.last=X?(isSig()?N0-1:N0):0;view.xr=view.yr=null;S.pause();set0(0);}
-function recomputeB(){B=readB();$('propErr').textContent=B.error||'';view.xr=view.yr=null;S.last=3;S.pause();set0(0);}
-function setPart(){PART=$('part').value;$('grpA').hidden=PART!=='round';$('grpB').hidden=PART==='round';
-  $('lede').textContent=PART==='round'?'Chopping discards the extra digits; rounding goes to the nearest candidate, and a tie goes to the even digit. Each step keeps one digit fewer.'
-    :'Worst case: the errors conspire. Absolute errors add for + and −; relative errors add for × and ÷. Each step adds one piece.';
-  $('partHint').textContent=PART==='round'?'Every row rounds the original x (never a rounded value again). Grey ticks: the candidate values at that precision.'
-    :'Bars are drawn to scale: absolute offsets for + and −, relative offsets (%) for × and ÷.';
-  $('plot').setAttribute('aria-label',PART==='round'?'Number line with the candidate values, x, the rounded and the chopped value':'Intervals of the two inputs and of the result, drawn to scale');
-  if(PART==='round')recomputeA();else recomputeB();}
-function applyB(P){PB=P;$('vx').value=P.x;$('dx').value=P.dx;$('vy').value=P.y;$('dy').value=P.dy;$('op').value=P.op;recomputeB();}
-function customB(){const op=OPS[$('op').value];PB={id:'custom',nx:'x',ny:'y',nf:'f',ux:'',uy:'',uf:''};$('presetB').value='custom';recomputeB();}
-fillSelect('presetA',PRE_A);fillSelect('presetB',PRE_B);$('presetA').value='1.3475';
-onSelectChange('part',setPart);
-onSelectChange('presetA',()=>{const P=PRE_A.find(q=>q.id===$('presetA').value);if(!P.v){$('num').focus();return;}
-  $('num').value=P.v;$('mode').value=P.mode;$('n').value=P.n;recomputeA();});
+function restart(){view.xr=view.yr=null;S.pause();set0(0);}
+function recomputeA(){A=computeA();$('errA').textContent=A.error||'';S.last=A.error?0:A.rows.length-1;restart();}
+function recomputeB(){Bst=computeB();$('errB').textContent=Bst.error||'';S.last=Bst.error?0:Bst.steps.length-1;restart();}
+function recomputeC(){Cst=readC();$('errC').textContent=Cst.error||'';S.last=3;restart();}
+function keepLabels(){const b=+$('base').value,v=$('mode').value;
+  $('mode').innerHTML=`<option value="dp">${b===10?'decimal places':'bits after the point'}</option><option value="sig">${b===10?'significant digits':'significant bits'}</option>`;$('mode').value=v;}
+const LEDE={round:'Chopping keeps the first n digits and discards the rest; rounding goes to the nearest value on the grid, and a tie goes to the even digit. Each step keeps one more digit, so the grid becomes 10 (or 2) times finer.',
+  accum:'A constant c is stored with a small error and then added N times. The error of the running sum grows with N. Each step multiplies N by 10.',
+  prop:'Worst case: the errors combine to give the largest possible error. Absolute errors add for + and −; relative errors add for × and ÷. Each step adds one piece.'};
+const HINT={round:'Every row rounds or chops the original x. Large ticks: the values that can be stored with n digits; small ticks: the next digit. 1 unit = the spacing of the large ticks.',
+  accum:'Solid: |error| of the running sum against the exact sum N·c. Dashed: N × (error in storing c), the growth if only the stored c were wrong.',
+  prop:'Bars are drawn to scale as offsets from the central value: absolute for + and −, relative (%) for × and ÷.'};
+const TITLE={round:'Number line around x',accum:'|Error of the running sum| against N (log–log)',prop:'Intervals of the inputs and of the result'};
+function setLegend(){
+  const sw=(c,cls)=>`<i class="${cls||''}" style="border-color:${c};${cls?'':'background:'+c+'33'}"></i>`;
+  if(PART==='round'){$('legend').innerHTML=`<span>${sw(COL.teal,'ln')}x</span><span>${sw(COL.curve)}chopped: every number in the band chops to the same value</span><span>${sw(COL.orange)}rounded: every number in the band rounds to the same value</span><span>${sw(COL.grey,'dl')}half-way</span><span>solid segment: the error ε = x − x̃</span>`;
+    const sig=$('mode').value==='sig';
+    $('plot2Title').innerHTML=(sig?'Relative error |ε<sub>r</sub>|':'Absolute error |ε|')+' against n (log scale), with the error bounds';
+    $('legend2').innerHTML=`<span>${sw(COL.orange,'ln')}rounding</span><span>${sw(COL.curve,'ln')}chopping</span><span>${sw(COL.grey,'dl')}bounds</span><span>no point: error 0 (x stored exactly)</span>`;}
+  else if(PART==='accum'){$('legend').innerHTML=`<span>${sw(COL.curve,'ln')}single precision (Math.fround)</span><span>${sw(COL.teal,'ln')}double precision</span><span>${sw(COL.orange,'ln')}24-bit register, c chopped after 23 bits (Patriot)</span><span>${sw(COL.grey,'dl')}N × (error in storing c)</span>`;}
+  else{$('legend').innerHTML=`<span>${sw(COL.curve,'ln')}inputs x ± δx, y ± δy</span><span>${sw(COL.orange,'ln')}worst-case bound f ± δf</span><span>${sw(COL.teal,'ln')}true extremes over the 4 corners</span><span>• central value</span>`;
+    $('plot2Title').textContent='Relative errors';$('legend2').innerHTML='';}}
+function setPart(){PART=$('part').value;
+  $('grpA').hidden=PART!=='round';$('grpB').hidden=PART!=='accum';$('grpC').hidden=PART!=='prop';$('plot2Box').hidden=PART==='accum';
+  $('lede').textContent=LEDE[PART];$('partHint').textContent=HINT[PART];$('plotTitle').textContent=TITLE[PART];
+  $('plot').setAttribute('aria-label',TITLE[PART]);panOpts.lockY=PART!=='accum';S.delay=PART==='prop'?1300:1100;
+  try{history.replaceState(null,'','#'+PART);}catch(e){}
+  setLegend();if(PART==='round')recomputeA();else if(PART==='accum')recomputeB();else recomputeC();}
+
+/* Part 1 controls */
+fillSelect('presetA',PRE_A);
+function applyA(){const P0=PRE_A.find(q=>q.id===$('presetA').value);if(!P0.v){$('num').focus();return;}
+  $('num').value=P0.v;$('base').value=String(P0.b);keepLabels();$('mode').value=P0.mode;$('n0').value=P0.n0;$('n1').value=P0.n1;setLegend();recomputeA();}
+onSelectChange('presetA',applyA);
 $('num').addEventListener('input',debounce(()=>{$('presetA').value='custom';recomputeA();},300));
 $('num').addEventListener('keydown',e=>{if(e.key==='Enter')e.target.blur();});
-onSelectChange('mode',()=>{$('presetA').value='custom';if(isSig()&&num('n')<1)$('n').value=1;recomputeA();});
-onNumber('n',debounce(()=>{$('presetA').value='custom';recomputeA();},250));
-onSelectChange('presetB',()=>{const P=PRE_B.find(q=>q.id===$('presetB').value);if(P.id==='custom'){customB();return;}applyB(P);});
-for(const id of ['vx','dx','vy','dy'])onNumber(id,debounce(customB,300));
-onSelectChange('op',customB);
-enablePanZoom(plot,view,()=>S.show(),{lockY:true});
+onSelectChange('base',()=>{$('presetA').value='custom';keepLabels();recomputeA();});
+onSelectChange('mode',()=>{$('presetA').value='custom';if($('mode').value==='sig'&&num('n0')<1)$('n0').value=1;setLegend();recomputeA();});
+for(const id of ['n0','n1'])onNumber(id,debounce(()=>{$('presetA').value='custom';recomputeA();},300));
+/* Part 2 controls */
+fillSelect('presetB',PRE_B);$('nmax').innerHTML=NMAX.map(([v,t])=>`<option value="${v}">${t}</option>`).join('');
+function applyB(){const P0=PRE_B.find(q=>q.id===$('presetB').value);if(!P0.c){$('cval').focus();return;}$('cval').value=P0.c;$('nmax').value=String(P0.nmax);recomputeB();}
+onSelectChange('presetB',applyB);
+$('cval').addEventListener('input',debounce(()=>{$('presetB').value='custom';recomputeB();},400));
+$('cval').addEventListener('keydown',e=>{if(e.key==='Enter')e.target.blur();});
+onSelectChange('nmax',recomputeB);
+/* Part 3 controls */
+fillSelect('presetC',PRE_C);
+function applyC(P0){PC=P0;$('vx').value=P0.x;$('dx').value=P0.dx;$('vy').value=P0.y;$('dy').value=P0.dy;$('op').value=P0.op;recomputeC();}
+function customC(){PC={id:'custom',nx:'x',ny:'y',nf:'f',ux:'',uy:'',uf:''};$('presetC').value='custom';recomputeC();}
+onSelectChange('presetC',()=>{const P0=PRE_C.find(q=>q.id===$('presetC').value);if(P0.id==='custom'){customC();return;}applyC(P0);});
+for(const id of ['vx','dx','vy','dy'])onNumber(id,debounce(customC,300));
+onSelectChange('op',customC);
+
+onSelectChange('part',setPart);
+enablePanZoom(plot,view,()=>S.show(),panOpts);
 bindViewControls([view],()=>S.show());
-setPart();
+onThemeChange(setLegend);
+/* start: the part can be chosen with the URL hash (#round, #accum, #prop) */
+(function(){const h=(location.hash||'').slice(1);$('part').value=['round','accum','prop'].includes(h)?h:'round';
+  const pa=PRE_A[0];$('presetA').value=pa.id;$('num').value=pa.v;$('base').value='10';keepLabels();$('mode').value=pa.mode;$('n0').value=pa.n0;$('n1').value=pa.n1;
+  $('presetB').value=PRE_B[0].id;$('cval').value=PRE_B[0].c;$('nmax').value=String(PRE_B[0].nmax);
+  PC=PRE_C[0];$('presetC').value=PC.id;$('vx').value=PC.x;$('dx').value=PC.dx;$('vy').value=PC.y;$('dy').value=PC.dy;$('op').value=PC.op;
+  setPart();})();
+window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(['round','accum','prop'].includes(h)&&h!==PART){$('part').value=h;setPart();}});
 </script>
 </body>
 </html>

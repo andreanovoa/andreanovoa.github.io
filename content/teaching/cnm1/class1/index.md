@@ -16,9 +16,13 @@ build:
 
 <p class="module-context">AERO40003 Computing and Numerical Methods 1 · Class 1</p>
 
-<p>Interactive demos for how computers store numbers: convert to binary step by step, take a floating-point number apart bit by bit, and see how rounding errors arise and propagate.</p>
+<p>Interactive demos for how computers store numbers: write a number in any base, convert to binary step by step, take a floating-point number apart bit by bit, and see how rounding errors arise and propagate.</p>
 
 <div class="module-demos" aria-label="Computer arithmetic demos">
+  <details class="module-demo">
+    <summary><svg class="module-demo-icon" viewBox="0 0 96 72" aria-hidden="true"><rect x="10" y="12" width="11.5" height="16" rx="2" fill="none" stroke="#0072B2" stroke-width="2.2"/><rect x="23" y="12" width="11.5" height="16" rx="2" fill="#0072B2" opacity=".35" stroke="#0072B2" stroke-width="2.2"/><rect x="36" y="12" width="11.5" height="16" rx="2" fill="#0072B2" opacity=".35" stroke="#0072B2" stroke-width="2.2"/><rect x="49" y="12" width="11.5" height="16" rx="2" fill="none" stroke="#0072B2" stroke-width="2.2"/><rect x="62" y="12" width="11.5" height="16" rx="2" fill="#0072B2" opacity=".35" stroke="#0072B2" stroke-width="2.2"/><rect x="75" y="12" width="11.5" height="16" rx="2" fill="none" stroke="#0072B2" stroke-width="2.2"/><rect x="10" y="34" width="37.5" height="14" rx="2" fill="#009E73" opacity=".3" stroke="#009E73" stroke-width="2.2"/><rect x="49" y="34" width="37.5" height="14" rx="2" fill="#009E73" opacity=".3" stroke="#009E73" stroke-width="2.2"/><rect x="10" y="54" width="76.5" height="12" rx="2" fill="#CC79A7" opacity=".3" stroke="#CC79A7" stroke-width="2.2"/></svg><span>What is a base? A number in any base</span></summary>
+    <iframe class="module-demo-frame" src="bases.html" title="Number bases demo" loading="lazy"></iframe>
+  </details>
   <details class="module-demo">
     <summary><svg class="module-demo-icon" viewBox="0 0 96 72" aria-hidden="true"><rect x="10" y="22" width="14" height="22" rx="2" fill="none" stroke="#0072B2" stroke-width="2.5"/><rect x="27" y="22" width="14" height="22" rx="2" fill="#0072B2" opacity=".35" stroke="#0072B2" stroke-width="2.5"/><rect x="44" y="22" width="14" height="22" rx="2" fill="#0072B2" opacity=".35" stroke="#0072B2" stroke-width="2.5"/><rect x="61" y="22" width="14" height="22" rx="2" fill="none" stroke="#0072B2" stroke-width="2.5"/><path d="M14 56H86" stroke="#767676" stroke-width="2"/><path d="M80 14V48" stroke="#D55E00" stroke-width="3"/><circle cx="80" cy="14" r="4" fill="#D55E00"/></svg><span>Decimal to binary, and integer storage</span></summary>
     <iframe class="module-demo-frame" src="converter.html" title="Decimal to binary converter demo" loading="lazy"></iframe>
@@ -33,4 +37,4 @@ build:
   </details>
 </div>
 
-<script src="module-demos.js"></script>
+<script src="../module-demos.js"></script>

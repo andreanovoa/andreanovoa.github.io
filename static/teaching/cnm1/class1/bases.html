@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="../theme.js"></script>
+<title>What Is a Base?</title>
+<link rel="stylesheet" href="../demo.css">
+<style>
+@font-face{font-family:"CMU Sans Serif";src:url("../fonts/cmunss.woff2") format("woff2");font-weight:400 600;font-display:swap}
+@font-face{font-family:"CMU Sans Serif";src:url("../fonts/cmunsx.woff2") format("woff2");font-weight:700 900;font-display:swap}
+:root{--pink:#B8559A}
+:root.dark{--pink:#E39CC9}
+.ovl{text-decoration:overline;text-decoration-thickness:2px}
+.plot-hint,#status,.formula{overflow-wrap:anywhere}
+.sumline{margin:6px 0 0;font-size:1.05rem;line-height:1.5;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.sumline b{font-weight:750}
+.basepick{display:grid;grid-template-columns:170px minmax(0,1fr);gap:10px;align-items:center}
+#tblBases td:nth-child(2){text-align:left;white-space:normal;overflow-wrap:anywhere;font-size:.95rem;min-width:7em}
+#tblBases td:first-child{font-weight:700}
+#tblSteps td:nth-child(2),#tblSteps th:nth-child(2),#tblBases th:nth-child(2){text-align:left}
+.digits{margin:8px 0 0;font-size:.98rem;line-height:1.5}
+.digits p{margin:0 0 4px}
+.k-2{color:var(--curve)}.k-8{color:var(--teal)}.k-16{color:var(--pink)}
+.results-card .panel-title{margin-top:14px}
+</style>
+<link rel="stylesheet" href="../theme.css">
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <h1>What is a base?</h1>
+  <p class="lede">In base b there are b digits, 0 to b − 1, and the digit in position k counts units of b<sup>k</sup>: x = Σ d<sub>k</sub> b<sup>k</sup>. The base changes how a number is written, not the number itself. Step through the conversion: the whole part by repeated division by b, the fractional part by repeated multiplication by b.</p>
+</header>
+<main class="layout">
+  <section class="plotcard">
+    <p class="panel-title" id="pvTitle">Digit × place value</p>
+    <svg class="plot static" id="pv" role="img" aria-label="The number written in the chosen base: each digit with its place value and contribution"></svg>
+    <p class="sumline" id="sumline">&nbsp;</p>
+    <p class="panel-title" style="margin-top:16px">Grouping bits: 3 bits make 1 octal digit, 4 bits make 1 hexadecimal digit</p>
+    <svg class="plot static" id="groups" role="img" aria-label="The binary digits grouped in threes (octal) and fours (hexadecimal)"></svg>
+    <p class="plot-hint" id="groupsHint"></p>
+  </section>
+  <aside class="side">
+    <label class="field span2">Number x<input id="num" type="text" value="13.625" spellcheck="false" autocomplete="off"></label>
+    <label class="field span2">Preset<select id="preset"></select></label>
+    <div class="field span2"><label for="base">Base b</label>
+      <div class="basepick"><select id="base"></select><input id="baseR" type="range" min="0" max="15" step="1" value="0" aria-label="Base"></div></div>
+    <div id="numErr" class="err full"></div>
+    <p class="hint">Type a decimal (13.625, 0.1), a fraction (1/3), or a hexadecimal (0xFF) or binary (0b1011) integer. Keys: &rarr; step, &larr; back, p play, r reset, End show all</p>
+  </aside>
+  <div class="controls btns">
+    <button id="btnBack" type="button" title="Back (left arrow)">&larr; Back</button>
+    <button id="btnStep" type="button" class="primary" title="Step (right arrow)">Step &rarr;</button>
+    <button id="btnPlay" type="button" title="Play / pause (p)">Play</button>
+    <button id="btnReset" type="button" title="Reset (r)">Reset</button>
+    <button id="btnEnd" type="button" title="Show all (End)">Show all</button>
+  </div>
+  <section class="results-card">
+    <div class="formula wrap" id="formula">&nbsp;</div>
+    <div class="status" id="status">&nbsp;</div>
+    <p class="panel-title">Step by step</p>
+    <div class="tablewrap scroll" style="max-height:300px"><table id="tblSteps"></table></div>
+    <p class="panel-title">The same number in other bases, with the number of whole and fraction digits</p>
+    <div class="tablewrap"><table id="tblBases"></table></div>
+    <p class="panel-title">How many digits?</p>
+    <div class="digits" id="digits"></div>
+    <svg class="plot static" id="bars" role="img" aria-label="Number of digits of the whole part in each base"></svg>
+  </section>
+</main>
+<footer style="margin-top:1rem;color:var(--grey);font-size:.8rem">© Andrea Nóvoa</footer>
+</div>
+<script src="../demo-core.js"></script>
+<script>
+"use strict";
+const BASES=[2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,60];
+const SYM='0123456789ABCDEF';
+const MAXF=24;                 /* fractional digits shown at most */
+const pink=()=>getComputedStyle(document.documentElement).getPropertyValue('--pink').trim();
+const baseCol=b=>b===2?COL.curve:b===8?COL.teal:b===16?pink():COL.curve;
+/* digit groups with thin spaces, as in the notes (2026, 32 767, 2 147 483 647) */
+const group=s=>s.replace(/^\d{5,}/,w=>w.replace(/\B(?=(\d{3})+(?!\d))/g,'\u2009'));
+const sup=e=>'<sup>'+String(e).replace('-','−')+'</sup>';
+const tsup=e=>`<tspan dy="-0.45em" font-size="72%">${String(e).replace('-','−')}</tspan>`;
+/* one digit as text: A–F above 9; base 60 as a two-digit decimal group */
+const dig=(d,b)=>b===60?String(d).padStart(2,'0'):SYM[d];
+const digPlain=(d,b)=>b===60?String(d):SYM[d];
+const sub=b=>`<sub>${b}</sub>`;
+function gcd(a,b){while(b){const t=a%b;a=b;b=t;}return a||1n;}
+
+const PRESETS=[
+ {id:'13.625',v:'13.625',b:2,label:'13.625 = (1101.101)₂'},
+ {id:'2026',v:'2026',b:8,label:'2026 in octal, (3752)₈'},
+ {id:'0.1',v:'0.1',b:2,label:'0.1: the bits repeat for ever'},
+ {id:'1/3',v:'1/3',b:3,label:'1/3: recurring in base 10, (0.1)₃ in base 3'},
+ {id:'sq',v:'4032',b:8,label:'Squawk 7700: octal digits, 3 bits each'},
+ {id:'90',v:'90',b:60,label:'90 min = 1 h 30 min (base 60)'},
+ {id:'255',v:'0xFF',b:16,label:'255 = 0xFF, the largest 8-bit number'},
+ {id:'custom',label:'Custom: type a number'}];
+
+/* ---------- exact parsing: x = ±N/D in lowest terms ---------- */
+function parseX(raw){
+  let s=String(raw).trim().replace(/[−–]/g,'-').replace(/[\s,_]/g,'');let neg=false;
+  if(s[0]==='-'){neg=true;s=s.slice(1);}else if(s[0]==='+')s=s.slice(1);
+  let N,D,m;
+  if((m=s.match(/^0x([0-9a-f]+)$/i)))[N,D]=[BigInt('0x'+m[1]),1n];
+  else if((m=s.match(/^0b([01]+)$/i)))[N,D]=[BigInt('0b'+m[1]),1n];
+  else if((m=s.match(/^0o([0-7]+)$/i)))[N,D]=[BigInt('0o'+m[1]),1n];
+  else if((m=s.match(/^(\d+)\/(\d+)$/))){N=BigInt(m[1]);D=BigInt(m[2]);
+    if(D===0n)throw new Error('The denominator cannot be 0.');if(D>1000000000n)throw new Error('Use a denominator up to 10⁹.');}
+  else if((m=s.match(/^(\d*)(?:\.(\d*))?$/))&&(m[1]||m[2])){const ip=m[1]||'0',fp=(m[2]||'').replace(/0+$/,'');
+    if(fp.length>12)throw new Error('Use at most 12 digits after the point.');N=BigInt(ip+fp);D=10n**BigInt(fp.length);}
+  else throw new Error('Type a number such as 13.625, 2026, 1/3 or 0xFF.');
+  const g=gcd(N,D);N/=g;D/=g;
+  if(N/D>=10n**12n)throw new Error('Use a whole part below 10¹² (a million million).');
+  return{neg:neg&&N>0n,N,D};}
+/* does D divide a power of 10 (so N/D is a terminating decimal)? */
+function isDec(D){while(D%2n===0n)D/=2n;while(D%5n===0n)D/=5n;return D===1n;}
+/* decimal string of N/D (N ≥ 0), at most `max` decimals, … if it goes on */
+function decStr(N,D,max){max=max==null?12:max;let r=N%D,f='';const W=group((N/D).toString());
+  for(let i=0;i<max&&r>0n;i++){r*=10n;f+=(r/D).toString();r%=D;}
+  return f?W+'.'+f+(r>0n?'…':''):W;}
+/* a value n/D in the fraction ladder: decimal when it terminates, otherwise a fraction */
+const fd=(n,D)=>isDec(D)?decStr(n,D,15):(n%D===0n?(n/D).toString():`${n}/${D}`);
+function primes(D){const p=[];let q=D;for(let k=2n;k*k<=q;k++){if(q%k===0n){p.push(k);while(q%k===0n)q/=k;}}if(q>1n)p.push(q);return p;}
+
+/* ---------- conversion: repeated division (whole part), repeated multiplication (fraction) ---------- */
+function expand(X,b){
+  const B=BigInt(b),D=X.D,W=X.N/D;let r=X.N%D;
+  const whole=[];for(let w=W;w>0n;w/=B)whole.push({x:w,q:w/B,d:Number(w%B)});
+  const frac=[],seen=new Map();let start=-1,period=0;
+  while(r>0n&&frac.length<200000){
+    if(seen.has(r)){start=seen.get(r);period=frac.length-start;break;}
+    seen.set(r,frac.length);const p=r*B;frac.push({f:r,p,d:Number(p/D),r:p%D});r=p%D;}
+  const exact=r===0n,rec=start>=0;
+  let nF=exact?frac.length:rec?start+period:frac.length;const capped=nF>MAXF||(!exact&&!rec);nF=Math.min(nF,MAXF);
+  return{b,B,D,W,whole,frac,start,period,exact,rec,capped,nW:whole.length,nF};}
+/* written form: (1101.101)_2; repeating digits overlined; o.group4 groups bits in fours from the point */
+function repStr(E,o){o=o||{};const b=E.b,sep=b===60?';':'';
+  let w=E.nW?E.whole.map(r=>digPlain(r.d,b)).reverse():['0'];
+  const n=E.capped?Math.min(MAXF,E.frac.length):E.nF;
+  const f=E.frac.slice(0,n).map((r,i)=>({t:digPlain(r.d,b),rep:E.rec&&!E.capped&&i>=E.start}));
+  const g=o.group?o.group:0;
+  let ws=g?w.map((t,i)=>(i>0&&(w.length-i)%g===0?' ':'')+t).join(''):w.join(sep);
+  let fs='';f.forEach((q,i)=>{const sp=i>0?(g&&i%g===0?' ':sep):'';fs+=q.rep?`<span class="ovl">${sp}${q.t}</span>`:sp+q.t;});
+  if(E.capped)fs+='…';
+  return ws+(fs?'.'+fs:'');}
+
+/* ---------- state ---------- */
+let X=null,E=null,B=2;
+const xTxt=()=>{const v=$('num').value.trim().replace(/-/g,'−');return v||'0';};
+/* contribution d·b^k as SVG text, at most about `mx` characters wide; {t, n} with n the visible length */
+function sciSvg(v,ap,short){const e=Math.floor(Math.log10(v)+1e-12),m=(v/10**e).toFixed(short?0:1).replace(/\.0$/,'');if(short)ap=false;
+  return{t:`${ap?'≈':''}${m}×10${tsup(e)}`,n:(ap?1:0)+m.length+3+String(e).length*0.7};}
+function contrib(d,k,b,mx){if(d===0)return{t:'0',n:1};
+  if(k>=0){const v=BigInt(d)*BigInt(b)**BigInt(k),s=group(v.toString());return s.length<=mx?{t:s,n:s.length}:sciSvg(Number(v),false,mx<=5);}
+  const den=BigInt(b)**BigInt(-k),v=d/Number(den);
+  if(isDec(den)){const s=decStr(BigInt(d),den,12);if(!s.endsWith('…')&&s.length<=mx)return{t:s,n:s.length};}
+  const a=fmt(v,2);if(a.length+1<=mx&&!/e/.test(a))return{t:'≈'+a,n:a.length+1};
+  return sciSvg(v,true,mx<=5);}
+const contribTxt=(d,k,b)=>contrib(d,k,b,9).t.replace(/<tspan[^>]*>/,'<sup>').replace('</tspan>','</sup>');
+/* exact value of the digits found after k steps */
+function partial(k){const ki=Math.min(k,E.nW),kf=Math.max(0,k-E.nW);let w=0n;
+  for(let j=0;j<ki;j++)w+=BigInt(E.whole[j].d)*E.B**BigInt(j);
+  let num=0n;for(let j=0;j<kf;j++)num=num*E.B+BigInt(E.frac[j].d);
+  const den=E.B**BigInt(kf);return{n:w*den+num,d:den};}
+
+/* ---------- drawing ---------- */
+function svgSize(svg,W,H){svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.setAttribute('width',W);svg.setAttribute('height',H);}
+function txt(x,y,t,o){o=o||{};return `<text x="${x}" y="${y}" fill="${o.c||COL.navy}" font-size="${o.size||14}" font-weight="${o.weight||500}" text-anchor="${o.anchor||'middle'}"${o.font?` font-family="${o.font}"`:''}>${t}</text>`;}
+function rect(x,y,w,h,o){return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="5" fill="${o.fill||'none'}" fill-opacity="${o.fop==null?.15:o.fop}" stroke="${o.stroke||COL.grey}" stroke-width="${o.sw||2}"${o.dash?' stroke-dasharray="5 4"':''}/>`;}
+function layoutRows(items,W){const rows=[[]];let x=0;
+  for(const it of items){if(x+it.w>W&&rows[rows.length-1].length){rows.push([]);x=0;}it.x=x;x+=it.w;rows[rows.length-1].push(it);}
+  for(const r of rows){const rw=r.reduce((s,it)=>s+it.w,0),off=Math.max(0,(W-rw)/2);for(const it of r)it.x+=off;}
+  rows.forEach((r,i)=>r.forEach(it=>it.row=i));return rows.length;}
+
+function drawPV(k){
+  const svg=$('pv'),W=Math.max(260,Math.round(svg.parentElement.clientWidth||700)),small=W<600,b=E.b,bc=baseCol(b);
+  const ki=Math.min(k,E.nW),kf=Math.max(0,k-E.nW),cur=k===0?null:k<=E.nW?{w:k-1}:{f:k-E.nW-1};
+  const items=[];
+  if(!E.nW)items.push({k:0,d:0,known:true});
+  for(let j=E.nW-1;j>=0;j--)items.push({k:j,d:E.whole[j].d,known:j<ki,cur:cur&&cur.w===j});
+  if(E.nF){items.push({pt:true});
+    for(let j=0;j<E.nF;j++)items.push({k:-(j+1),d:E.frac[j].d,known:j<kf,cur:cur&&cur.f===j,fi:j});
+    if(E.capped)items.push({more:true});}
+  const fs=small?22:28,ls=small?12:15,cw=ls*0.6,nBox=items.filter(it=>it.k!==undefined).length,mx=small?(nBox>8?5:7):(nBox>12?6:9);
+  for(const it of items)if(it.k!==undefined)it.c=contrib(it.d,it.k,b,mx);
+  let need=0;for(const it of items)if(it.k!==undefined)need=Math.max(need,it.c.n,(String(b)+String(it.k)).length+1.5);
+  const bw=Math.min(small?84:110,Math.max(small?36:56,need*cw+(small?8:12))),bh=small?44:56,top=small?26:30,rowH=top+bh+2*ls+26;
+  for(const it of items)it.w=it.pt?(small?16:22):it.more?bw*0.6:bw+(small?3:6);
+  const nRows=layoutRows(items,W);let out='';
+  for(const it of items){const y=it.row*rowH+top;
+    if(it.pt){out+=`<circle cx="${it.x+it.w/2}" cy="${y+bh-6}" r="${small?4.5:5.5}" fill="${COL.orange}"/>`;continue;}
+    if(it.more){out+=txt(it.x+it.w/2,y+bh*0.62,'…',{size:fs,c:COL.grey,weight:700});continue;}
+    const x=it.x+(small?1.5:3),cx=x+bw/2,c=it.cur?COL.orange:bc;
+    if(it.known)out+=rect(x,y,bw,bh,{fill:c,stroke:c,sw:it.cur?3.5:2,fop:it.cur?.2:(it.d?.18:.05)});
+    else out+=rect(x,y,bw,bh,{stroke:COL.grey,dash:true,sw:1.5});
+    if(it.known)out+=txt(cx,y+bh/2+fs*0.36,dig(it.d,b),{size:fs,weight:750,c:it.cur?COL.orange:it.d?COL.navy:COL.grey});
+    out+=txt(cx,y+bh+ls+5,'× '+b+tsup(it.k),{size:ls,c:COL.grey});
+    if(it.known)out+=txt(cx,y+bh+2*ls+11,it.c.t,{size:ls,c:it.d?(it.cur?COL.orange:bc):COL.grey,weight:it.d?700:500});}
+  /* bracket over the repeating digits once they are all found */
+  if(E.rec&&!E.capped&&kf===E.nF){const blk=items.filter(it=>it.fi!==undefined&&it.fi>=E.start);let first=true;
+    for(let r=0;r<nRows;r++){const seg=blk.filter(it=>it.row===r);if(!seg.length)continue;
+      const a=seg[0].x+6,c=seg[seg.length-1].x+bw-2,y=r*rowH+top-8;
+      out+=`<path d="M${a} ${y+6}V${y}H${c}V${y+6}" fill="none" stroke="${COL.teal}" stroke-width="2.5"/>`;
+      if(first){out+=txt((a+c)/2,y-6,'repeats for ever',{size:ls,c:COL.teal,weight:700});first=false;}}}
+  svgSize(svg,W,nRows*rowH-10);svg.innerHTML=out;
+  /* the sum of the contributions found so far */
+  const terms=[];for(const it of items)if(it.k!==undefined&&it.known&&it.d)terms.push(it.cur?`<b style="color:var(--orange)">${contribTxt(it.d,it.k,b)}</b>`:contribTxt(it.d,it.k,b));
+  const P=partial(k),val=decStr(P.n,P.d,12),done=k===S.last;
+  let line;
+  if(!terms.length)line=k===0?`Σ d<sub>k</sub> ${b}<sup>k</sup>: press Step (&rarr;) to find the digits one by one.`:'Σ d<sub>k</sub> b<sup>k</sup> = 0 so far';
+  else{const shown=terms.length>10?terms.slice(0,5).join(' + ')+' + … + '+terms.slice(-3).join(' + '):terms.join(' + ');
+    line=`Σ d<sub>k</sub> ${b}<sup>k</sup> = ${shown} = <b>${val}</b>`;
+    if(done)line+=E.exact&&!E.capped?` &nbsp;<span style="color:var(--teal);font-weight:700">exact</span>`:` &nbsp;<span style="color:var(--grey)">(the digits go on: the sum only approaches x)</span>`;}
+  $('sumline').innerHTML=line;}
+
+/* binary digits grouped in threes (octal) and fours (hexadecimal), aligned at the binary point */
+function drawGroups(){
+  const svg=$('groups'),Wd=Math.max(260,Math.round(svg.parentElement.clientWidth||700)),small=Wd<600;
+  const E2=expand(X,2),wb=E2.whole.map(r=>r.d).reverse();
+  /* first 12 fraction bits by repeated multiplication (past the start of any repetition) */
+  const fb=[];let r=X.N%X.D;while(r>0n&&fb.length<12){r*=2n;fb.push(r>=X.D?1:0);if(r>=X.D)r-=X.D;}const more=r>0n;
+  const up=(n,g)=>Math.ceil(n/g)*g,Lw=wb.length?Math.max(up(wb.length,3),up(wb.length,4)):0,Lf=fb.length?Math.max(up(fb.length,3),up(fb.length,4)):0;
+  /* columns: position p (place value 2^p), bit, padding flag */
+  const cols=[];for(let p=Lw-1;p>=0;p--){const i=wb.length-1-p;cols.push({p,bit:i>=0?wb[i]:0,pad:i<0});}
+  for(let j=0;j<Lf;j++)cols.push({p:-(j+1),bit:j<fb.length?fb[j]:0,pad:j>=fb.length});
+  const labW=small?62:84,avail=Wd-labW-(small?18:30)-(Lw?0:20);
+  let cw=avail/Math.max(cols.length+0.6,1);
+  if(cw<18)cw=Math.min(40,avail/12.6);cw=Math.min(cw,small?32:42);
+  /* split into lines at multiples of 12 bits from the point (12 bits = 4 octal = 3 hex digits) */
+  const segs=[];for(const c of cols){const s=Math.floor(c.p/12);if(!segs.length||segs[segs.length-1].s!==s)segs.push({s,cols:[]});segs[segs.length-1].cols.push(c);}
+  const lines=[[]];let used=0;
+  for(const sg of segs){const w=sg.cols.length*cw+(sg.s===-1?0.6*cw:0);if(used+w>avail+0.5&&lines[lines.length-1].length){lines.push([]);used=0;}lines[lines.length-1].push(sg);used+=w;}
+  const bh=Math.max(26,Math.min(38,cw*0.95)),fs=Math.max(13,Math.min(20,cw*0.55)),gap=8,lineH=3*bh+2*gap+28;
+  const rowsDef=[[2,1,COL.curve],[8,3,COL.teal],[16,4,pink()]];let out='';
+  lines.forEach((ln,li)=>{const y0=li*lineH+4;let x=labW;const xs=new Map();let ptX=null;
+    let zeroX=null;
+    for(const sg of ln){if(sg.s===-1){if(!Lw&&li===0){zeroX=x+0.4*cw;x+=0.8*cw;}ptX=x+0.3*cw;x+=0.6*cw;}
+      for(const c of sg.cols){xs.set(c.p,x);x+=cw;}}
+    rowsDef.forEach(([b,g,col],ri)=>{const y=y0+ri*(bh+gap);out+=txt(labW-10,y+bh/2+5,'base '+b,{anchor:'end',size:small?13:15,weight:650,c:col});
+      const ps=[...xs.keys()];
+      for(const p of ps){if(((p%g)+g)%g!==0)continue;           /* lowest bit of a group */
+        const grp=[];for(let q=p;q<p+g;q++)if(xs.has(q))grp.push(cols.find(c=>c.p===q));
+        if(grp.length<g)continue;
+        const allPad=grp.every(c=>c.pad),v=grp.reduce((s,c)=>s+c.bit*2**(c.p-p),0);
+        const xl=xs.get(p+g-1),w=g*cw;
+        out+=rect(xl+1.5,y,w-3,bh,{fill:allPad?COL.grey:col,stroke:allPad?COL.grey:col,sw:1.8,fop:allPad?.08:(v?.2:.07)});
+        out+=txt(xl+w/2,y+bh/2+fs*0.36,SYM[v],{size:fs,weight:allPad?500:700,c:allPad||!v?COL.grey:COL.navy});}
+      if(zeroX!==null)out+=txt(zeroX,y+bh/2+fs*0.36,'0',{size:fs,weight:700});
+      if(ptX!==null)out+=`<circle cx="${ptX}" cy="${y+bh-4}" r="4" fill="${COL.orange}"/>`;});
+    if(more&&li===lines.length-1){const xe=x+6;for(let ri=0;ri<3;ri++)out+=txt(xe+8,y0+ri*(bh+gap)+bh/2+6,'…',{size:fs,c:COL.grey,weight:700});}});
+  svgSize(svg,Wd,lines.length*lineH-14);svg.innerHTML=out;
+  const r2=E2.nW?E2.whole.map(r=>r.d).reverse().join(''):'0';
+  const E8=expand(X,8),E16=expand(X,16);
+  $('groupsHint').innerHTML=(Lw>wb.length||Lf>fb.length?'Grey boxes are padding zeros that only complete a group. ':'')+
+    (more?'Only the first 12 fraction bits are shown. ':'')+
+    `${X.neg?'−':''}${xTxt().replace(/^−/,'')} = (${repStr(E2,{group:4})})${sub(2)} = (${repStr(E8)})${sub(8)} = (${repStr(E16)})${sub(16)}`;}
+
+/* number of digits of the whole part in every base */
+function drawBars(){
+  const svg=$('bars'),W=Math.max(260,Math.round(svg.parentElement.clientWidth||700)),small=W<600;
+  if(E.W===0n){svgSize(svg,W,1);svg.innerHTML='';return;}
+  const n=BASES.map(b=>expand({N:E.W,D:1n},b).nW),mx=Math.max(...n),H=small?150:170,top=24,bot=40,ml=4;
+  const bw=(W-ml)/BASES.length;let out='';
+  BASES.forEach((b,i)=>{const h=(H-top-bot)*n[i]/mx,x=ml+i*bw,y=H-bot-h,curB=b===E.b,c=curB?COL.orange:COL.curve;
+    out+=`<rect x="${x+bw*0.15}" y="${y}" width="${bw*0.7}" height="${h}" rx="3" fill="${c}" fill-opacity="${curB?.85:.35}" stroke="${c}" stroke-width="1.5"/>`;
+    out+=txt(x+bw/2,y-6,n[i],{size:small?12:14,weight:curB?800:600,c:curB?COL.orange:COL.navy});
+    out+=txt(x+bw/2,H-bot+(small?16:18),b,{size:small?11:13,weight:curB?800:500,c:curB?COL.orange:COL.grey});});
+  out+=txt(W/2,H-4,'base b',{size:small?12:14,c:COL.grey});
+  svgSize(svg,W,H);svg.innerHTML=out;}
+
+function digitsPanel(){const b=E.b;let h='';
+  if(E.W===0n)h='<p>The whole part is 0, so no whole digits are needed (we write a single 0).</p>';
+  else{const N=E.nW,L=Math.log(Number(E.W))/Math.log(b),Wt=group(E.W.toString());
+    const big=(BigInt(b)**BigInt(N))-1n,lo=BigInt(b)**BigInt(N-1);
+    h+=`<p>The whole part ${Wt} needs N = ⌊log${sub(b)} ${Wt}⌋ + 1 = ⌊${L.toFixed(3)}⌋ + 1 = <b>${N}</b> digit${N>1?'s':''} in base ${b}.</p>`;
+    h+=`<p>The largest ${N}-digit number in base ${b} is ${b}${sup(N)} − 1 = ${group(big.toString())} = (${b===60?Array(N).fill('59').join(';'):SYM[b-1].repeat(N)})${sub(b)}; the smallest is ${b}${sup(N-1)} = ${group(lo.toString())}.</p>`;
+    const n2=expand({N:E.W,D:1n},2).nW,n10=expand({N:E.W,D:1n},10).nW;
+    h+=`<p>Base 2 needs ${n2} digits and base 10 needs ${n10}: binary needs about log${sub(2)} 10 ≈ 3.32 times as many digits as decimal.</p>`;}
+  $('digits').innerHTML=h;}
+
+function basesTable(){const list=[2,8,10,16,60];if(!list.includes(E.b))list.push(E.b);list.sort((a,b)=>a-b);
+  const rows=list.map(b=>{const Eb=b===E.b?E:expand(X,b);
+    const fr=Eb.exact&&!Eb.capped?String(Eb.nF):Eb.capped?(Eb.rec?`recurring, period ${Eb.period}`:'more than '+MAXF):`${Eb.start} + ${Eb.period} repeating`;
+    return[b,(X.neg?'−':'')+repStr(Eb,{group:b===2?4:0}),Eb.nW||1,Eb.nF||Eb.capped?fr:'0'];});
+  renderTable('tblBases',['base','x written in base b','whole','fraction'],rows,list.indexOf(E.b));}
+
+/* ---------- stepping ---------- */
+function stepRow(j){if(j<E.nW){const r=E.whole[j];return[String(j),`${group(r.x.toString())} = ${group(r.q.toString())} × ${E.b} + ${r.d}`,'<b>'+digPlain(r.d,E.b)+'</b>'];}
+  const i=j-E.nW,r=E.frac[i];return['−'+(i+1),`${E.b} × ${fd(r.f,E.D)} = ${fd(r.p,E.D)}`,'<b>'+digPlain(r.d,E.b)+'</b>'];}
+function render(k){
+  if(!E){$('pv').innerHTML='';$('groups').innerHTML='';$('bars').innerHTML='';setFormula('');setStatus('bad',$('numErr').textContent);
+    renderTable('tblSteps',[],[],-1);renderTable('tblBases',[],[],-1);$('digits').innerHTML='';$('sumline').innerHTML='&nbsp;';return;}
+  const b=E.b,done=k===S.last,ki=Math.min(k,E.nW),kf=Math.max(0,k-E.nW);
+  $('pvTitle').textContent=`${xTxt()} in base ${b}: digit × place value = contribution`;
+  drawPV(k);drawGroups();drawBars();digitsPanel();basesTable();
+  const known=()=>{const w=E.whole.slice(0,ki).map(r=>digPlain(r.d,b)).reverse().join(b===60?';':''),
+    f=E.frac.slice(0,kf).map(r=>digPlain(r.d,b)).join(b===60?';':'');
+    const ws=ki===E.nW?(w||'0'):'…'+w;return '('+ws+(kf?'.'+f:'')+')'+sub(b);};
+  let l1,l2,l3;
+  if(k===0){const P=X.N%X.D;
+    l1=`x = ${xTxt()}: whole part ${group(E.W.toString())}${P?`, fractional part ${fd(P,X.D)}`:''}${X.neg?' (the sign is kept separately)':''}`;
+    l2=E.nW?`Whole part: divide by ${b}; the remainder is the next digit, read upwards.`:'The whole part is 0.';
+    l3=P?`Fractional part: multiply by ${b}; the integer part is the next digit, read downwards.`:'&nbsp;';}
+  else if(k<=E.nW){const r=E.whole[k-1];
+    l1=`${group(r.x.toString())} ÷ ${b} = ${group(r.q.toString())} remainder ${r.d} &rarr; <b>d<sub>${k-1}</sub> = ${digPlain(r.d,b)}</b>${r.d>9&&b<=16?` (${SYM[r.d]} = ${r.d})`:''}`;
+    l2=`Check: ${group(r.q.toString())} × ${b} + ${r.d} = ${group(r.x.toString())}`;
+    l3=r.q===0n?`Quotient 0: whole part done. Read the remainders upwards: ${known()}`:`Digits so far, read upwards: ${known()}`;}
+  else{const j=kf,r=E.frac[j-1];
+    l1=`${b} × ${fd(r.f,E.D)} = ${fd(r.p,E.D)} &rarr; integer part ${r.d} &rarr; <b>d<sub>−${j}</sub> = ${digPlain(r.d,b)}</b>`;
+    if(r.r===0n)l2='The fractional part is 0: the expansion terminates.';
+    else if(E.rec&&j===E.start+E.period)l2=`Keep the fractional part ${fd(r.r,E.D)}: the same as before step ${E.start+1}, so the digits from d<sub>−${E.start+1}</sub> repeat for ever`;
+    else l2=`Keep the fractional part ${fd(r.r,E.D)} and multiply again`;
+    l3=`Digits so far, read downwards: ${known()}`;}
+  setFormula(`<span class="line1">${l1}</span><span class="line2">${l2}</span><span class="line3">${l3}</span>`);
+  if(!done)setStatus('info',k===0?'Press Step (&rarr;) to find the first digit.':`Step ${k} of ${S.last}.`);
+  else{const res=`${xTxt()} = (${(X.neg?'−':'')+repStr(E,{group:b===2?4:0})})${sub(b)}`;
+    const q=X.D,ps=primes(q).filter(p=>BigInt(b)%p!==0n);
+    if(X.N%X.D===0n)setStatus('ok',res);
+    else if(E.exact&&!E.capped)setStatus('ok',`${res}: it terminates, since every prime factor of the denominator ${q} divides ${b}.`);
+    else{const why=` The denominator ${q} has the prime factor${ps.length>1?'s':''} ${ps.join(', ')}, which ${ps.length>1?'do':'does'} not divide ${b}.`;
+      if(E.rec&&!E.capped)setStatus('ok',`${res}: recurring, period ${E.period}.`+why);
+      else setStatus('ok',`${res}: first ${MAXF} digits shown`+(E.rec?`; the digits repeat with period ${E.period} after ${E.start} digit${E.start===1?'':'s'}.`:'.')+why);}}
+  renderTable('tblSteps',['k','operation','d<sub>k</sub>'],Array.from({length:k},(_,j)=>stepRow(j)),k-1);
+  if(!k)$('tblSteps').querySelector('tbody').innerHTML='<tr><td colspan="3" style="text-align:left;opacity:.75">The operations appear here as you step.</td></tr>';
+  if(window.parent!==window)window.parent.postMessage({type:'module-demo-resize'},location.origin);}
+const S=Stepper(render);S.delay=900;
+
+function recompute(){$('numErr').textContent='';
+  try{X=parseX($('num').value);E=expand(X,B);S.last=E.nW+E.nF;}
+  catch(e){X=null;E=null;$('numErr').textContent=e.message;S.last=0;}
+  S.pause();S.set(S.last);}
+function setBase(b){B=b;$('base').value=String(b);$('baseR').value=BASES.indexOf(b);}
+$('base').innerHTML=BASES.map(b=>`<option value="${b}">${b}${b===2?' (binary)':b===8?' (octal)':b===10?' (decimal)':b===16?' (hexadecimal)':b===60?' (time, angles)':''}</option>`).join('');
+fillSelect('preset',PRESETS);
+onSelectChange('preset',()=>{const P=PRESETS.find(q=>q.id===$('preset').value);if(!P||!P.v){$('num').focus();return;}
+  $('num').value=P.v;setBase(P.b);recompute();});
+onSelectChange('base',()=>{setBase(+$('base').value);recompute();});
+$('baseR').addEventListener('input',()=>{setBase(BASES[+$('baseR').value]);recompute();});
+$('baseR').addEventListener('change',()=>$('baseR').blur());
+$('num').addEventListener('input',debounce(()=>{$('preset').value='custom';recompute();},300));
+$('num').addEventListener('keydown',e=>{if(e.key==='Enter')e.target.blur();});
+/* optional deep link: bases.html?x=0.1&b=2 */
+(function(){const q=new URLSearchParams(location.search),x=q.get('x'),b=+q.get('b');
+  $('preset').value='13.625';setBase(2);
+  if(BASES.includes(b))setBase(b);
+  if(x){$('num').value=x;const P=PRESETS.find(p=>p.v===x&&p.b===B);$('preset').value=P?P.id:'custom';}})();
+recompute();
+</script>
+</body>
+</html>

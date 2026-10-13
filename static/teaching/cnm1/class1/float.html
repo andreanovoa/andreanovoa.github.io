@@ -7,8 +7,10 @@
 <title>Floating-Point Explorer</title>
 <link rel="stylesheet" href="../demo.css">
 <style>
-@font-face{font-family:"CMU Sans Serif";src:url("fonts/cmunss.woff2") format("woff2");font-weight:400 600;font-display:swap}
-@font-face{font-family:"CMU Sans Serif";src:url("fonts/cmunsx.woff2") format("woff2");font-weight:700 900;font-display:swap}
+@font-face{font-family:"CMU Sans Serif";src:url("../fonts/cmunss.woff2") format("woff2");font-weight:400 600;font-display:swap}
+@font-face{font-family:"CMU Sans Serif";src:url("../fonts/cmunsx.woff2") format("woff2");font-weight:700 900;font-display:swap}
+:root{--pink:#B8559A}
+:root.dark{--pink:#E39CC9}
 #bits{cursor:default}
 #bits rect[data-i]{cursor:pointer}
 .legend{margin:4px 0 0;font-size:.9rem}
@@ -16,14 +18,20 @@
 .bin{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92em;overflow-wrap:anywhere}
 .bin .kept{color:var(--curve);font-weight:700}
 .bin .tail{color:var(--grey)}
-.bin .sg{color:var(--orange);font-weight:700}
+.bin .sg{color:var(--pink);font-weight:700}
 .bin .ex{color:var(--teal);font-weight:700}
 .k-t{color:var(--teal)}.k-o{color:var(--orange)}
 #stairLegend .chip{white-space:normal}
 #tbl td:nth-child(2){font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.8rem}
 #tbl td:first-child{text-align:left}
 #tbl td:last-child{text-align:left;white-space:normal;overflow-wrap:anywhere;min-width:11em}
-#tbl td:nth-child(2){white-space:normal;word-break:break-all;min-width:6em}
+#tbl td:nth-child(2){white-space:normal;word-break:normal;min-width:6em;max-width:16em}
+#tblCmp td:nth-child(2),#tblCmp th:nth-child(2){text-align:left;white-space:normal;overflow-wrap:anywhere;min-width:7.5em}
+#tblCmp td:first-child{text-align:left}
+#tblCmp small{opacity:.7;font-weight:500}
+.nbrs{margin:4px 0 0;font-size:.95rem;line-height:1.5;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#status,.formula{overflow-wrap:anywhere}
+.results-card .panel-title{margin-top:14px}
 </style>
 <link rel="stylesheet" href="../theme.css">
 </head>
@@ -37,9 +45,10 @@
   <section class="plotcard">
     <p class="panel-title">Bit pattern (click a bit to toggle it)</p>
     <svg class="plot static" id="bits" role="img" aria-label="Bit pattern: sign, exponent and mantissa"></svg>
-    <p class="legend"><span class="chip"><span class="swatch" style="border-color:var(--orange)"></span>sign s</span><span class="chip"><span class="swatch" style="border-color:var(--teal)"></span>exponent c</span><span class="chip"><span class="swatch" style="border-color:var(--curve)"></span>mantissa β</span></p>
+    <p class="legend"><span class="chip"><span class="swatch" style="border-color:var(--pink)"></span>sign s</span><span class="chip"><span class="swatch" style="border-color:var(--teal)"></span>exponent c</span><span class="chip"><span class="swatch" style="border-color:var(--curve)"></span>mantissa β</span></p>
     <p class="panel-title">Number line near the stored value x̃</p>
     <svg class="plot" id="plot" role="img" aria-label="Neighbouring floating-point numbers around the stored value"></svg>
+    <p class="nbrs" id="nbrs"></p>
     <p class="plot-hint">Grey ticks: neighbouring floating-point numbers; shaded: every x stored as x̃. Drag to pan · scroll to zoom</p>
     <p class="panel-title">Gap Δ between neighbouring floats against |x| (log–log)</p>
     <svg class="plot" id="plot2" role="img" aria-label="Gap between floats against the size of the number, log-log"></svg>
@@ -52,19 +61,23 @@
     <label class="field">Format<select id="fmt"><option value="single">single (32-bit)</option><option value="double">double (64-bit)</option><option value="half">half (16-bit)</option></select></label>
     <label class="field">Mantissa<select id="mode"><option value="nearest">round to nearest</option><option value="chop">chop</option></select></label>
     <div id="numErr" class="err full"></div>
-    <p class="hint">Round to nearest uses ties to even (IEEE 754). Keys: &rarr; step, &larr; back, p play, r reset</p>
+    <p class="hint">Round to nearest uses ties to even (IEEE 754). Keys: &rarr; step, &larr; back, p play, r reset, End show all</p>
   </aside>
   <div class="controls btns">
     <button id="btnBack" type="button" title="Back (left arrow)">&larr; Back</button>
     <button id="btnStep" type="button" class="primary" title="Step (right arrow)">Step &rarr;</button>
     <button id="btnPlay" type="button" title="Play / pause (p)">Play</button>
     <button id="btnReset" type="button" title="Reset (r)">Reset</button>
+    <button id="btnEnd" type="button" title="Show all (End)">Show all</button>
     <button id="btnResetView" type="button" title="Restore the original graph view">Reset view</button>
   </div>
   <section class="results-card">
     <div class="formula wrap" id="formula">&nbsp;</div>
     <div class="status" id="status">&nbsp;</div>
     <div class="tablewrap scroll"><table id="tbl"></table></div>
+    <p class="panel-title">The same x in half, single and double precision</p>
+    <div class="tablewrap"><table id="tblCmp"></table></div>
+    <p class="hint" style="margin:6px 0 0;font-size:.85rem;opacity:.75">More mantissa bits: a smaller machine epsilon ε and a smaller relative error, |ε<sub>r</sub>| ≤ ε/2 when rounding to nearest.</p>
   </section>
 </main>
 <footer style="margin-top:1rem;color:var(--grey);font-size:.8rem">© Andrea Nóvoa</footer>
@@ -165,6 +178,7 @@ const PRESETS=[
  {id:'0.3h',v:'0.3',f:'half',label:'0.3 in half precision (10-bit mantissa)'},
  {id:'custom',label:'Custom: type a number or click bits'}];
 
+const pink=()=>getComputedStyle(document.documentElement).getPropertyValue('--pink').trim();
 let F=FORMATS.single,X=null,A=null,V=null,STEPS=[],forced=null,CX=null;   /* CX: exact value of a clicked bit pattern */
 const view={xr:null,yr:null},view2={xr:null,yr:null};
 const plot=new Plot($('plot')),plot2=new Plot($('plot2'));
@@ -248,23 +262,29 @@ function buildSteps(){
 function svgSize(svg,W,H){svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.setAttribute('width',W);svg.setAttribute('height',H);}
 function txt(x,y,t,o){o=o||{};return `<text x="${x}" y="${y}" fill="${o.c||COL.navy}" font-size="${o.size||13}" font-weight="${o.weight||500}" text-anchor="${o.anchor||'middle'}">${t}</text>`;}
 function drawBits(rev){
-  const svg=$('bits'),W=Math.max(260,Math.round(svg.parentElement.clientWidth||700)),n=F.n;
-  const perRow=Math.min(n,W>=32*17+8?32:16),bw=Math.min(34,(W-8)/perRow),bh=30,ls=W<600?10:11,top=18,rowH=top+bh+ls+14;
-  const bits=forced||(A?A.bits:'0'.repeat(n)),x0=(W-perRow*bw)/2;let out='';
+  const svg=$('bits'),W=Math.max(260,Math.round(svg.parentElement.clientWidth||700)),n=F.n,small=W<600;
+  const perRow=n===16||W>=560?16:8,bw=Math.min(46,(W-4)/perRow),bh=Math.round(Math.min(42,bw*0.92)),fs=bw<30?15:20,ls=small?11:12,top=30,rowH=top+bh+ls+12;
+  const bits=forced||(A?A.bits:'0'.repeat(n)),x0=(W-perRow*bw)/2,P=pink(),cols=[P,COL.teal,COL.curve];let out='';
+  const fld=i=>i===0?0:i<=F.eb?1:2;
   for(let i=0;i<n;i++){const r=Math.floor(i/perRow),x=x0+(i%perRow)*bw,y=r*rowH+top;
-    const fld=i===0?0:i<=F.eb?1:2,shown=rev>fld,col=[COL.orange,COL.teal,COL.curve][fld],b=bits[i];
-    const lab=fld===0?'s':fld===1?String(F.eb-i):String(i-F.eb);
-    out+=`<rect data-i="${i}" x="${x+1}" y="${y}" width="${bw-2}" height="${bh}" rx="3" fill="${shown?col:COL.bg}" fill-opacity="${shown?(b==='1'?.3:.08):1}" stroke="${shown?col:COL.grey}" stroke-width="${shown?1.6:1.2}"${shown?'':' stroke-dasharray="3 3"'}><title>${fld===0?'sign bit':fld===1?'exponent bit c'+lab:'mantissa bit β'+lab} (click to toggle)</title></rect>`;
-    if(shown)out+=`<text x="${x+bw/2}" y="${y+bh/2+5.5}" font-size="${bw<24?14:16}" font-weight="${b==='1'?750:500}" text-anchor="middle" fill="${b==='1'?COL.navy:COL.grey}" pointer-events="none">${b}</text>`;
-    out+=txt(x+bw/2,y+bh+ls+3,fld===0?'':lab,{size:ls,c:shown?col:COL.grey});
-    /* field name above the first bit of each field in a row */
-    if(i===0||i===1||i===1+F.eb||i%perRow===0)out+=txt(x+2,y-5,fld===0?'s':fld===1?'c':'β',{size:ls+2,c:col,weight:750,anchor:'start'});}
-  const rows=Math.ceil(n/perRow);svgSize(svg,W,rows*rowH);svg.innerHTML=out;}
+    const f=fld(i),shown=rev>f,col=cols[f],b=bits[i];
+    const lab=f===0?'sign bit s':f===1?'exponent bit c'+(F.eb-i):'mantissa bit β'+(i-F.eb);
+    out+=`<rect data-i="${i}" x="${x+1.5}" y="${y}" width="${bw-3}" height="${bh}" rx="4" fill="${shown?col:COL.bg}" fill-opacity="${shown?(b==='1'?.3:.08):1}" stroke="${shown?col:COL.grey}" stroke-width="${shown?2:1.2}"${shown?'':' stroke-dasharray="4 4"'}><title>${lab}, bit ${n-i} (click to toggle)</title></rect>`;
+    if(shown)out+=`<text x="${x+bw/2}" y="${y+bh/2+fs*0.36}" font-size="${fs}" font-weight="${b==='1'?750:500}" text-anchor="middle" fill="${b==='1'?COL.navy:COL.grey}" pointer-events="none">${b}</text>`;
+    out+=txt(x+bw/2,y+bh+ls+2,n-i,{size:ls-1,c:COL.grey});}
+  /* a bracket over each field in each row, with the field name above it */
+  const rows=Math.ceil(n/perRow);
+  for(let r=0;r<rows;r++)for(let f=0;f<3;f++){const idx=[];for(let i=r*perRow;i<Math.min(n,(r+1)*perRow);i++)if(fld(i)===f)idx.push(i);
+    if(!idx.length)continue;const a=x0+(idx[0]%perRow)*bw+3,c=x0+(idx[idx.length-1]%perRow)*bw+bw-3,y=r*rowH+top-7,col=cols[f],first=idx[0]===[0,1,1+F.eb][f];
+    out+=`<path d="M${a} ${y+5}V${y}H${c}V${y+5}" fill="none" stroke="${col}" stroke-width="2"/>`;
+    const name=f===0?'s':f===1?(first&&c-a>90?`c (${F.eb} bits)`:'c'):(first&&c-a>120?`β (${F.mb} bits)`:'β');
+    out+=txt((a+c)/2,y-5,name,{size:ls+2,c:col,weight:750});}
+  svgSize(svg,W,rows*rowH);svg.innerHTML=out;}
 
 /* number line in units of the gap Δ above x̃ */
 function drawLine(){
   const p=plot,small=($('plot').parentElement.clientWidth||700)<600,H=small?170:200;
-  if(V.kind==='nan'||V.kind==='inf'){p.begin([-1,1],[0,1],{h:H,ml:16});p.L.back.push(`<rect x="${p.m.l}" y="${p.m.t}" width="${p.pw}" height="${p.ph}" fill="none" stroke="${COL.grey}" stroke-width="1.5"/>`);
+  if(V.kind==='nan'||V.kind==='inf'){$('nbrs').innerHTML='';p.begin([-1,1],[0,1],{h:H,ml:16});p.L.back.push(`<rect x="${p.m.l}" y="${p.m.t}" width="${p.pw}" height="${p.ph}" fill="none" stroke="${COL.grey}" stroke-width="1.5"/>`);
     p.ptext(p.m.l+p.pw/2,p.m.t+p.ph/2+6,V.kind==='nan'?'NaN is not on the number line':'x̃ = '+(V.s?'−':'')+'∞: not a finite number',{c:COL.orange});p.end();return;}
   const mbB=BigInt(F.mb),mag0=(BigInt(V.c)<<mbB)|V.f,J0=V.s?-mag0:mag0,maxMag=(BigInt(F.cmax)<<mbB)-1n;
   const kD=Math.max(V.c,1)-F.bias-F.mb,v0=valJ(F,J0),u=J=>rnum(rscale(rsub(valJ(F,J),v0),kD));
@@ -303,7 +323,9 @@ function drawLine(){
   const labs=[[p.X(0),'x̃ stored',COL.orange]];if(er&&!er.zero)labs.push([p.X(uxe),'x typed',COL.teal]);
   labs.sort((a,b)=>a[0]-b[0]);const XS=spread(labs.map(l=>l[0]),small?92:116,m.l+40,m.l+p.pw-40);
   labs.forEach((l,i)=>p.ptext(XS[i],p.Y(0.14),er&&er.zero?'x = x̃ (exact)':l[1],{c:l[2],weight:800}));
-  p.end();}
+  p.end();
+  const dg=Math.min(17,F.digits+1),sh=J=>has(J-J0)?sgn(rnum(valJ(F,J)).toPrecision(dg)):'—';
+  $('nbrs').innerHTML=`Neighbours: previous float ${sh(J0-1n)}, &nbsp;<b style="color:var(--orange)">x̃ = ${V.M===undefined||sigDigits(decOfBin(V.M,V.k))<=dg?storedTxt():sgn(rnum(v0).toPrecision(dg))}</b>, &nbsp;next float ${sh(J0+1n)}. Gap above x̃: Δ = 2${sup(kD)} ≈ ${sciS(2**kD,3)}`+(V.f===0n&&V.c>1?' (below x̃ the gap is half as large: x̃ is a power of 2)':'')+'.';}
 
 /* gap between neighbouring floats against |x| (log–log) */
 function gapAt(x){const e=Math.max(F.emin,Math.floor(Math.log2(x)));return 2**(e-F.mb);}
@@ -332,9 +354,9 @@ function drawStair(){
 /* ---------- read-out ---------- */
 function render(k){
   if(!A){drawBits(0);plot.begin([0,1],[0,1],{h:170,ml:16});plot.end();plot2.begin([1,10],[1,10],{logx:true,log:true,hfrac:.72});plot2.axes();plot2.end();
-    setFormula('');setStatus('bad',$('numErr').textContent);renderTable('tbl',[],[],-1);return;}
+    setFormula('');setStatus('bad',$('numErr').textContent);renderTable('tbl',[],[],-1);renderTable('tblCmp',[],[],-1);$('nbrs').innerHTML='';return;}
   const s=STEPS[Math.min(k,STEPS.length-1)];
-  drawBits(s.rev);drawLine();drawStair();
+  drawBits(s.rev);drawLine();drawStair();compareTable();
   setFormula(`<span class="line1">${s.l1}</span><span class="line2">${s.l2}</span><span class="line3">${s.l3}</span>`);
   /* status */
   const last=k>=S.last,fv=fieldVals(),er=errors();
@@ -355,7 +377,7 @@ function render(k){
     ['exponent c',cb,cv+cNote],
     ['bias e','',F.bias],
     ['true exponent c − e','',tE],
-    ['mantissa β',mbits,'0.β = '+fv.beta],
+    ['mantissa β',mbits.replace(/(.{4})(?=.)/g,'$1 '),'0.β = '+fv.beta],
     ['1 + β','',V.kind==='normal'?fv.onep:V.kind==='sub'?'0.β (subnormal)':'—'],
     ['stored x̃','',storedTxt(60)],
     ['error ε = x − x̃','',er?(er.zero?'0':sciS(er.e,4)):'—'],
@@ -363,6 +385,19 @@ function render(k){
   const prev=k>0?STEPS[Math.min(k-1,STEPS.length-1)].rows:0,nr=s.rows;
   renderTable('tbl',['field','bits','value'],all.slice(0,nr),-1,{cellClass:(i)=>i>=prev&&k>0?'new':''});
   if(!nr)$('tbl').querySelector('tbody').innerHTML=`<tr><td colspan="3" style="text-align:left;opacity:.75">The fields appear as the recipe reaches them.</td></tr>`;}
+/* the same x stored in each format */
+function compareTable(){
+  if(!X||X.special||CX&&forced){renderTable('tblCmp',[],[],-1);return;}
+  const mode=$('mode').value,rows=[];
+  for(const id of ['half','single','double']){const Fm=FORMATS[id],a=analyse(Fm,X,mode),d=decode(Fm,a.bits);
+    let st,er='—';
+    if(d.kind==='inf'||d.kind==='nan')st=(d.s?'−':'')+'∞ (overflow)';
+    else if(d.kind==='zero')st=(d.s?'−':'')+'0'+(X.N?' (underflow)':'');
+    else{const dec=decOfBin(d.M,d.k);st=sigDigits(dec)<=Math.max(12,Fm.digits+3)?(d.s?'−':'')+showDec(dec,40):'≈&nbsp;'+sgn(rnum(rat(d.s===1,d.M,d.k)).toPrecision(Fm.digits+1));}
+    if(d.kind!=='inf'&&d.kind!=='nan'&&X.N!==0n){const r=rsub({n:(X.neg?-1n:1n)*X.N,d:X.D},d.kind==='zero'?{n:0n,d:1n}:rat(d.s===1,d.M,d.k));
+      er=r.n===0n?'0 (exact)':sciS(ratio(r.n*X.D,r.d*X.N)*(X.neg?-1:1),3);}
+    rows.push([`${Fm.name.replace(' precision','')}<br><small>1 + ${Fm.eb} + ${Fm.mb} bits</small>`,st,er,`2${sup(-Fm.mb)} ≈ ${sciS(2**-Fm.mb,3)}`]);}
+  renderTable('tblCmp',['format','stored x̃','ε<sub>r</sub>','machine ε'],rows,['half','single','double'].indexOf(F.id));}
 const S=Stepper(render);S.delay=1300;
 
 function recompute(keepView){

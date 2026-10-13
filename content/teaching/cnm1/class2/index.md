@@ -47,4 +47,4 @@ build:
   </details>
 </div>
 
-<script src="module-demos.js"></script>
+<script src="../module-demos.js"></script>

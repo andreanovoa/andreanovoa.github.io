@@ -7,12 +7,18 @@
 <title>Decimal to Binary</title>
 <link rel="stylesheet" href="../demo.css">
 <style>
-@font-face{font-family:"CMU Sans Serif";src:url("fonts/cmunss.woff2") format("woff2");font-weight:400 600;font-display:swap}
-@font-face{font-family:"CMU Sans Serif";src:url("fonts/cmunsx.woff2") format("woff2");font-weight:700 900;font-display:swap}
-.ovl{text-decoration:overline}
-.store-note{margin:6px 0 0;font-size:.95rem;line-height:1.45}
+@font-face{font-family:"CMU Sans Serif";src:url("../fonts/cmunss.woff2") format("woff2");font-weight:400 600;font-display:swap}
+@font-face{font-family:"CMU Sans Serif";src:url("../fonts/cmunsx.woff2") format("woff2");font-weight:700 900;font-display:swap}
+:root{--pink:#B8559A}
+:root.dark{--pink:#E39CC9}
+.ovl{text-decoration:overline;text-decoration-thickness:2px}
+.store-note{margin:6px 0 0;font-size:.98rem;line-height:1.5}
 .store-note .bad{color:var(--orange);font-weight:700}
-.results-card .panel-title{margin-top:12px}
+.results-card .panel-title{margin-top:14px}
+.plotcard .panel-title{margin-top:14px}
+.plotcard .panel-title:first-child,.plotcard>div:first-child .panel-title{margin-top:0}
+#status,.formula{overflow-wrap:anywhere}
+#tblRange td:nth-child(2),#tblRange th:nth-child(2){text-align:left}
 </style>
 <link rel="stylesheet" href="../theme.css">
 </head>
@@ -20,15 +26,16 @@
 <div class="wrap">
 <header class="top">
   <h1>Decimal to binary</h1>
-  <p class="lede">Whole part: divide by 2, the remainder gives the next bit (read upwards). Fractional part: multiply by 2, the integer part gives the next bit (read downwards). Each step finds one bit.</p>
+  <p class="lede">Whole part: divide by 2; the remainder gives the next bit, and the bits are read upwards. Fractional part: multiply by 2; the integer part gives the next bit, and the bits are read downwards. Each step finds one bit.</p>
 </header>
 <main class="layout">
   <section class="plotcard">
-    <p class="panel-title">Place values: each bit counts a power of 2</p>
+    <div id="boxI"><p class="panel-title">Whole part: repeated division by 2</p>
+      <svg class="plot static" id="ladI" role="img" aria-label="Repeated division by 2: dividends, quotients and remainders"></svg></div>
+    <div id="boxF"><p class="panel-title">Fractional part: repeated multiplication by 2</p>
+      <svg class="plot static" id="ladF" role="img" aria-label="Repeated multiplication by 2: multiplicands, products and integer parts"></svg></div>
+    <p class="panel-title">Result: each bit counts a power of 2</p>
     <svg class="plot static" id="plot" role="img" aria-label="Bits of the number with their place values"></svg>
-    <p class="panel-title" id="storeTitle">Stored as a 32-bit integer (sign and magnitude)</p>
-    <svg class="plot static" id="store" role="img" aria-label="Sign and magnitude bit pattern of the whole part"></svg>
-    <p class="store-note" id="storeNote"></p>
   </section>
   <aside class="side">
     <label class="field span2">Number x<input id="num" type="text" value="942" spellcheck="false" autocomplete="off" inputmode="decimal"></label>
@@ -36,21 +43,23 @@
     <label class="field">Max fraction bits<input id="maxb" type="number" step="1" min="1" max="60" value="16"></label>
     <label class="field">Integer storage<select id="nbits"><option value="16">16-bit</option><option value="32" selected>32-bit</option><option value="64">64-bit</option></select></label>
     <div id="numErr" class="err full"></div>
-    <p class="hint">Keys: &rarr; step, &larr; back, p play, r reset</p>
+    <p class="hint">Keys: &rarr; step, &larr; back, p play, r reset, End show all</p>
   </aside>
   <div class="controls btns">
     <button id="btnBack" type="button" title="Back (left arrow)">&larr; Back</button>
     <button id="btnStep" type="button" class="primary" title="Step (right arrow)">Step &rarr;</button>
     <button id="btnPlay" type="button" title="Play / pause (p)">Play</button>
     <button id="btnReset" type="button" title="Reset (r)">Reset</button>
+    <button id="btnEnd" type="button" title="Show all (End)">Show all</button>
   </div>
   <section class="results-card">
     <div class="formula wrap" id="formula">&nbsp;</div>
     <div class="status" id="status">&nbsp;</div>
-    <div id="boxI"><p class="panel-title">Whole part: repeated division by 2</p>
-      <div class="tablewrap scroll"><table id="tblI"></table></div></div>
-    <div id="boxF"><p class="panel-title">Fractional part: repeated multiplication by 2</p>
-      <div class="tablewrap scroll"><table id="tblF"></table></div></div>
+    <p class="panel-title" id="storeTitle">Stored as a 32-bit integer (sign and magnitude)</p>
+    <svg class="plot static" id="store" role="img" aria-label="Sign and magnitude bit pattern of the whole part"></svg>
+    <p class="store-note" id="storeNote"></p>
+    <p class="panel-title">Range of sign and magnitude integers</p>
+    <div class="tablewrap"><table id="tblRange"></table></div>
   </section>
 </main>
 <footer style="margin-top:1rem;color:var(--grey);font-size:.8rem">© Andrea Nóvoa</footer>
@@ -69,24 +78,27 @@ const PRESETS=[
  {id:'15.5',label:'15.5'},
  {id:'-6.75',label:'−6.75'},
  {id:'-5',label:'−5 (integer storage)'},
+ {id:'32767',label:'32 767 (largest 16-bit integer)'},
  {id:'40000',label:'40 000 (too large for 16 bits)'},
  {id:'custom',label:'Custom: type a number'}];
+const pink=()=>getComputedStyle(document.documentElement).getPropertyValue('--pink').trim();
 
 /* ---------- exact conversion (BigInt, no rounding) ---------- */
 const pow10=n=>10n**BigInt(n);
+/* thin-space digit groups for 5 digits or more, as in the notes (32 767, 2 147 483 647) */
+const group=s=>s.replace(/\d{5,}/,w=>w.replace(/\B(?=(\d{3})+(?!\d))/g,' '));
 /* decimal string of f/D, where D is a power of 10 */
 function fracStr(f,D){const d=D.toString().length-1;const ip=(f/D).toString();
   if(d===0)return ip;const fp=(f%D).toString().padStart(d,'0').replace(/0+$/,'');return fp?ip+'.'+fp:ip;}
-const group=s=>s.replace(/\B(?=(\d{3})+(?!\d))/g,',');
 const sup=e=>'<sup>'+String(e).replace('-','−')+'</sup>';
 const tsup=e=>`<tspan dy="-0.5em" font-size="75%">${String(e).replace('-','−')}</tspan><tspan dy="0.5em"> </tspan>`;
 function convert(raw,maxb){
-  const s=String(raw).trim().replace(/[−–]/g,'-').replace(/[\s,_]/g,'');
+  const s=String(raw).trim().replace(/[−–]/g,'-').replace(/[\s,_ ]/g,'');
   const m=s.match(/^([+-])?(\d*)(?:\.(\d*))?$/);
   if(!m||(!m[2]&&!m[3]))return{error:'Type a decimal number such as 942, 0.1 or −6.75 (no exponent).'};
   const ip=(m[2]||'0').replace(/^0+(?=\d)/,''),fp=(m[3]||'').replace(/0+$/,'');
   if(fp.length>20)return{error:'Use at most 20 digits after the point.'};
-  const I=BigInt(ip);if(I>=(1n<<64n))return{error:'Use a whole part below 2⁶⁴ = 18,446,744,073,709,551,616.'};
+  const I=BigInt(ip);if(I>=(1n<<64n))return{error:'Use a whole part below 2⁶⁴ = 18 446 744 073 709 551 616.'};
   const neg=m[1]==='-'&&(I>0n||fp.length>0);
   /* whole part: repeated division by 2 */
   const rI=[];let x=I,n=0;
@@ -97,7 +109,7 @@ function convert(raw,maxb){
     if(seen.has(f)){rep=seen.get(f);end='repeat';break;}
     if(k>maxb){end='cut';break;}
     seen.set(f,k);const p=2n*f,b=p>=D?1:0;rF.push({n:k,f,p,b});f=p-(b?D:0n);k++;}
-  return{neg,I,ip,fp,D,rI,rF,rep,end,txt:(neg?'−':'')+group(ip)+(fp?'.'+fp:'')};}
+  return{neg,I,ip,fp,D,rI,rF,rep,end,fEnd:f,txt:(neg?'−':'')+group(ip)+(fp?'.'+fp:'')};}
 /* binary digits found after k steps */
 function wholeBits(R,ki){return R.rI.slice(0,ki).map(r=>r.b).reverse().join('');}
 function fracBits(R,kf,done){const b=R.rF.slice(0,kf).map(r=>r.b);
@@ -113,7 +125,6 @@ function sumCheck(R,ki,kf){const terms=[];let num=0n;
   const sh=BigInt(kf);let fr=0n;
   for(let j=0;j<kf;j++)if(R.rF[j].b){terms.push('2'+sup(-(j+1)));fr+=1n<<(sh-BigInt(j+1));}
   if(!terms.length)return '';
-  /* exact decimal of num + fr / 2^kf */
   let val=group(num.toString());
   if(fr>0n){const t=(fr*5n**sh).toString().padStart(kf,'0').replace(/0+$/,'');val+='.'+t;}
   const shown=terms.length>9?terms.slice(0,4).join(' + ')+' + … + '+terms.slice(-3).join(' + '):terms.join(' + ');
@@ -123,53 +134,92 @@ function sumCheck(R,ki,kf){const terms=[];let num=0n;
 function svgSize(svg,W,H){svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.setAttribute('width',W);svg.setAttribute('height',H);}
 function txt(x,y,t,o){o=o||{};return `<text x="${x}" y="${y}" fill="${o.c||COL.navy}" font-size="${o.size||14}" font-weight="${o.weight||500}" text-anchor="${o.anchor||'middle'}">${t}</text>`;}
 function box(x,y,w,h,o){return `<rect x="${x+1.5}" y="${y}" width="${w-3}" height="${h}" rx="4" fill="${o.fill||'none'}" fill-opacity="${o.fop==null?.16:o.fop}" stroke="${o.stroke||COL.grey}" stroke-width="${o.sw||1.8}"${o.dash?' stroke-dasharray="4 4"':''}/>`;}
-/* lay items (width in px) in centred rows that wrap */
-function layoutRows(items,W,pad){const rows=[[]];let x=0;
-  for(const it of items){if(x+it.w>W-2*pad&&rows[rows.length-1].length){rows.push([]);x=0;}it.x=x;x+=it.w;rows[rows.length-1].push(it);}
-  for(const r of rows){const rw=r.reduce((s,it)=>s+it.w,0),off=Math.max(pad,(W-rw)/2);for(const it of r)it.x+=off;}
-  rows.forEach((r,i)=>r.forEach(it=>it.row=i));return rows.length;}
+const plain=t=>String(t).replace(/<[^>]+>/g,'');
+
+/* the conversion ladder: one row per step, the bit of each row in a box, and an arrow giving the reading order.
+   rows: [{c:[cells], bit, cur, ghost, note, teal:[columns]}]; o.dir 'up' or 'down'; o.drop: columns to drop when narrow */
+function drawLadder(svg,head,rows,o){
+  const W=Math.max(260,Math.round(svg.parentElement.clientWidth||700)),small=W<600;
+  if(!rows.length){svgSize(svg,W,1);svg.innerHTML='';return;}
+  const bitJ=head.length-1;let fs=small?15:20;
+  let cols=head.map((h,j)=>({h,j,n:Math.max(plain(h).length,...rows.map(r=>r.ghost&&j>1?0:plain(r.c[j]).length))}));
+  const arrowW=fs*3.2,cellW=(c,f)=>c.j===bitJ?f*2.4:c.n*f*0.56+f*1.3,widthOf=(cs,f)=>cs.reduce((s,c)=>s+cellW(c,f),0)+arrowW;
+  while(widthOf(cols,fs)>W&&fs>13)fs--;
+  if(widthOf(cols,fs)>W&&o.drop){cols=cols.filter(c=>!o.drop.includes(c.j));fs=small?15:20;}
+  while(widthOf(cols,fs)>W&&fs>10)fs--;
+  const rh=Math.round(fs*2),hh=Math.round(fs*1.7),MAXR=small?10:12;
+  let list=rows,skipped=0;if(rows.length>MAXR){skipped=rows.length-MAXR+1;list=rows.slice(skipped);}
+  const tot0=cols.reduce((s,c)=>s+cellW(c,fs),0),off=small?0:Math.max(0,(W-tot0-arrowW)/2);
+  const X=[];let x=off;for(const c of cols){X.push(x);x+=cellW(c,fs);}const tot=x;
+  let out='';
+  cols.forEach((c,i)=>out+=txt(X[i]+cellW(c,fs)/2,hh-fs*0.55,c.h,{size:fs-2,c:COL.grey,weight:700}));
+  out+=`<line x1="${off}" y1="${hh}" x2="${tot+arrowW-4}" y2="${hh}" stroke="${COL.grey}" stroke-width="1" opacity=".5"/>`;
+  out+=txt(tot+arrowW/2,hh-fs*0.55,'read',{size:fs-2,c:COL.orange,weight:700});
+  let y=hh+4;
+  if(skipped){out+=txt(X[0]+4,y+rh*0.62,`⋮ ${skipped} earlier row${skipped>1?'s':''}`,{size:fs-3,c:COL.grey,anchor:'start'});y+=rh;}
+  const y0=y;
+  for(const r of list){
+    if(r.cur)out+=`<rect x="${off}" y="${y+1}" width="${tot-off}" height="${rh-2}" rx="6" fill="${COL.orange}" fill-opacity=".12"/>`;
+    cols.forEach((c,i)=>{const cx=X[i]+cellW(c,fs)/2,cy=y+rh/2+fs*0.36;
+      if(c.j===bitJ){if(r.ghost)return;const s=rh-8,col=r.cur?COL.orange:COL.curve;
+        out+=`<rect x="${cx-s/2}" y="${y+4}" width="${s}" height="${s}" rx="4" fill="${col}" fill-opacity="${r.bit?.22:.06}" stroke="${col}" stroke-width="${r.cur?3:1.8}"/>`;
+        out+=txt(cx,cy,r.bit,{size:fs,weight:800,c:r.cur?COL.orange:r.bit?COL.navy:COL.grey});return;}
+      if(r.ghost&&c.j>1)return;
+      const teal=r.teal&&r.teal.includes(c.j);
+      out+=txt(cx,cy,r.c[c.j],{size:fs,weight:teal||r.cur||c.j===0?700:500,c:teal?COL.teal:c.j===0?COL.grey:COL.navy});});
+    if(r.ghost&&r.note){const i=cols.findIndex(c=>c.j>1);if(i>=0)out+=txt(X[i]+4,y+rh/2+fs*0.36,r.note,{size:fs-1,c:COL.teal,weight:700,anchor:'start'});}
+    y+=rh;}
+  /* reading-order arrow beside the bit column, over the rows that hold bits */
+  const bitRows=list.filter(r=>!r.ghost).length;
+  if(bitRows>=2){const ax=tot+arrowW/2,ya=y0+rh/2,yb=y0+(bitRows-1)*rh+rh/2,[ys,ye]=o.dir==='up'?[yb,ya]:[ya,yb],hd=o.dir==='up'?-1:1;
+    out+=`<line x1="${ax}" y1="${ys}" x2="${ax}" y2="${ye-hd*9}" stroke="${COL.orange}" stroke-width="3" stroke-linecap="round"/>`;
+    out+=`<path d="M${ax-7} ${ye-hd*11}L${ax} ${ye}L${ax+7} ${ye-hd*11}Z" fill="${COL.orange}"/>`;}
+  svgSize(svg,W,y+4);svg.innerHTML=out;}
 
 function drawPlace(R,ki,kf){
   const svg=$('plot'),W=Math.max(260,Math.round(svg.parentElement.clientWidth||700)),small=W<600;
   if(!R){svgSize(svg,W,60);svg.innerHTML='';return;}
-  const bw=small?38:46,bh=small?36:42,fs=small?18:21,ls=small?12:13,pad=4,top=26,rowH=top+bh+2*ls+18;
+  const nIt=(R.rI.length||1)+(R.rF.length?R.rF.length+1.2:0),bw=small?Math.max(28,Math.min(36,(W-10)/nIt)):Math.max(36,Math.min(50,(W-10)/nIt)),bh=small?36:48,fs=small?19:24,ls=small?12:14,pad=4,top=28,rowH=top+bh+2*ls+20;
   const nI=R.rI.length,items=[];
   if(!nI)items.push({kind:'bit',pow:0,bit:0,known:true,cur:false,w:bw});
   for(let p=nI-1;p>=0;p--)items.push({kind:'bit',pow:p,bit:R.rI[p].b,known:p<ki,cur:kf===0&&p===ki-1,w:bw});
   if(R.rF.length){items.push({kind:'pt',w:bw*0.45});
     R.rF.forEach((r,j)=>items.push({kind:'bit',pow:-(j+1),bit:r.b,known:j<kf,cur:j===kf-1,w:bw,fi:j+1}));
     if(R.end==='cut'||R.end==='repeat')items.push({kind:'more',w:bw*0.7});}
-  const nRows=layoutRows(items,W,pad);let out='';
+  const rows=[[]];let x=0;
+  for(const it of items){if(x+it.w>W-2*pad&&rows[rows.length-1].length){rows.push([]);x=0;}it.x=x;x+=it.w;rows[rows.length-1].push(it);}
+  for(const r of rows){const rw=r.reduce((s,it)=>s+it.w,0),off=Math.max(pad,(W-rw)/2);for(const it of r)it.x+=off;}
+  rows.forEach((r,i)=>r.forEach(it=>it.row=i));const nRows=rows.length;let out='';
   for(const it of items){const y=it.row*rowH+top;
     if(it.kind==='pt'){out+=`<circle cx="${it.x+it.w/2}" cy="${y+bh-5}" r="5" fill="${COL.orange}"/>`;continue;}
     if(it.kind==='more'){out+=txt(it.x+it.w/2,y+bh*0.62,'…',{size:fs,c:COL.grey,weight:700});continue;}
     const c=it.cur?COL.orange:COL.curve;
-    out+=it.known?box(it.x,y,it.w,bh,{fill:c,stroke:c,sw:it.cur?3.2:1.8,fop:it.cur?.2:.13}):box(it.x,y,it.w,bh,{stroke:COL.grey,dash:true,sw:1.4});
-    if(it.known)out+=txt(it.x+it.w/2,y+bh/2+fs*0.36,it.bit,{size:fs,weight:750,c:it.cur?COL.orange:COL.navy});
+    out+=it.known?box(it.x,y,it.w,bh,{fill:c,stroke:c,sw:it.cur?3.2:1.8,fop:it.cur?.2:(it.bit?.2:.05)}):box(it.x,y,it.w,bh,{stroke:COL.grey,dash:true,sw:1.4});
+    if(it.known)out+=txt(it.x+it.w/2,y+bh/2+fs*0.36,it.bit,{size:fs,weight:750,c:it.cur?COL.orange:it.bit?COL.navy:COL.grey});
     out+=txt(it.x+it.w/2,y+bh+ls+3,'2'+tsup(it.pow),{size:ls,c:COL.grey});
-    if(it.known&&it.bit){let v;if(it.pow>=0)v=(1n<<BigInt(it.pow)).toString();else v=fracStr(1n*5n**BigInt(-it.pow),pow10(-it.pow));
-      if(v.length*ls*0.56<=it.w-2)out+=txt(it.x+it.w/2,y+bh+2*ls+8,v,{size:ls,c:COL.curve,weight:650});}}
+    if(it.known&&it.bit){let v;if(it.pow>=0)v=group((1n<<BigInt(it.pow)).toString());else v=fracStr(1n*5n**BigInt(-it.pow),pow10(-it.pow));
+      if(v.length*ls*0.56<=it.w-2)out+=txt(it.x+it.w/2,y+bh+2*ls+8,v,{size:ls,c:it.cur?COL.orange:COL.curve,weight:700});}}
   /* bracket over the repeating block once all bits are found */
   if(R.end==='repeat'&&kf===R.rF.length){const blk=items.filter(it=>it.fi&&it.fi>=R.rep);let first=true;
     for(let r=0;r<nRows;r++){const seg=blk.filter(it=>it.row===r);if(!seg.length)continue;
       const a=seg[0].x+4,b=seg[seg.length-1].x+seg[seg.length-1].w-4,y=r*rowH+top-7;
       out+=`<path d="M${a} ${y+5}V${y}H${b}V${y+5}" fill="none" stroke="${COL.teal}" stroke-width="2.5"/>`;
-      if(first){out+=txt((a+b)/2,y-5,'repeats',{size:ls+1,c:COL.teal,weight:700});first=false;}}}
+      if(first){out+=txt((a+b)/2,y-6,'repeats for ever',{size:ls,c:COL.teal,weight:700});first=false;}}}
   svgSize(svg,W,nRows*rowH+2);svg.innerHTML=out;}
 
 function drawStore(R,ki){
   const svg=$('store'),W=Math.max(260,Math.round(svg.parentElement.clientWidth||700)),N=+$('nbits').value;
   $('storeTitle').textContent=`Stored as a ${N}-bit integer (sign and magnitude)`;
   if(!R){svgSize(svg,W,40);svg.innerHTML='';$('storeNote').innerHTML='';return;}
-  const perRow=W>=560?16:8,bw=Math.min(42,(W-8)/perRow),bh=30,ls=W<600?11:12,rowH=bh+2*ls+20,max=(1n<<BigInt(N-1))-1n;
-  const nI=R.rI.length,over=R.I>max,done=ki>=nI;let out='';
+  const perRow=W>=560?16:8,bw=Math.min(42,(W-8)/perRow),bh=32,ls=W<600?11:12,rowH=bh+2*ls+20,max=(1n<<BigInt(N-1))-1n;
+  const nI=R.rI.length,over=R.I>max,done=ki>=nI,P=pink();let out='';
   for(let i=0;i<N;i++){const r=Math.floor(i/perRow),x=(W-perRow*bw)/2+(i%perRow)*bw,y=r*rowH+ls+8,bitNo=N-i;
-    if(i===0){out+=box(x,y,bw,bh,{fill:COL.orange,stroke:COL.orange,sw:2.4});
-      out+=txt(x+bw/2,y+bh/2+6,R.neg?1:0,{size:17,weight:750});out+=txt(x+bw/2,y-5,'s',{size:ls+1,c:COL.orange,weight:750});}
+    if(i===0){out+=box(x,y,bw,bh,{fill:P,stroke:P,sw:2.4,fop:R.neg?.3:.1});
+      out+=txt(x+bw/2,y+bh/2+6,R.neg?1:0,{size:17,weight:750});out+=txt(x+bw/2,y-5,'s',{size:ls+1,c:P,weight:750});}
     else{const p=N-1-i;/* place value 2^p, β index i */
       const known=!over&&(p<ki||done),bit=p<nI?R.rI[p].b:0,cur=!over&&!done&&p===ki-1;
       if(over)out+=box(x,y,bw,bh,{stroke:COL.orange,dash:true,sw:1.4});
-      else if(known)out+=box(x,y,bw,bh,{fill:cur?COL.orange:COL.curve,stroke:cur?COL.orange:COL.curve,sw:cur?3:1.6,fop:bit?.2:.06});
+      else if(known)out+=box(x,y,bw,bh,{fill:cur?COL.orange:COL.curve,stroke:cur?COL.orange:COL.curve,sw:cur?3:1.6,fop:bit?.22:.05});
       else out+=box(x,y,bw,bh,{stroke:COL.grey,dash:true,sw:1.2});
       if(known)out+=txt(x+bw/2,y+bh/2+6,bit,{size:17,weight:bit?750:500,c:cur?COL.orange:bit?COL.navy:COL.grey});
       out+=txt(x+bw/2,y-5,'β<tspan dy="0.3em" font-size="80%">'+i+'</tspan>',{size:ls,c:COL.curve,weight:650});}
@@ -178,29 +228,39 @@ function drawStore(R,ki){
   out+=txt(W/2,rows*rowH+10,'bit number',{size:ls,c:COL.grey});
   svgSize(svg,W,rows*rowH+16);svg.innerHTML=out;
   const maxS=group(max.toString()),whole=group(R.I.toString());
-  let note=`${N} bits: 1 sign bit and ${N-1} magnitude bits β = β<sub>1</sub>…β<sub>${N-1}</sub>; range ±(2${sup(N-1)} − 1) = ±${maxS}.`;
+  let note=`${N} bits: 1 sign bit s and ${N-1} magnitude bits β = β<sub>1</sub>…β<sub>${N-1}</sub>.`;
   if(R.fp)note=`An integer variable keeps only the whole part, ${R.neg&&R.I>0n?'−':''}${whole}; the fractional part is discarded. `+note;
-  if(over)note=`<span class="bad">Overflow: ${whole} &gt; 2${sup(N-1)} − 1 = ${maxS}, so it cannot be stored in ${N} bits.</span>`+(N===16?' A 16-bit conversion like this one failed on Ariane 5.':'')+` `+note;
+  if(over)note=`<span class="bad">Overflow: ${whole} &gt; 2${sup(N-1)} − 1 = ${maxS}, so it cannot be stored in ${N} bits.</span>`+(N===16?' A 16-bit conversion like this one failed on Ariane 5 (1996).':'')+` `+note;
   else if(done)note=`s = ${R.neg?1:0}, β = ${nI?wholeBits(R,nI):'0'}<sub>2</sub>`+(nI<N-1?' (all other bits are 0)':'')+'. '+note;
-  $('storeNote').innerHTML=note;}
+  $('storeNote').innerHTML=note;
+  const rowsT=[16,32,64].map(n=>{const m=(1n<<BigInt(n-1))-1n,fits=R.I<=m;
+    return[n,`±(2${sup(n-1)} − 1) = ±${group(m.toString())}`,fits?`<span style="color:var(--teal);font-weight:700">fits</span>`:`<span style="color:var(--orange);font-weight:700">overflow</span>`];});
+  renderTable('tblRange',['bits','range','|x| = '+whole],rowsT,[16,32,64].indexOf(N));}
 
 /* ---------- stepping ---------- */
 let R=null;
 function render(k){
-  if(!R||R.error){drawPlace(null);drawStore(null);setFormula('');setStatus('bad',R?R.error:'');renderTable('tblI',[],[],-1);renderTable('tblF',[],[],-1);return;}
+  if(!R||R.error){drawPlace(null);drawStore(null);setFormula('');setStatus('bad',R?R.error:'');drawLadder($('ladI'),[],[],{});drawLadder($('ladF'),[],[],{});renderTable('tblRange',[],[],-1);return;}
   const nI=R.rI.length,ki=Math.min(k,nI),kf=Math.max(0,k-nI),done=k>=S.last;
+  $('boxI').hidden=!nI;$('boxF').hidden=!R.rF.length;
+  /* ladders: the rows found so far, in the layout of the tables in the notes */
+  drawLadder($('ladI'),['n','x','x / 2','⌊x / 2⌋','remainder','Bₙ'],
+    R.rI.slice(0,ki).map((r,i)=>({c:[r.n,group(r.x.toString()),group(r.q.toString())+(r.b?'.5':''),group(r.q.toString()),r.b?'0.5':'0'],bit:r.b,cur:kf===0&&i===ki-1})),{dir:'up',drop:[2,4]});
+  const fr=R.rF.slice(0,kf).map((r,i)=>({c:[r.n,fracStr(r.f,R.D),fracStr(r.p,R.D),r.b],bit:r.b,cur:i===kf-1}));
+  if(done&&R.end==='repeat'){fr[R.rep-1].teal=[1];
+    fr.push({c:[R.rF.length+1,fracStr(R.fEnd,R.D)],ghost:true,teal:[0,1],note:`same as n = ${R.rep}: the bits repeat`});}
+  drawLadder($('ladF'),['n','x','2x','integer part','bₙ'],fr,{dir:'down',drop:[3]});
   drawPlace(R,ki,kf);drawStore(R,ki);
-  const abs=group(R.ip)+(R.fp?'.'+R.fp:'');
   let l1,l2;
   if(k===0){l1=`x = ${R.txt}: whole part ${group(R.ip)}${R.fp?', fractional part 0.'+R.fp:''}`;
     l2=nI?'Whole part: divide by 2; a remainder of 0.5 means the bit is 1.':'The whole part is 0.';
     if(R.fp)l2+=' Fractional part: multiply by 2; the integer part of the product is the bit.';}
-  else if(kf===0){const r=R.rI[ki-1],half=r.q.toString()+(r.b?'.5':'');
-    l1=`${group(r.x.toString())} / 2 = ${group(half)} &rarr; quotient ${group(r.q.toString())}, remainder ${r.b?'0.5':'0'} &rarr; <b>B<sub>${r.n}</sub> = ${r.b}</b>`;
-    l2=r.q===0n?`Quotient 0: done. Read the bits upwards: ${abs.split('.')[0]} = <b>${wholeBits(R,ki)}<sub>2</sub></b>`:`Bits so far, read upwards: ${binStr(R,ki,0)}`;}
-  else{const r=R.rF[kf-1];
+  else if(kf===0){const r=R.rI[ki-1],half=group(r.q.toString())+(r.b?'.5':'');
+    l1=`${group(r.x.toString())} / 2 = ${half} &rarr; quotient ${group(r.q.toString())}, remainder ${r.b?'0.5':'0'} &rarr; <b>B<sub>${r.n}</sub> = ${r.b}</b>`;
+    l2=r.q===0n?`Quotient 0: done. Read the bits upwards: ${group(R.ip)} = <b>${wholeBits(R,ki)}<sub>2</sub></b>`:`Next, divide the quotient ${group(r.q.toString())} by 2. Bits so far, read upwards: ${binStr(R,ki,0)}`;}
+  else{const r=R.rF[kf-1],rest=r.p-(r.b?R.D:0n);
     l1=`2 × ${fracStr(r.f,R.D)} = ${fracStr(r.p,R.D)} &rarr; integer part ${r.b} &rarr; <b>b<sub>${r.n}</sub> = ${r.b}</b>`;
-    l2=`Bits so far, read downwards: ${binStr(R,ki,kf)}`;}
+    l2=rest===0n?`Fractional part 0: done. Bits, read downwards: ${binStr(R,ki,kf)}`:`Next, multiply ${fracStr(rest,R.D)} by 2. Bits so far, read downwards: ${binStr(R,ki,kf)}`;}
   setFormula(`<span class="line1">${l1}</span><span class="line2">${l2}</span><span class="line3">${sumCheck(R,ki,kf)||'&nbsp;'}</span>`);
   if(done){const res=`${R.txt} = ${binStr(R,nI,R.rF.length)}`;
     if(R.end==='repeat'){const a=R.rF[R.rep-1],b=R.rF.length;
@@ -208,23 +268,21 @@ function render(k){
     else if(R.end==='cut')setStatus('bad',`Stopped after ${R.rF.length} fraction bits: ${R.txt} ≈ ${binStr(R,nI,R.rF.length)} (not finished: raise the bit limit)`);
     else setStatus('ok',res);}
   else setStatus('info',k===0?'Press Step (&rarr;) to find the first bit.':`Step ${k} of ${S.last}. Press Step (&rarr;) for the next bit.`);
-  /* tables in the course layout */
-  $('boxI').hidden=!nI;$('boxF').hidden=!R.rF.length;
-  renderTable('tblI',['n','Dividend','Divisor','Quotient','Remainder','B<sub>n</sub>'],
-    R.rI.slice(0,ki).map(r=>[r.n,group(r.x.toString()),2,group(r.q.toString()),r.b?'0.5':'0','<b>'+r.b+'</b>']),kf===0?ki-1:-1);
-  renderTable('tblF',['n','Multiplicand','Multiplier','Product','Integer','b<sub>n</sub>'],
-    R.rF.slice(0,kf).map(r=>[r.n,fracStr(r.f,R.D),2,fracStr(r.p,R.D),r.b,'<b>'+r.b+'</b>']),kf-1);}
+  if(window.parent!==window)window.parent.postMessage({type:'module-demo-resize'},location.origin);}
 const S=Stepper(render);S.delay=1000;
 function recompute(){const mb=Math.max(1,Math.min(60,Math.round(num('maxb'))||16));
   R=convert($('num').value,mb);$('numErr').textContent=R.error||'';
   S.last=R.error?0:R.rI.length+R.rF.length;S.pause();S.set(0);}
 fillSelect('preset',PRESETS);
-onSelectChange('preset',()=>{const v=$('preset').value;if(v==='custom'){$('num').focus();return;}$('num').value=v.replace('-','−');recompute();});
+onSelectChange('preset',()=>{const v=$('preset').value;if(v==='custom'){$('num').focus();return;}$('num').value=v.replace('-','−');
+  if(v==='40000'||v==='32767')$('nbits').value='16';recompute();});
 $('num').addEventListener('input',debounce(()=>{const v=$('num').value.trim().replace(/[−–]/g,'-');
   $('preset').value=PRESETS.some(p=>p.id===v)?v:'custom';recompute();},300));
 $('num').addEventListener('keydown',e=>{if(e.key==='Enter')e.target.blur();});
 onNumber('maxb',debounce(recompute,250));
 onSelectChange('nbits',()=>S.show());
+/* optional deep link: converter.html?x=0.1 */
+(function(){const x=new URLSearchParams(location.search).get('x');if(x){$('num').value=x;$('preset').value=PRESETS.some(p=>p.id===x)?x:'custom';}})();
 recompute();
 </script>
 </body>
