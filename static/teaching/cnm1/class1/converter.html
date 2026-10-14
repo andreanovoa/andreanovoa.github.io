@@ -26,16 +26,16 @@
 <div class="wrap">
 <header class="top">
   <h1>Decimal to binary</h1>
-  <p class="lede">Whole part: subtract the largest power of 2 that fits; each power used gives a bit 1, each power skipped a bit 0, so the bits are found from the largest down to 2<sup>0</sup>. Fractional part: multiply by 2; the integer part gives the next bit, and the bits are read downwards. Each step finds one bit.</p>
+  <p class="lede">Whole part: subtract the largest power of 2 that fits; each power used gives a bit 1, each power skipped a bit 0, so the bits are found from the largest down to 2<sup>0</sup>. Fractional part: the same, with 2<sup>−1</sup> = 0.5, 2<sup>−2</sup> = 0.25, … Each step finds one bit, left to right.</p>
 </header>
 <main class="layout">
   <section class="plotcard">
-    <div id="boxI"><p class="panel-title">Whole part: subtract powers of 2, largest first</p>
-      <svg class="plot static" id="ladI" role="img" aria-label="Subtraction of powers of 2, largest first: remainders and bits"></svg></div>
-    <div id="boxF"><p class="panel-title">Fractional part: repeated multiplication by 2</p>
-      <svg class="plot static" id="ladF" role="img" aria-label="Repeated multiplication by 2: multiplicands, products and integer parts"></svg></div>
     <p class="panel-title">Result: each bit counts a power of 2</p>
     <svg class="plot static" id="plot" role="img" aria-label="Bits of the number with their place values"></svg>
+    <div id="boxI"><p class="panel-title">Whole part: subtract powers of 2, largest first</p>
+      <svg class="plot static" id="ladI" role="img" aria-label="Subtraction of powers of 2, largest first: remainders and bits"></svg></div>
+    <div id="boxF"><p class="panel-title">Fractional part: subtract 2<sup>−1</sup>, 2<sup>−2</sup>, …</p>
+      <svg class="plot static" id="ladF" role="img" aria-label="Subtraction of negative powers of 2: remainders and bits"></svg></div>
   </section>
   <aside class="side">
     <label class="field span2">Number x<input id="num" type="text" value="942" spellcheck="false" autocomplete="off" inputmode="decimal"></label>
@@ -103,13 +103,17 @@ function convert(raw,maxb){
   /* whole part: subtract powers of 2, largest first; rI[p] holds the step for place value 2^p */
   const nI=I>0n?I.toString(2).length:0,rI=new Array(nI);let x=I;
   for(let p=nI-1;p>=0;p--){const pw=1n<<BigInt(p),b=x>=pw?1:0,rest=b?x-pw:x;rI[p]={n:p,x,pw,b,rest};x=rest;}
-  /* fractional part: repeated multiplication by 2; stop when exact, when a multiplicand repeats, or at maxb bits */
+  /* fractional part: does 2^-k fit in what is left? Tracked exactly as f = (what is left) × D × 2^(k-1), so the bit is 1 when 2f ≥ D;
+     stop when exact, when f repeats (the same steps come back, scaled by a power of 2), or at maxb bits */
   const D=pow10(fp.length),rF=[],seen=new Map();let f=BigInt(fp||'0'),k=1,rep=-1,end='exact';
   while(f>0n){
     if(seen.has(f)){rep=seen.get(f);end='repeat';break;}
     if(k>maxb){end='cut';break;}
     seen.set(f,k);const p=2n*f,b=p>=D?1:0;rF.push({n:k,f,p,b});f=p-(b?D:0n);k++;}
   return{neg,I,ip,fp,D,rI,rF,rep,end,fEnd:f,txt:(neg?'−':'')+group(ip)+(fp?'.'+fp:'')};}
+/* exact decimal of g / (D 2^k) */
+const fracK=(R,g,k)=>fracStr(g*5n**BigInt(k),R.D*pow10(k));
+const pow2m=k=>fracStr(5n**BigInt(k),pow10(k));
 /* binary digits found after k steps (whole part: the ki largest place values) */
 const lowP=(R,ki)=>R.rI.length-ki;
 function wholeBits(R,ki){let s='';for(let p=R.rI.length-1;p>=lowP(R,ki);p--)s+=R.rI[p].b;return s;}
@@ -247,25 +251,26 @@ function render(k){
   /* ladders: the rows found so far, in the layout of the tables in the notes */
   drawLadder($('ladI'),['p','x','2ᵖ','2ᵖ ≤ x?','x − Bₚ·2ᵖ','Bₚ'],
     R.rI.slice(nI-ki).reverse().map((r,i)=>({c:[r.n,group(r.x.toString()),group(r.pw.toString()),r.b?'yes':'no',group(r.rest.toString())],bit:r.b,cur:kf===0&&i===ki-1})),{dir:'down',drop:[3]});
-  const fr=R.rF.slice(0,kf).map((r,i)=>({c:[r.n,fracStr(r.f,R.D),fracStr(r.p,R.D),r.b],bit:r.b,cur:i===kf-1}));
+  const fr=R.rF.slice(0,kf).map((r,i)=>({c:[r.n,fracK(R,r.f,r.n-1),pow2m(r.n),r.b?'yes':'no',fracK(R,r.p-(r.b?R.D:0n),r.n)],bit:r.b,cur:i===kf-1}));
   if(done&&R.end==='repeat'){fr[R.rep-1].teal=[1];
-    fr.push({c:[R.rF.length+1,fracStr(R.fEnd,R.D)],ghost:true,teal:[0,1],note:`same as n = ${R.rep}: the bits repeat`});}
-  drawLadder($('ladF'),['n','x','2x','integer part','bₙ'],fr,{dir:'down',drop:[3]});
+    fr.push({c:[R.rF.length+1,fracK(R,R.fEnd,R.rF.length)],ghost:true,teal:[0,1],note:`= x at k = ${R.rep}, ÷ 2${tsup(R.rF.length+1-R.rep)}: the bits repeat`});}
+  drawLadder($('ladF'),['k','x','2⁻ᵏ','2⁻ᵏ ≤ x?','x − bₖ·2⁻ᵏ','bₖ'],fr,{dir:'down',drop:[3]});
   drawPlace(R,ki,kf);drawStore(R,ki);
   let l1,l2;
   if(k===0){l1=`x = ${R.txt}: whole part ${group(R.ip)}${R.fp?', fractional part 0.'+R.fp:''}`;
     l2=nI?`Whole part: the largest power of 2 that fits in ${group(R.ip)} is 2${sup(nI-1)} = ${group((1n<<BigInt(nI-1)).toString())}; start there and work down to 2${sup(0)}.`:'The whole part is 0.';
-    if(R.fp)l2+=' Fractional part: multiply by 2; the integer part of the product is the bit.';}
+    if(R.fp)l2+=' Fractional part: the same with 2'+sup(-1)+' = 0.5, 2'+sup(-2)+' = 0.25, …';}
   else if(kf===0){const r=R.rI[nI-ki],X=group(r.x.toString()),P=`2${sup(r.n)} = ${group(r.pw.toString())}`;
     l1=r.b?`${P} ≤ ${X} &rarr; subtract: ${X} − ${group(r.pw.toString())} = ${group(r.rest.toString())} &rarr; <b>B<sub>${r.n}</sub> = 1</b>`:`${P} &gt; ${X} &rarr; skip &rarr; <b>B<sub>${r.n}</sub> = 0</b>`;
-    l2=r.n===0?`2${sup(0)} done. Read the bits left to right: ${group(R.ip)} = <b>${wholeBits(R,ki)}<sub>2</sub></b>`:`Next, compare ${group(r.rest.toString())} with 2${sup(r.n-1)}. Bits so far, largest first: ${binStr(R,ki,0)}`;}
+    l2=r.n===0?`2${sup(0)} done. Bits, left to right: ${group(R.ip)} = <b>${wholeBits(R,ki)}<sub>2</sub></b>`:`Next, compare ${group(r.rest.toString())} with 2${sup(r.n-1)}. Bits so far, largest first: ${binStr(R,ki,0)}`;}
   else{const r=R.rF[kf-1],rest=r.p-(r.b?R.D:0n);
-    l1=`2 × ${fracStr(r.f,R.D)} = ${fracStr(r.p,R.D)} &rarr; integer part ${r.b} &rarr; <b>b<sub>${r.n}</sub> = ${r.b}</b>`;
-    l2=rest===0n?`Fractional part 0: done. Bits, read downwards: ${binStr(R,ki,kf)}`:`Next, multiply ${fracStr(rest,R.D)} by 2. Bits so far, read downwards: ${binStr(R,ki,kf)}`;}
+    const X=fracK(R,r.f,r.n-1),P=`2${sup(-r.n)} = ${pow2m(r.n)}`,left=fracK(R,rest,r.n);
+    l1=r.b?`${P} ≤ ${X} &rarr; subtract: ${X} − ${pow2m(r.n)} = ${left} &rarr; <b>b<sub>${r.n}</sub> = 1</b>`:`${P} &gt; ${X} &rarr; skip &rarr; <b>b<sub>${r.n}</sub> = 0</b>`;
+    l2=rest===0n?`Nothing left: done. Bits, left to right: ${binStr(R,ki,kf)}`:`Next, compare ${left} with 2${sup(-r.n-1)}. Bits so far, left to right: ${binStr(R,ki,kf)}`;}
   setFormula(`<span class="line1">${l1}</span><span class="line2">${l2}</span><span class="line3">${sumCheck(R,ki,kf)||'&nbsp;'}</span>`);
   if(done){const res=`${R.txt} = ${binStr(R,nI,R.rF.length)}`;
-    if(R.end==='repeat'){const a=R.rF[R.rep-1],b=R.rF.length;
-      setStatus('ok',`${res} &nbsp;<span style="font-weight:500">(after n = ${b} the multiplicand is ${fracStr(a.f,R.D)} again, as at n = ${R.rep}: the bits ${R.rF.slice(R.rep-1).map(r=>r.b).join('')} repeat for ever)</span>`);}
+    if(R.end==='repeat'){const b=R.rF.length;
+      setStatus('ok',`${res} &nbsp;<span style="font-weight:500">(after k = ${b} what is left is the x of k = ${R.rep} divided by 2${sup(b+1-R.rep)}, so the same steps come back: the bits ${R.rF.slice(R.rep-1).map(r=>r.b).join('')} repeat for ever)</span>`);}
     else if(R.end==='cut')setStatus('bad',`Stopped after ${R.rF.length} fraction bits: ${R.txt} ≈ ${binStr(R,nI,R.rF.length)} (not finished: raise the bit limit)`);
     else setStatus('ok',res);}
   else setStatus('info',k===0?'Press Step (&rarr;) to find the first bit.':`Step ${k} of ${S.last}. Press Step (&rarr;) for the next bit.`);
