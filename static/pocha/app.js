@@ -1366,8 +1366,59 @@
     });
     bar.appendChild(tabs);
 
-    bar.appendChild(langBar());
+    var right = el('div', 'bar-right');
+    right.appendChild(themeButton());
+    right.appendChild(langBar());
+    bar.appendChild(right);
     return bar;
+  }
+
+  /* ---------- modo claro y oscuro / light and dark mode ---------- */
+
+  var SVG_NS = 'http://www.w3.org/2000/svg';
+
+  function isDark() {
+    return document.documentElement.classList.contains('dark') || document.body.classList.contains('dark');
+  }
+
+  // lo mismo que el botón del resto de la web, para que la preferencia sea común
+  // the same as the button on the rest of the site, so the preference is shared
+  function setTheme(mode) {
+    var other = mode === 'dark' ? 'light' : 'dark';
+    [document.documentElement, document.body].forEach(function (node) {
+      node.classList.remove(other);
+      node.classList.add(mode);
+    });
+    try { window.localStorage.setItem('pref-theme', mode); } catch (e) { /* modo privado */ }
+    if (window.updateThemeFavicons) window.updateThemeFavicons(mode);
+  }
+
+  function themeIcon(dark) {
+    var svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('aria-hidden', 'true');
+    var path = document.createElementNS(SVG_NS, 'path');
+    // en oscuro se ofrece el sol, en claro la luna / dark offers the sun, light offers the moon
+    path.setAttribute('d', dark
+      ? 'M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zM12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42'
+      : 'M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z');
+    svg.appendChild(path);
+    return svg;
+  }
+
+  function themeButton() {
+    var dark = isDark();
+    var btn = el('button', 'theme-toggle');
+    btn.type = 'button';
+    var label = dark ? t('themeLight') : t('themeDark');
+    btn.title = label;
+    btn.setAttribute('aria-label', label);
+    btn.appendChild(themeIcon(dark));
+    btn.addEventListener('click', function () {
+      setTheme(isDark() ? 'light' : 'dark');
+      refreshView();
+    });
+    return btn;
   }
 
   function viewLink(className, label, name) {
@@ -1382,10 +1433,27 @@
     return link;
   }
 
+  // banderas dibujadas, porque Windows muestra los emojis de bandera como letras
+  // drawn flags, because Windows shows flag emoji as letters
+  var FLAGS = {
+    es: '<svg viewBox="0 0 750 500" aria-hidden="true"><rect width="750" height="500" fill="#c60b1e"/>' +
+        '<rect y="125" width="750" height="250" fill="#ffc400"/></svg>',
+    en: '<svg viewBox="0 0 60 30" preserveAspectRatio="xMidYMid slice" aria-hidden="true">' +
+        '<defs><clipPath id="pocha-uk-t"><path d="M30 15h30v15zv15H0zH0V0zV0h30z"/></clipPath></defs>' +
+        '<rect width="60" height="30" fill="#012169"/>' +
+        '<path d="M0 0L60 30M60 0L0 30" stroke="#fff" stroke-width="6"/>' +
+        '<path d="M0 0L60 30M60 0L0 30" stroke="#c8102e" stroke-width="4" clip-path="url(#pocha-uk-t)"/>' +
+        '<path d="M30 0v30M0 15h60" stroke="#fff" stroke-width="10"/>' +
+        '<path d="M30 0v30M0 15h60" stroke="#c8102e" stroke-width="6"/></svg>'
+  };
+
   function langBar() {
     var bar = el('div', 'lang-bar');
     ['es', 'en'].forEach(function (code) {
-      var btn = el('button', 'lang' + (code === lang ? ' on' : ''), DICT[code].label);
+      var btn = el('button', 'lang flag' + (code === lang ? ' on' : ''));
+      btn.innerHTML = FLAGS[code];
+      btn.title = DICT[code].label;
+      btn.setAttribute('aria-label', DICT[code].label);
       btn.type = 'button';
       btn.lang = code;
       if (code === lang) btn.setAttribute('aria-current', 'true');
