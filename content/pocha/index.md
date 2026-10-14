@@ -4,6 +4,7 @@ description: "Marcador para el juego de la pocha con la baraja española. Scoreb
 showToc: false
 disableAnchoredHeadings: true
 hideAuthor: true
+pwa: true
 ---
 
 <link rel="stylesheet" href="/pocha/app.css">

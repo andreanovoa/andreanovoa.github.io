@@ -374,3 +374,47 @@
 .pocha details.saved-game .who { font-weight: 600; }
 .pocha .saved-standings { margin: 0.6rem 0 0 1.3rem; padding: 0; font-size: 0.9rem; }
 .pocha .saved-standings li { display: flex; justify-content: space-between; gap: 1rem; max-width: 20rem; }
+
+/* Tablets and installed app */
+
+/* − / + steppers: hidden on phones, where the number keypad is quicker */
+.pocha .stepper { display: inline-flex; align-items: center; gap: 0.25rem; }
+.pocha button.step { display: none; }
+
+.pocha .game-grid { display: block; }
+
+@media (min-width: 600px) {
+  .pocha button.step {
+    display: inline-grid; place-items: center;
+    width: 2.6rem; height: 2.6rem; padding: 0;
+    font-size: 1.3rem; line-height: 1; border-radius: 50%;
+    touch-action: manipulation; user-select: none; -webkit-user-select: none;
+  }
+  .pocha .stepper input[type=number] { width: 3.4rem; height: 2.6rem; font-size: 1.15rem; }
+  .pocha .bids-head span:not(:first-child) { width: 9.3rem; }
+  .pocha .bids, .pocha .bids-head { max-width: 40rem; }
+  .pocha .bid-row { padding: 0.45rem 0.6rem; }
+  .pocha .bid-row .who { font-size: 1.05rem; }
+  .pocha .actions button, .pocha a.button-link { padding: 0.7rem 1.2rem; }
+  .pocha a.tab { padding: 0.5rem 1.1rem; }
+}
+
+/* landscape tablets and laptops: round on the left, scoreboard on the right */
+@media (min-width: 1000px) {
+  .pocha .game-grid {
+    display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    gap: var(--pocha-gap); align-items: start; margin-bottom: var(--pocha-gap);
+  }
+  .pocha .game-grid > .card { margin-bottom: 0; }
+  .pocha .game-grid .standings { grid-template-columns: 1fr; }
+}
+
+/* opened from the home screen: the app fills the screen without the website around it */
+@media (display-mode: standalone) {
+  body > header.header, body > footer.footer, .post-header, .breadcrumbs { display: none !important; }
+  .pocha { margin-top: 0.5rem; }
+}
+html.pocha-installed body > header.header,
+html.pocha-installed body > footer.footer,
+html.pocha-installed .post-header { display: none !important; }
+.pocha { -webkit-tap-highlight-color: transparent; }

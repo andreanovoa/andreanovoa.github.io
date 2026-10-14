@@ -462,10 +462,11 @@
     var finished = roundIdx >= game.rounds.length;
     if (!draft) draft = newDraft();
 
-    if (finished) root.appendChild(winnerCard());
-    else root.appendChild(roundCard(roundIdx));
-
-    root.appendChild(standingsCard());
+    // en pantallas anchas la ronda y el marcador van lado a lado / side by side on wide screens
+    var grid = el('div', 'game-grid');
+    grid.appendChild(finished ? winnerCard() : roundCard(roundIdx));
+    grid.appendChild(standingsCard());
+    root.appendChild(grid);
     root.appendChild(historyCard());
     root.appendChild(exportCard(finished));
   }
@@ -578,6 +579,7 @@
   }
 
   function numberInput(max, store, index) {
+    var wrap = el('span', 'stepper');
     var input = el('input');
     input.type = 'number';
     input.min = '0';
@@ -592,7 +594,24 @@
       input.value = String(v);
       store[index] = v;
     });
-    return input;
+
+    // botones − / + para tablets, donde teclear un número es más lento que tocar
+    // − / + buttons for tablets, where typing a number is slower than tapping
+    function step(delta) {
+      var current = store[index] === null ? (delta > 0 ? -1 : 1) : store[index];
+      input.value = String(Math.max(0, Math.min(max, current + delta)));
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    [['\u2212', -1], ['+', 1]].forEach(function (pair, i) {
+      var b = el('button', 'step', pair[0]);
+      b.type = 'button';
+      b.tabIndex = -1;
+      b.setAttribute('aria-hidden', 'true');
+      b.addEventListener('click', function () { step(pair[1]); });
+      if (i === 0) wrap.appendChild(b);
+      else { wrap.appendChild(input); wrap.appendChild(b); }
+    });
+    return wrap;
   }
 
   function standingsCard() {
@@ -1076,6 +1095,14 @@
     actions.appendChild(google);
     card.appendChild(actions);
 
+    // el enlace del correo se abre en el navegador, no en la app instalada
+    // the email link opens in the browser, not in the installed app
+    if (installed()) {
+      card.appendChild(status);
+      card.appendChild(el('p', 'hint', t('signInPrivacy')));
+      return card;
+    }
+
     var form = el('form', 'email-form');
     var field = el('div', 'field');
     field.appendChild(el('label', null, t('emailLabel')));
@@ -1430,11 +1457,56 @@
     return section;
   }
 
+  /* ---------- aplicación instalada / installed app ---------- */
+
+  function installed() {
+    return !!((window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+      window.navigator.standalone);
+  }
+
+  // la pantalla no se apaga mientras hay una partida en juego
+  // the screen stays on while a game is being played
+  var wakeLock = null;
+  var wakeAsked = false;
+
+  function keepAwake() {
+    var playing = !!(game && game.players && !game.finishedAt) && view !== 'docs' && view !== 'stats' &&
+      document.visibilityState === 'visible';
+    if (playing && !wakeLock && !wakeAsked && navigator.wakeLock) {
+      wakeAsked = true;
+      navigator.wakeLock.request('screen').then(function (lock) {
+        wakeLock = lock;
+        lock.addEventListener('release', function () { wakeLock = null; });
+      }).catch(function () { /* sin permiso o sin batería / not allowed or low battery */ })
+        .then(function () { wakeAsked = false; });
+    } else if (!playing && wakeLock) {
+      wakeLock.release();
+      wakeLock = null;
+    }
+  }
+
+  document.addEventListener('visibilitychange', keepAwake);
+
+  function registerWorker() {
+    if (!('serviceWorker' in navigator)) return;
+    var local = /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
+    if (window.location.protocol !== 'https:' && !local) return;
+    navigator.serviceWorker.register('/pocha/sw.js', { scope: '/pocha/' }).then(function () {
+      return navigator.serviceWorker.ready;
+    }).then(function (reg) {
+      if (!reg.active || !window.performance || !performance.getEntriesByType) return;
+      var urls = performance.getEntriesByType('resource').map(function (e) { return e.name; });
+      reg.active.postMessage({ cache: urls });
+    }).catch(function () { /* sin modo sin conexión / no offline mode */ });
+  }
+
   /* ---------- arranque / start ---------- */
 
   function render() {
     document.documentElement.lang = lang;
+    document.documentElement.classList.toggle('pocha-installed', installed());
     clear(root);
+    keepAwake();
     root.appendChild(topBar());
     if (view === 'docs') {
       captureSetup = null;
@@ -1457,4 +1529,5 @@
 
   render();
   if (cloud.enabled) cloud.onChange(onAccount);
+  window.addEventListener('load', registerWorker);
 })();
