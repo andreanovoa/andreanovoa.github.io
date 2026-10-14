@@ -1433,10 +1433,27 @@
     return link;
   }
 
+  // banderas dibujadas, porque Windows muestra los emojis de bandera como letras
+  // drawn flags, because Windows shows flag emoji as letters
+  var FLAGS = {
+    es: '<svg viewBox="0 0 750 500" aria-hidden="true"><rect width="750" height="500" fill="#c60b1e"/>' +
+        '<rect y="125" width="750" height="250" fill="#ffc400"/></svg>',
+    en: '<svg viewBox="0 0 60 30" preserveAspectRatio="xMidYMid slice" aria-hidden="true">' +
+        '<defs><clipPath id="pocha-uk-t"><path d="M30 15h30v15zv15H0zH0V0zV0h30z"/></clipPath></defs>' +
+        '<rect width="60" height="30" fill="#012169"/>' +
+        '<path d="M0 0L60 30M60 0L0 30" stroke="#fff" stroke-width="6"/>' +
+        '<path d="M0 0L60 30M60 0L0 30" stroke="#c8102e" stroke-width="4" clip-path="url(#pocha-uk-t)"/>' +
+        '<path d="M30 0v30M0 15h60" stroke="#fff" stroke-width="10"/>' +
+        '<path d="M30 0v30M0 15h60" stroke="#c8102e" stroke-width="6"/></svg>'
+  };
+
   function langBar() {
     var bar = el('div', 'lang-bar');
     ['es', 'en'].forEach(function (code) {
-      var btn = el('button', 'lang' + (code === lang ? ' on' : ''), DICT[code].label);
+      var btn = el('button', 'lang flag' + (code === lang ? ' on' : ''));
+      btn.innerHTML = FLAGS[code];
+      btn.title = DICT[code].label;
+      btn.setAttribute('aria-label', DICT[code].label);
       btn.type = 'button';
       btn.lang = code;
       if (code === lang) btn.setAttribute('aria-current', 'true');

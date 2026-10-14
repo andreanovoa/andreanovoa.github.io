@@ -528,3 +528,24 @@ html.pocha-installed .post-header { display: none !important; }
 @media (min-width: 600px) {
   .pocha button.theme-toggle { width: 2.3rem; height: 2.3rem; }
 }
+
+/* Language flags */
+.pocha button.lang.flag {
+  display: inline-grid; place-items: center;
+  width: 2.5rem; height: 2rem; padding: 0.2rem;
+  border-radius: 10px; background: transparent; border-color: transparent;
+  opacity: 0.5; filter: saturate(0.6);
+  transition: opacity 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
+}
+.pocha button.lang.flag svg {
+  display: block; width: 100%; height: 100%;
+  border-radius: 4px; box-shadow: 0 0 0 1px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.2);
+}
+.pocha button.lang.flag:hover { opacity: 0.85; filter: none; }
+.pocha button.lang.flag.on {
+  opacity: 1; filter: none; background: transparent;
+  border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary);
+}
+@media (min-width: 600px) {
+  .pocha button.lang.flag { width: 2.8rem; height: 2.2rem; }
+}
