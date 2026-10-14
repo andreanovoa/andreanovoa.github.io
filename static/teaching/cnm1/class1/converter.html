@@ -154,6 +154,12 @@ function drawLadder(svg,head,rows,o){
   let list=rows,skipped=0;if(rows.length>MAXR){skipped=rows.length-MAXR+1;list=rows.slice(skipped);}
   const tot0=cols.reduce((s,c)=>s+cellW(c,fs),0),off=small?0:Math.max(0,(W-tot0-arrowW)/2);
   const X=[];let x=off;for(const c of cols){X.push(x);x+=cellW(c,fs);}const tot=x;
+  /* numeric columns are aligned on the decimal point: integer part ends at the point, fraction starts there */
+  const isNum=v=>/^[−\d\u2009 ]+(\.\d+)?$/.test(String(v)),cw=fs*0.56;
+  const dec=cols.map((c,i)=>{const vs=list.map(r=>r.c[c.j]).filter(v=>v!=null&&isNum(v)).map(String);
+    if(c.j===0||c.j===bitJ||!vs.length||!vs.some(v=>v.includes('.')))return null;
+    const a=Math.max(...vs.map(v=>v.split('.')[0].length)),b=Math.max(...vs.map(v=>(v.split('.')[1]||'').length+1));
+    return X[i]+(cellW(c,fs)-(a+b)*cw)/2+a*cw;});
   let out='';
   cols.forEach((c,i)=>out+=txt(X[i]+cellW(c,fs)/2,hh-fs*0.55,c.h,{size:fs-2,c:COL.grey,weight:700}));
   out+=`<line x1="${off}" y1="${hh}" x2="${tot+arrowW-4}" y2="${hh}" stroke="${COL.grey}" stroke-width="1" opacity=".5"/>`;
@@ -168,8 +174,10 @@ function drawLadder(svg,head,rows,o){
         out+=`<rect x="${cx-s/2}" y="${y+4}" width="${s}" height="${s}" rx="4" fill="${col}" fill-opacity="${r.bit?.22:.06}" stroke="${col}" stroke-width="${r.cur?3:1.8}"/>`;
         out+=txt(cx,cy,r.bit,{size:fs,weight:800,c:r.cur?COL.orange:r.bit?COL.navy:COL.grey});return;}
       if(r.ghost&&c.j>1)return;
-      const teal=r.teal&&r.teal.includes(c.j);
-      out+=txt(cx,cy,r.c[c.j],{size:fs,weight:teal||r.cur||c.j===0?700:500,c:teal?COL.teal:c.j===0?COL.grey:COL.navy});});
+      const teal=r.teal&&r.teal.includes(c.j),v=r.c[c.j],dx=dec[i];
+      if(dx!=null&&isNum(v)){const [a,b]=String(v).split('.'),o={size:fs,weight:teal||r.cur?700:500,c:teal?COL.teal:COL.navy};
+        out+=txt(dx,cy,a,{...o,anchor:'end'});if(b)out+=txt(dx,cy,'.'+b,{...o,anchor:'start'});return;}
+      out+=txt(cx,cy,v,{size:fs,weight:teal||r.cur||c.j===0?700:500,c:teal?COL.teal:c.j===0?COL.grey:COL.navy});});
     if(r.ghost&&r.note){const i=cols.findIndex(c=>c.j>1);if(i>=0)out+=txt(X[i]+4,y+rh/2+fs*0.36,r.note,{size:fs-1,c:COL.teal,weight:700,anchor:'start'});}
     y+=rh;}
   /* reading-order arrow beside the bit column, over the rows that hold bits */
@@ -267,7 +275,7 @@ function render(k){
   setFormula(`<span class="line1">${l1}</span><span class="line2">${l2}</span><span class="line3">${sumCheck(R,ki,kf)||'&nbsp;'}</span>`);
   if(done){const res=`${R.txt} = ${binStr(R,nI,R.rF.length)}`;
     if(R.end==='repeat'){const b=R.rF.length;
-      setStatus('ok',`${res} &nbsp;<span style="font-weight:500">(after k = ${b} what is left is the x of k = ${R.rep} divided by 2${sup(b+1-R.rep)}, so the same steps come back: the bits ${R.rF.slice(R.rep-1).map(r=>r.b).join('')} repeat for ever)</span>`);}
+      setStatus('ok',`${res} &nbsp;<span style="font-weight:500">(after p = −${b} what is left is the x of p = −${R.rep} divided by 2${sup(b+1-R.rep)}, so the same steps come back: the bits ${R.rF.slice(R.rep-1).map(r=>r.b).join('')} repeat for ever)</span>`);}
     else if(R.end==='cut')setStatus('bad',`Stopped after ${R.rF.length} fraction bits: ${R.txt} ≈ ${binStr(R,nI,R.rF.length)} (not finished: raise the bit limit)`);
     else setStatus('ok',res);}
   else setStatus('info',k===0?'Press Step (&rarr;) to find the first bit.':`Step ${k} of ${S.last}. Press Step (&rarr;) for the next bit.`);
