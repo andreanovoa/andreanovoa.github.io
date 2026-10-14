@@ -147,6 +147,9 @@ window.POCHA_I18N = {
       { h2: 'Sorteo del repartidor' },
       { p: 'El botón con el dado, junto a <em>reparte primero</em>, elige al azar quién reparte la primera mano. El sorteo recorre los nombres y se detiene en el elegido. Cada jugador tiene la misma probabilidad de salir: el número se toma del generador criptográfico del navegador y se descartan los valores que caen fuera del último bloque completo, de forma que el resto no favorece a los primeros nombres de la lista. A partir de esa mano, el turno de repartir avanza una posición por ronda en el orden de la mesa.' },
 
+      { h2: 'Instalar en una tablet o un móvil' },
+      { p: 'El marcador se puede instalar como una aplicación. En un iPad o un iPhone, abre la página en Safari, pulsa el botón de compartir y elige <strong>Añadir a pantalla de inicio</strong>. En Android, abre la página en Chrome, pulsa el menú ⋮ y elige <strong>Instalar aplicación</strong> o <strong>Añadir a pantalla de inicio</strong>. La aplicación se abre a pantalla completa, funciona sin conexión una vez abierta por primera vez, se actualiza sola y mantiene la pantalla encendida mientras hay una partida en juego. En una tablet, las apuestas y las bazas se anotan con los botones − y +, y en horizontal el marcador aparece al lado de la ronda.' },
+
       { h2: 'Cuentas y estadísticas' },
       { p: 'Para jugar no hace falta cuenta. Quien quiera guardar sus partidas puede entrar en <em>Estadísticas</em> con su cuenta de Google o con un enlace que llega por correo. Al terminar una partida con la sesión iniciada, se guarda sola en la cuenta; una partida a medias se guarda con el botón <em>guardar en mi cuenta</em> y se puede abrir después en otro dispositivo para seguirla.' },
       { p: 'La pestaña de estadísticas suma todas las partidas terminadas de la cuenta y muestra, por jugador, las partidas jugadas, las victorias, los puntos medios por partida, la mejor puntuación, el porcentaje de rondas en las que acertó la apuesta y en cuántas de las falladas se quedó corto o se pasó. Cada cuenta sólo ve sus propias partidas.' },
@@ -313,6 +316,9 @@ window.POCHA_I18N = {
 
       { h2: 'Drawing the dealer' },
       { p: 'The dice button, next to <em>deals first</em>, picks at random who deals the first hand. The draw runs through the names and stops on the chosen one. Every player is equally likely to come up: the number comes from the cryptographic generator of the browser, and the values that fall outside the last complete block are discarded, so that the remainder does not favour the first names of the list. From that hand onwards, the turn to deal moves one seat per round in the seating order.' },
+
+      { h2: 'Installing on a tablet or a phone' },
+      { p: 'The scoreboard can be installed as an app. On an iPad or an iPhone, open the page in Safari, tap the share button and choose <strong>Add to Home Screen</strong>. On Android, open the page in Chrome, tap the ⋮ menu and choose <strong>Install app</strong> or <strong>Add to Home screen</strong>. The app opens full screen, works offline once it has been opened for the first time, updates itself and keeps the screen on while a game is in progress. On a tablet, the bids and the tricks are entered with the − and + buttons, and in landscape the scoreboard sits next to the round.' },
 
       { h2: 'Accounts and statistics' },
       { p: 'No account is needed to play. Anyone who wants to keep their games can sign in under <em>Stats</em> with their Google account or with a link sent by email. When a game ends while signed in, it is saved to the account on its own; an unfinished game is saved with the <em>save to my account</em> button and can be opened later on another device to carry on with it.' },
