@@ -177,7 +177,7 @@ function drawLadder(svg,head,rows,o){
       const teal=r.teal&&r.teal.includes(c.j),v=r.c[c.j],dx=dec[i];
       if(dx!=null&&isNum(v)){const [a,b]=String(v).split('.'),o={size:fs,weight:teal||r.cur?700:500,c:teal?COL.teal:COL.navy};
         out+=txt(dx,cy,a,{...o,anchor:'end'});if(b)out+=txt(dx,cy,'.'+b,{...o,anchor:'start'});return;}
-      out+=txt(cx,cy,v,{size:fs,weight:teal||r.cur||c.j===0?700:500,c:teal?COL.teal:c.j===0?COL.grey:COL.navy});});
+      out+=txt(cx,cy,v,{size:fs,weight:teal||r.cur||c.j===0?700:500,c:teal?COL.teal:c.j===0?COL.grey:v==='yes'?COL.curve:COL.navy});});
     if(r.ghost&&r.note){const i=cols.findIndex(c=>c.j>1);if(i>=0)out+=txt(X[i]+4,y+rh/2+fs*0.36,r.note,{size:fs-1,c:COL.teal,weight:700,anchor:'start'});}
     y+=rh;}
   /* reading-order arrow beside the bit column, over the rows that hold bits */
