@@ -32,10 +32,8 @@
   <section class="plotcard">
     <p class="panel-title">Result: each bit counts a power of 2</p>
     <svg class="plot static" id="plot" role="img" aria-label="Bits of the number with their place values"></svg>
-    <div id="boxI"><p class="panel-title">Whole part: subtract powers of 2, largest first</p>
-      <svg class="plot static" id="ladI" role="img" aria-label="Subtraction of powers of 2, largest first: remainders and bits"></svg></div>
-    <div id="boxF"><p class="panel-title">Fractional part: subtract 2<sup>−1</sup>, 2<sup>−2</sup>, …</p>
-      <svg class="plot static" id="ladF" role="img" aria-label="Subtraction of negative powers of 2: remainders and bits"></svg></div>
+    <p class="panel-title">Subtract powers of 2, largest first: 2<sup>M</sup>, …, 2<sup>0</sup>, 2<sup>−1</sup>, 2<sup>−2</sup>, …</p>
+    <svg class="plot static" id="lad" role="img" aria-label="Subtraction of powers of 2, largest first: what is left and the bits"></svg>
   </section>
   <aside class="side">
     <label class="field span2">Number x<input id="num" type="text" value="942" spellcheck="false" autocomplete="off" inputmode="decimal"></label>
@@ -245,16 +243,15 @@ function drawStore(R,ki){
 /* ---------- stepping ---------- */
 let R=null;
 function render(k){
-  if(!R||R.error){drawPlace(null);drawStore(null);setFormula('');setStatus('bad',R?R.error:'');drawLadder($('ladI'),[],[],{});drawLadder($('ladF'),[],[],{});renderTable('tblRange',[],[],-1);return;}
+  if(!R||R.error){drawPlace(null);drawStore(null);setFormula('');setStatus('bad',R?R.error:'');drawLadder($('lad'),[],[],{});renderTable('tblRange',[],[],-1);return;}
   const nI=R.rI.length,ki=Math.min(k,nI),kf=Math.max(0,k-nI),done=k>=S.last;
-  $('boxI').hidden=!nI;$('boxF').hidden=!R.rF.length;
-  /* ladders: the rows found so far, in the layout of the tables in the notes */
-  drawLadder($('ladI'),['p','x','2ᵖ','2ᵖ ≤ x?','x − Bₚ·2ᵖ','Bₚ'],
-    R.rI.slice(nI-ki).reverse().map((r,i)=>({c:[r.n,group(r.x.toString()),group(r.pw.toString()),r.b?'yes':'no',group(r.rest.toString())],bit:r.b,cur:kf===0&&i===ki-1})),{dir:'down',drop:[3]});
-  const fr=R.rF.slice(0,kf).map((r,i)=>({c:[r.n,fracK(R,r.f,r.n-1),pow2m(r.n),r.b?'yes':'no',fracK(R,r.p-(r.b?R.D:0n),r.n)],bit:r.b,cur:i===kf-1}));
+  /* one table for both parts: x is what is left (whole and fractional), compared with 2^p from the largest power down */
+  const wf=R.fp?'.'+R.fp:'',neg=p=>String(p).replace('-','−');
+  const rows=R.rI.slice(nI-ki).reverse().map((r,i)=>({c:[r.n,group(r.x.toString())+wf,group(r.pw.toString()),r.b?'yes':'no',group(r.rest.toString())+wf],bit:r.b,cur:kf===0&&i===ki-1}));
+  const fr=R.rF.slice(0,kf).map((r,i)=>({c:[neg(-r.n),fracK(R,r.f,r.n-1),pow2m(r.n),r.b?'yes':'no',fracK(R,r.p-(r.b?R.D:0n),r.n)],bit:r.b,cur:i===kf-1}));
   if(done&&R.end==='repeat'){fr[R.rep-1].teal=[1];
-    fr.push({c:[R.rF.length+1,fracK(R,R.fEnd,R.rF.length)],ghost:true,teal:[0,1],note:`= x at k = ${R.rep}, ÷ 2${tsup(R.rF.length+1-R.rep)}: the bits repeat`});}
-  drawLadder($('ladF'),['k','x','2⁻ᵏ','2⁻ᵏ ≤ x?','x − bₖ·2⁻ᵏ','bₖ'],fr,{dir:'down',drop:[3]});
+    fr.push({c:[neg(-(R.rF.length+1)),fracK(R,R.fEnd,R.rF.length)],ghost:true,teal:[0,1],note:`= x at p = −${R.rep}, ÷ 2${tsup(R.rF.length+1-R.rep)}: the bits repeat`});}
+  drawLadder($('lad'),['p','x','2ᵖ','2ᵖ ≤ x?','x − bit·2ᵖ','bit'],rows.concat(fr),{dir:'down',drop:[3]});
   drawPlace(R,ki,kf);drawStore(R,ki);
   let l1,l2;
   if(k===0){l1=`x = ${R.txt}: whole part ${group(R.ip)}${R.fp?', fractional part 0.'+R.fp:''}`;
