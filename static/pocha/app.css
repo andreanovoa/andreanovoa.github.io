@@ -515,31 +515,31 @@ html.pocha-installed .post-header { display: none !important; }
 @media print { .pocha-banner { display: none; } }
 
 /* Light / dark switch, next to the languages */
-.pocha .bar-right { display: flex; align-items: center; gap: 0.5rem; margin-left: auto; }
+.pocha .bar-right { display: flex; align-items: center; gap: 0.35rem; margin-left: auto; }
 .pocha button.theme-toggle {
   display: inline-grid; place-items: center;
-  width: 2rem; height: 2rem; padding: 0; border-radius: 50%;
+  width: 1.6rem; height: 1.6rem; padding: 0; border-radius: 50%;
   background: transparent; color: var(--primary);
 }
 .pocha button.theme-toggle svg {
-  width: 1.05rem; height: 1.05rem;
+  width: 0.85rem; height: 0.85rem;
   fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
 }
 @media (min-width: 600px) {
-  .pocha button.theme-toggle { width: 2.3rem; height: 2.3rem; }
+  .pocha button.theme-toggle { width: 1.75rem; height: 1.75rem; }
 }
 
 /* Language flags */
 .pocha button.lang.flag {
   display: inline-grid; place-items: center;
-  width: 2.5rem; height: 2rem; padding: 0.2rem;
-  border-radius: 10px; background: transparent; border-color: transparent;
+  width: 1.85rem; height: 1.4rem; padding: 0.12rem;
+  border-radius: 6px; background: transparent; border-color: transparent;
   opacity: 0.5; filter: saturate(0.6);
   transition: opacity 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
 }
 .pocha button.lang.flag svg {
   display: block; width: 100%; height: 100%;
-  border-radius: 4px; box-shadow: 0 0 0 1px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.2);
+  border-radius: 3px; box-shadow: 0 0 0 1px rgba(0,0,0,0.15), 0 1px 2px rgba(0,0,0,0.2);
 }
 .pocha button.lang.flag:hover { opacity: 0.85; filter: none; }
 .pocha button.lang.flag.on {
@@ -547,5 +547,5 @@ html.pocha-installed .post-header { display: none !important; }
   border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary);
 }
 @media (min-width: 600px) {
-  .pocha button.lang.flag { width: 2.8rem; height: 2.2rem; }
+  .pocha button.lang.flag { width: 2rem; height: 1.5rem; }
 }
