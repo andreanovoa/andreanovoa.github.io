@@ -54,7 +54,7 @@
     return value.apply(null, Array.prototype.slice.call(arguments, 1));
   }
 
-  var HASHES = { docs: '#reglas', table: '#tabla' };
+  var HASHES = { docs: '#reglas', table: '#tabla', stats: '#estadisticas' };
 
   function viewOf(hash) {
     for (var name in HASHES) {
@@ -176,6 +176,15 @@
 
   var game = load(LS.game, null);
   var draft = null; // { bids: [], won: [] } de la ronda en curso
+
+  function newId() {
+    var bytes = new Uint8Array(10);
+    (window.crypto || window.msCrypto).getRandomValues(bytes);
+    return Array.prototype.map.call(bytes, function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+  }
+
+  // las partidas de antes de las cuentas no tenían id / games from before accounts had no id
+  if (game && game.players && !game.id) { game.id = newId(); save(LS.game, game); }
 
   function newDraft() {
     return {
@@ -436,7 +445,8 @@
         repeatMiddle: repeatInput.checked,
         rounds: buildRounds(players.length, repeatInput.checked),
         results: [],
-        startedAt: new Date().toISOString()
+        startedAt: new Date().toISOString(),
+        id: newId()
       };
       draft = newDraft();
       persist();
@@ -507,6 +517,7 @@
       undoBtn.type = 'button';
       undoBtn.addEventListener('click', function () {
         var last = game.results.pop();
+        delete game.finishedAt;
         persist();
         draft = { bids: last.bids.slice(), won: last.won.slice() };
         render();
@@ -555,8 +566,11 @@
         won: draft.won.slice()
       });
       draft = newDraft();
+      var done = game.results.length >= game.rounds.length;
+      if (done) game.finishedAt = new Date().toISOString();
       persist();
       render();
+      if (done && signedIn()) saveToCloud();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
@@ -785,6 +799,8 @@
 
     card.appendChild(actions);
 
+    if (cloud.enabled) card.appendChild(cloudSaveRow());
+
     var details = el('details', 'sync');
     details.appendChild(el('summary', null, t('sheetsSection')));
     var field = el('div', 'field');
@@ -825,6 +841,399 @@
     });
 
     return card;
+  }
+
+  /* ---------- cuentas y estadísticas / accounts and stats ---------- */
+
+  var cloud = window.PochaCloud || { enabled: false };
+  var account = cloud.enabled ? cloud.state() : { ready: true, user: null };
+  var stats = { uid: null, status: 'idle', games: [], error: null };
+  var saving = { status: 'idle', error: null }; // guardado de la partida en curso
+
+  function signedIn() { return !!(cloud.enabled && account.user); }
+
+  function refreshView() {
+    rememberSetup();
+    render();
+  }
+
+  function cloudPayload() {
+    return {
+      startedAt: game.startedAt || new Date().toISOString(),
+      finishedAt: game.finishedAt || null,
+      finished: game.results.length >= game.rounds.length,
+      players: game.players,
+      firstDealer: game.firstDealer,
+      repeatMiddle: !!game.repeatMiddle,
+      rounds: game.rounds,
+      results: game.results
+    };
+  }
+
+  function saveToCloud() {
+    if (!signedIn() || !game || !game.results.length) return;
+    var rounds = game.results.length;
+    saving = { status: 'saving', error: null };
+    refreshView();
+    cloud.saveGame(game.id, cloudPayload()).then(function () {
+      if (game && game.results.length === rounds) {
+        game.cloudRounds = rounds;
+        persist();
+      }
+      saving = { status: 'idle', error: null };
+      stats.status = 'idle'; // la próxima visita a las estadísticas recarga / the next stats visit reloads
+    }).catch(function (err) {
+      saving = { status: 'failed', error: err && (err.code || err.message) };
+    }).then(refreshView);
+  }
+
+  function cloudSaveRow() {
+    var box = el('div', 'cloud-save');
+    if (!account.ready) {
+      box.appendChild(el('p', 'hint', t('connecting')));
+      return box;
+    }
+    if (!account.user) {
+      box.appendChild(el('p', 'hint', t('signInToSave')));
+      var go = el('div', 'actions');
+      go.appendChild(viewLink('button-link', t('goSignIn'), 'stats'));
+      box.appendChild(go);
+      return box;
+    }
+    var saved = game.cloudRounds === game.results.length && game.results.length > 0;
+    var row = el('div', 'actions');
+    var btn = el('button', null, saving.status === 'saving' ? t('savingCloud') : t('saveCloud'));
+    btn.type = 'button';
+    btn.disabled = !game.results.length || saved || saving.status === 'saving';
+    btn.addEventListener('click', saveToCloud);
+    row.appendChild(btn);
+    box.appendChild(row);
+    if (saving.status === 'failed') {
+      box.appendChild(el('p', 'hint bad-text', t('saveCloudFailed', saving.error)));
+    } else if (saved) {
+      box.appendChild(el('p', 'hint ok-text', t('savedCloud', account.user.email || account.user.name)));
+    } else {
+      box.appendChild(el('p', 'hint', t('saveCloudHint')));
+    }
+    return box;
+  }
+
+  var lastUid = null; // el estado de la nube cambia en el sitio / the cloud state changes in place
+
+  function onAccount(next) {
+    var before = lastUid;
+    account = next;
+    var now = account.user ? account.user.uid : null;
+    lastUid = now;
+    if (now !== stats.uid) stats = { uid: now, status: 'idle', games: [], error: null };
+    // una partida terminada antes de entrar se guarda al entrar
+    // a game finished before signing in is saved on signing in
+    if (now && now !== before && game && game.players && game.finishedAt &&
+        game.cloudRounds !== game.results.length) {
+      saveToCloud();
+      return;
+    }
+    refreshView();
+  }
+
+  function loadStats() {
+    stats.status = 'loading';
+    var uid = stats.uid;
+    cloud.listGames().then(function (list) {
+      if (stats.uid !== uid) return;
+      stats.games = list;
+      stats.status = 'ready';
+      rememberNames(list.reduce(function (all, g) { return all.concat(g.players || []); }, []).reverse());
+    }).catch(function (err) {
+      if (stats.uid !== uid) return;
+      stats.status = 'failed';
+      stats.error = err && (err.code || err.message);
+    }).then(function () {
+      if (view === 'stats') refreshView();
+    });
+  }
+
+  function nameKey(name) {
+    var s = String(name || '').trim().toLowerCase();
+    return s.normalize ? s.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : s;
+  }
+
+  function computeStats(list) {
+    var byName = {};
+    var finished = 0;
+    var rounds = 0;
+    list.forEach(function (g) {
+      if (!g.finished || !g.players || !g.results) return;
+      finished += 1;
+      rounds += g.results.length;
+      var order = ranking(g);
+      order.forEach(function (entry, pos) {
+        var key = nameKey(entry.name);
+        var s = byName[key];
+        if (!s) {
+          s = byName[key] = { name: entry.name, games: 0, wins: 0, points: 0, best: null, rounds: 0, hits: 0, over: 0, under: 0 };
+        }
+        s.games += 1;
+        if (pos === 0) s.wins += 1;
+        s.points += entry.total;
+        s.best = s.best === null ? entry.total : Math.max(s.best, entry.total);
+        g.results.forEach(function (res) {
+          var bid = res.bids[entry.index];
+          var won = res.won[entry.index];
+          s.rounds += 1;
+          if (bid === won) s.hits += 1;
+          else if (won < bid) s.over += 1;
+          else s.under += 1;
+        });
+      });
+    });
+    var players = Object.keys(byName).map(function (k) { return byName[k]; });
+    players.sort(function (a, b) {
+      return b.wins - a.wins || (b.wins / b.games) - (a.wins / a.games) || b.points / b.games - a.points / a.games;
+    });
+    return { finished: finished, rounds: rounds, players: players };
+  }
+
+  function pct(part, whole) {
+    return whole ? Math.round(100 * part / whole) + '%' : '–';
+  }
+
+  function dateLabel(iso) {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    return d.toLocaleDateString(lang === 'es' ? 'es-ES' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  function statsView() {
+    if (!account.ready) {
+      root.appendChild(messageCard(t('accountTitle'), t('connecting')));
+      return;
+    }
+    if (account.error === 'cloud/unavailable') {
+      root.appendChild(messageCard(t('accountTitle'), t('cloudUnavailable'), 'bad'));
+      return;
+    }
+    if (!account.user) {
+      root.appendChild(signInCard());
+      return;
+    }
+    root.appendChild(accountCard());
+    if (stats.status === 'idle') loadStats();
+    if (stats.status === 'loading') {
+      root.appendChild(messageCard(t('statsTitle'), t('statsLoading')));
+      return;
+    }
+    if (stats.status === 'failed') {
+      var failed = messageCard(t('statsTitle'), t('statsFailed', stats.error), 'bad');
+      var again = el('div', 'actions');
+      var retry = el('button', null, t('retry'));
+      retry.type = 'button';
+      retry.addEventListener('click', function () { stats.status = 'idle'; refreshView(); });
+      again.appendChild(retry);
+      failed.appendChild(again);
+      root.appendChild(failed);
+      return;
+    }
+    root.appendChild(playersStatsCard());
+    root.appendChild(savedGamesCard());
+  }
+
+  function messageCard(title, text, tone) {
+    var card = el('section', 'card');
+    card.appendChild(el('h2', 'card-title', title));
+    if (tone) {
+      card.appendChild(el('div', 'banner ' + tone, text));
+    } else {
+      card.appendChild(el('p', 'hint', text));
+    }
+    return card;
+  }
+
+  function signInCard() {
+    var card = el('section', 'card');
+    card.appendChild(el('h2', 'card-title', t('accountTitle')));
+    card.appendChild(el('p', null, t('signInIntro')));
+
+    var status = el('div', 'banner');
+    status.style.display = 'none';
+    function report(text, tone) {
+      status.className = 'banner' + (tone ? ' ' + tone : '');
+      status.textContent = text;
+      status.style.display = 'block';
+    }
+    if (account.error && account.error !== 'cloud/unavailable') report(t('signInFailed', account.error), 'bad');
+
+    var actions = el('div', 'actions');
+    var google = el('button', 'primary', t('signInGoogle'));
+    google.type = 'button';
+    google.addEventListener('click', function () {
+      google.disabled = true;
+      cloud.signInGoogle().catch(function (err) {
+        if (err && err.code === 'auth/popup-closed-by-user') return;
+        report(t('signInFailed', err && (err.code || err.message)), 'bad');
+      }).then(function () { google.disabled = false; });
+    });
+    actions.appendChild(google);
+    card.appendChild(actions);
+
+    var form = el('form', 'email-form');
+    var field = el('div', 'field');
+    field.appendChild(el('label', null, t('emailLabel')));
+    var email = el('input');
+    email.type = 'email';
+    email.required = true;
+    email.autocomplete = 'email';
+    email.placeholder = lang === 'es' ? 'nombre@ejemplo.com' : 'name@example.com';
+    field.appendChild(email);
+    form.appendChild(field);
+    var send = el('button', null, t('emailSend'));
+    send.type = 'submit';
+    form.appendChild(send);
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      var address = email.value.trim();
+      if (!address) return;
+      send.disabled = true;
+      cloud.sendEmailLink(address).then(function () {
+        report(t('emailSent', address), 'ok');
+      }).catch(function (err) {
+        report(t('signInFailed', err && (err.code || err.message)), 'bad');
+      }).then(function () { send.disabled = false; });
+    });
+    card.appendChild(form);
+    card.appendChild(status);
+    card.appendChild(el('p', 'hint', t('signInPrivacy')));
+    return card;
+  }
+
+  function accountCard() {
+    var card = el('section', 'card account');
+    var line = el('div', 'account-line');
+    line.appendChild(el('span', null, t('signedInAs', account.user.name || account.user.email)));
+    var out = el('button', 'ghost', t('signOut'));
+    out.type = 'button';
+    out.addEventListener('click', function () { cloud.signOut(); });
+    line.appendChild(out);
+    card.appendChild(line);
+    return card;
+  }
+
+  function playersStatsCard() {
+    var summary = computeStats(stats.games);
+    var card = el('section', 'card');
+    card.appendChild(el('h2', 'card-title', t('statsTitle')));
+    if (!summary.finished) {
+      card.appendChild(el('p', 'hint', t('statsEmpty')));
+      return card;
+    }
+    card.appendChild(el('p', 'stats-summary', t('statsSummary', summary.finished, summary.rounds)));
+
+    var wrap = el('div', 'table-wrap');
+    var table = el('table', 'stats-table');
+    var thead = el('thead');
+    var hr = el('tr');
+    ['colPlayer', 'colGames', 'colWins', 'colWinRate', 'colAvg', 'colBest', 'colHitRate', 'colMiss'].forEach(function (key) {
+      hr.appendChild(el('th', null, t(key)));
+    });
+    thead.appendChild(hr);
+    table.appendChild(thead);
+    var tbody = el('tbody');
+    summary.players.forEach(function (s, i) {
+      var tr = el('tr', i === 0 ? 'lead' : '');
+      tr.appendChild(el('td', 'nm', s.name));
+      tr.appendChild(el('td', null, String(s.games)));
+      tr.appendChild(el('td', 'total', String(s.wins)));
+      tr.appendChild(el('td', null, pct(s.wins, s.games)));
+      tr.appendChild(el('td', null, String(Math.round(s.points / s.games))));
+      tr.appendChild(el('td', null, String(s.best)));
+      tr.appendChild(el('td', null, pct(s.hits, s.rounds)));
+      tr.appendChild(el('td', 'miss-split', '↑' + s.over + ' ↓' + s.under));
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    wrap.appendChild(table);
+    card.appendChild(wrap);
+    card.appendChild(el('p', 'hint', t('statsLegend')));
+    return card;
+  }
+
+  function savedGamesCard() {
+    var card = el('section', 'card');
+    card.appendChild(el('h2', 'card-title', t('gamesTitle')));
+    if (!stats.games.length) {
+      card.appendChild(el('p', 'hint', t('gamesEmpty')));
+      return card;
+    }
+    var list = el('div', 'saved-games');
+    stats.games.forEach(function (g) {
+      if (!g.players || !g.results) return;
+      var item = el('details', 'saved-game');
+      var summary = el('summary');
+      summary.appendChild(el('span', 'when', dateLabel(g.startedAt)));
+      var order = ranking(g);
+      if (g.finished) {
+        summary.appendChild(el('span', 'who', t('wonBy', order[0].name, order[0].total)));
+      } else {
+        summary.appendChild(el('span', 'chip', t('unfinished', g.results.length, g.rounds.length)));
+      }
+      item.appendChild(summary);
+
+      var body = el('div', 'saved-body');
+      var ol = el('ol', 'saved-standings');
+      order.forEach(function (e) {
+        var li = el('li');
+        li.appendChild(el('span', null, e.name));
+        li.appendChild(el('strong', null, String(e.total)));
+        ol.appendChild(li);
+      });
+      body.appendChild(ol);
+
+      var actions = el('div', 'actions');
+      var open = el('button', null, t('openGame'));
+      open.type = 'button';
+      open.addEventListener('click', function () { openSavedGame(g); });
+      actions.appendChild(open);
+      var del = el('button', 'ghost', t('deleteGame'));
+      del.type = 'button';
+      del.addEventListener('click', function () {
+        if (!window.confirm(t('confirmDelete'))) return;
+        del.disabled = true;
+        cloud.deleteGame(g.id).then(function () {
+          stats.games = stats.games.filter(function (x) { return x.id !== g.id; });
+          if (game && game.id === g.id) { delete game.cloudRounds; persist(); }
+        }).catch(function (err) {
+          window.alert(t('statsFailed', err && (err.code || err.message)));
+        }).then(refreshView);
+      });
+      actions.appendChild(del);
+      body.appendChild(actions);
+      item.appendChild(body);
+      list.appendChild(item);
+    });
+    card.appendChild(list);
+    return card;
+  }
+
+  function openSavedGame(g) {
+    var busy = game && game.players && game.results.length && !game.finishedAt && game.id !== g.id;
+    if (busy && !window.confirm(t('confirmReplace'))) return;
+    game = {
+      id: g.id,
+      players: g.players.slice(),
+      firstDealer: g.firstDealer || 0,
+      repeatMiddle: !!g.repeatMiddle,
+      rounds: g.rounds.slice(),
+      results: g.results.map(function (r) {
+        return { cards: r.cards, dealer: r.dealer, bids: r.bids.slice(), won: r.won.slice() };
+      }),
+      startedAt: g.startedAt,
+      cloudRounds: g.results.length
+    };
+    if (g.finishedAt) game.finishedAt = g.finishedAt;
+    draft = null;
+    persist();
+    setView(g.finished ? 'table' : 'game');
+    render();
   }
 
   /* ---------- tabla completa / full table ---------- */
@@ -923,6 +1332,7 @@
     var tabs = el('nav', 'tabs');
     var entries = [['game', 'tabGame']];
     if (game && game.results) entries.push(['table', 'tabTable']);
+    if (cloud.enabled) entries.push(['stats', 'tabStats']);
     entries.push(['docs', 'tabRules']);
     entries.forEach(function (entry) {
       tabs.appendChild(viewLink('tab' + (entry[0] === view ? ' on' : ''), t(entry[1]), entry[0]));
@@ -1031,6 +1441,11 @@
       root.appendChild(docsSection());
       return;
     }
+    if (view === 'stats' && cloud.enabled) {
+      captureSetup = null;
+      statsView();
+      return;
+    }
     if (view === 'table' && game && game.results) {
       captureSetup = null;
       root.appendChild(fullTableCard());
@@ -1041,4 +1456,5 @@
   }
 
   render();
+  if (cloud.enabled) cloud.onChange(onAccount);
 })();

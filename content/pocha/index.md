@@ -13,4 +13,6 @@ hideAuthor: true
 </div>
 
 <script src="/pocha/i18n.js"></script>
+<script src="/pocha/firebase-config.js"></script>
+<script src="/pocha/cloud.js"></script>
 <script src="/pocha/app.js" defer></script>

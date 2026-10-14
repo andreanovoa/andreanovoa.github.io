@@ -37,6 +37,7 @@
 .pocha input[type=text],
 .pocha input[type=number],
 .pocha input[type=url],
+.pocha input[type=email],
 .pocha select {
   background: var(--code-bg);
   color: var(--content);
@@ -283,7 +284,7 @@
   flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.7rem;
 }
 .pocha .top-bar .lang-bar { margin-bottom: 0; }
-.pocha .tabs { display: flex; gap: 0.2rem; }
+.pocha .tabs { display: flex; flex-wrap: wrap; gap: 0.2rem; }
 .pocha a.tab {
   padding: 0.35rem 0.9rem; border-radius: 999px;
   font-size: 0.9rem; font-weight: 600; text-decoration: none;
@@ -344,3 +345,32 @@
 }
 .pocha .rank-row .rank.top { border-color: var(--tertiary); color: var(--tertiary); }
 .pocha .rank-row .rank-arrow { color: var(--secondary); font-size: 0.8rem; }
+
+/* Accounts and stats */
+.pocha .cloud-save { margin-top: 0.4rem; }
+.pocha .hint.ok-text { color: var(--pocha-ok); }
+.pocha .hint.bad-text { color: var(--pocha-bad); }
+.pocha .email-form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0.5rem; margin: 1rem 0 var(--pocha-gap); }
+.pocha .email-form .field { flex: 1 1 15rem; }
+.pocha .email-form input[type=email] { width: 100%; }
+.pocha .account-line { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.pocha .account-line span { min-width: 0; overflow-wrap: anywhere; }
+.pocha .card.account { padding-top: 0.7rem; padding-bottom: 0.7rem; }
+.pocha .stats-summary { margin: 0 0 0.6rem; }
+.pocha table.stats-table td.nm {
+  text-align: left; font-weight: 600; white-space: nowrap;
+  position: sticky; left: 0; background: var(--entry);
+}
+.pocha table.stats-table th:first-child { text-align: left; left: 0; z-index: 2; }
+.pocha table.stats-table tbody tr:hover td.nm { background: var(--code-bg); }
+.pocha table.stats-table tr.lead td.nm { box-shadow: inset 3px 0 0 var(--tertiary); }
+.pocha table.stats-table td.miss-split { white-space: nowrap; color: var(--secondary); }
+.pocha .saved-games { display: grid; gap: 0.4rem; }
+.pocha details.saved-game { border-radius: 8px; background: var(--code-bg); padding: 0.5rem 0.7rem; }
+.pocha details.saved-game summary {
+  cursor: pointer; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3rem 0.8rem;
+}
+.pocha details.saved-game .when { color: var(--secondary); font-size: 0.85rem; min-width: 6.5rem; }
+.pocha details.saved-game .who { font-weight: 600; }
+.pocha .saved-standings { margin: 0.6rem 0 0 1.3rem; padding: 0; font-size: 0.9rem; }
+.pocha .saved-standings li { display: flex; justify-content: space-between; gap: 1rem; max-width: 20rem; }
