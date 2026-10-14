@@ -9,8 +9,8 @@
 <style>
 @font-face{font-family:"CMU Sans Serif";src:url("../fonts/cmunss.woff2") format("woff2");font-weight:400 600;font-display:swap}
 @font-face{font-family:"CMU Sans Serif";src:url("../fonts/cmunsx.woff2") format("woff2");font-weight:700 900;font-display:swap}
-:root{--pink:#B8559A}
-:root.dark{--pink:#E39CC9}
+:root{--pink:#B8559A;--deep:hsl(210,65%,28%)}
+:root.dark{--pink:#E39CC9;--deep:hsl(210,55%,50%)}
 .ovl{text-decoration:overline;text-decoration-thickness:2px}
 .store-note{margin:6px 0 0;font-size:.98rem;line-height:1.5}
 .store-note .bad{color:var(--orange);font-weight:700}
@@ -80,6 +80,7 @@ const PRESETS=[
  {id:'40000',label:'40 000 (too large for 16 bits)'},
  {id:'custom',label:'Custom: type a number'}];
 const pink=()=>getComputedStyle(document.documentElement).getPropertyValue('--pink').trim();
+const deep=()=>getComputedStyle(document.documentElement).getPropertyValue('--deep').trim();
 
 /* ---------- exact conversion (BigInt, no rounding) ---------- */
 const pow10=n=>10n**BigInt(n);
@@ -177,7 +178,7 @@ function drawLadder(svg,head,rows,o){
       const teal=r.teal&&r.teal.includes(c.j),v=r.c[c.j],dx=dec[i];
       if(dx!=null&&isNum(v)){const [a,b]=String(v).split('.'),o={size:fs,weight:teal||r.cur?700:500,c:teal?COL.teal:COL.navy};
         out+=txt(dx,cy,a,{...o,anchor:'end'});if(b)out+=txt(dx,cy,'.'+b,{...o,anchor:'start'});return;}
-      out+=txt(cx,cy,v,{size:fs,weight:teal||r.cur||c.j===0?700:500,c:teal?COL.teal:c.j===0?COL.grey:v==='yes'?COL.curve:COL.navy});});
+      out+=txt(cx,cy,v,{size:fs,weight:teal||r.cur||c.j===0?700:500,c:teal?COL.teal:c.j===0?COL.grey:v==='yes'?COL.curve:v==='no'?deep():COL.navy});});
     if(r.ghost&&r.note){const i=cols.findIndex(c=>c.j>1);if(i>=0)out+=txt(X[i]+4,y+rh/2+fs*0.36,r.note,{size:fs-1,c:COL.teal,weight:700,anchor:'start'});}
     y+=rh;}
   /* reading-order arrow beside the bit column, over the rows that hold bits */
