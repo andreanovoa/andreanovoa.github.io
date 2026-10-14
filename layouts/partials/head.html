@@ -181,4 +181,12 @@
 {{- partial "math.html" .}}
 {{ end }} 
 
-
+{{- /* Pocha: aplicación instalable en tablets y móviles / installable app on tablets and phones */}}
+{{ if .Params.pwa }}
+<link rel="manifest" href="/pocha/manifest.webmanifest">
+<link rel="apple-touch-icon" sizes="180x180" href="/pocha/icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pocha">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+{{ end }}

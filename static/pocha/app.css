@@ -1,11 +1,50 @@
 /* Pocha — scoreboard app */
 
+/* Card-table palette, matching the header: felt green, cream and gold.
+   This file is only loaded on the Pocha page, so the rest of the site keeps its own colours.
+   The selectors beat the theme's :root and .dark rules, which sit on both <html> and <body>. */
+html:root, html:root body {
+  --theme: #f5f0e1;            /* page: cream table */
+  --entry: #fffdf6;            /* cards */
+  --code-bg: #efe7d0;          /* rows, inputs, chips */
+  --border: #d9cca8;
+  --border-light: rgba(167, 116, 18, 0.18);
+  --content-mid: #5a6b55;
+  --content: #1d2b22;
+  --secondary: #5a6b55;
+  --primary: #1f5c43;          /* felt green */
+  --tertiary: #a77412;         /* old gold */
+  --pocha-ok: #2e7d32;         /* bastos */
+  --pocha-bad: #c8102e;        /* copas */
+  --pocha-warn: #b7791f;
+}
+html.dark:root, html.dark:root body, html:root body.dark {
+  --theme: #0e261c;            /* page: felt at night */
+  --entry: #143829;
+  --code-bg: #1b4534;
+  --border: #2d5e48;
+  --border-light: rgba(240, 199, 94, 0.14);
+  --content-mid: #a9bf9c;
+  --content: #efe6cc;          /* cream */
+  --secondary: #a9bf9c;
+  --primary: #e3b23c;          /* gold */
+  --tertiary: #f0c75e;
+  --pocha-ok: #7cc464;
+  --pocha-bad: #ef5a6f;
+  --pocha-warn: #f0a43c;
+}
+html:root body {
+  background-color: var(--theme);
+  background-image: radial-gradient(ellipse at 50% -10%, rgba(31, 92, 67, 0.10), transparent 60%);
+  background-attachment: fixed;
+}
+html.dark:root body {
+  background-image: radial-gradient(ellipse at 50% -10%, rgba(227, 178, 60, 0.07), transparent 60%);
+}
+
 .pocha {
   --pocha-gap: 0.75rem;
   --pocha-radius: 12px;
-  --pocha-ok: #2fa36b;
-  --pocha-bad: #d6584a;
-  --pocha-warn: #d79a2b;
   font-variant-numeric: tabular-nums;
   margin-top: 1rem;
 }
@@ -37,6 +76,7 @@
 .pocha input[type=text],
 .pocha input[type=number],
 .pocha input[type=url],
+.pocha input[type=email],
 .pocha select {
   background: var(--code-bg);
   color: var(--content);
@@ -283,7 +323,7 @@
   flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.7rem;
 }
 .pocha .top-bar .lang-bar { margin-bottom: 0; }
-.pocha .tabs { display: flex; gap: 0.2rem; }
+.pocha .tabs { display: flex; flex-wrap: wrap; gap: 0.2rem; }
 .pocha a.tab {
   padding: 0.35rem 0.9rem; border-radius: 999px;
   font-size: 0.9rem; font-weight: 600; text-decoration: none;
@@ -344,3 +384,132 @@
 }
 .pocha .rank-row .rank.top { border-color: var(--tertiary); color: var(--tertiary); }
 .pocha .rank-row .rank-arrow { color: var(--secondary); font-size: 0.8rem; }
+
+/* Accounts and stats */
+.pocha .cloud-save { margin-top: 0.4rem; }
+.pocha .hint.ok-text { color: var(--pocha-ok); }
+.pocha .hint.bad-text { color: var(--pocha-bad); }
+.pocha .email-form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0.5rem; margin: 1rem 0 var(--pocha-gap); }
+.pocha .email-form .field { flex: 1 1 15rem; }
+.pocha .email-form input[type=email] { width: 100%; }
+.pocha .account-line { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.pocha .account-line span { min-width: 0; overflow-wrap: anywhere; }
+.pocha .card.account { padding-top: 0.7rem; padding-bottom: 0.7rem; }
+.pocha .stats-summary { margin: 0 0 0.6rem; }
+.pocha table.stats-table td.nm {
+  text-align: left; font-weight: 600; white-space: nowrap;
+  position: sticky; left: 0; background: var(--entry);
+}
+.pocha table.stats-table th:first-child { text-align: left; left: 0; z-index: 2; }
+.pocha table.stats-table tbody tr:hover td.nm { background: var(--code-bg); }
+.pocha table.stats-table tr.lead td.nm { box-shadow: inset 3px 0 0 var(--tertiary); }
+.pocha table.stats-table td.miss-split { white-space: nowrap; color: var(--secondary); }
+.pocha .saved-games { display: grid; gap: 0.4rem; }
+.pocha details.saved-game { border-radius: 8px; background: var(--code-bg); padding: 0.5rem 0.7rem; }
+.pocha details.saved-game summary {
+  cursor: pointer; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3rem 0.8rem;
+}
+.pocha details.saved-game .when { color: var(--secondary); font-size: 0.85rem; min-width: 6.5rem; }
+.pocha details.saved-game .who { font-weight: 600; }
+.pocha .saved-standings { margin: 0.6rem 0 0 1.3rem; padding: 0; font-size: 0.9rem; }
+.pocha .saved-standings li { display: flex; justify-content: space-between; gap: 1rem; max-width: 20rem; }
+
+/* Tablets and installed app */
+
+/* − / + steppers: hidden on phones, where the number keypad is quicker */
+.pocha .stepper { display: inline-flex; align-items: center; gap: 0.25rem; }
+.pocha button.step { display: none; }
+
+.pocha .game-grid { display: block; }
+
+@media (min-width: 600px) {
+  .pocha button.step {
+    display: inline-grid; place-items: center;
+    width: 2.6rem; height: 2.6rem; padding: 0;
+    font-size: 1.3rem; line-height: 1; border-radius: 50%;
+    touch-action: manipulation; user-select: none; -webkit-user-select: none;
+  }
+  .pocha .stepper input[type=number] { width: 3.4rem; height: 2.6rem; font-size: 1.15rem; }
+  .pocha .bids-head span:not(:first-child) { width: 9.3rem; }
+  .pocha .bids, .pocha .bids-head { max-width: 40rem; }
+  .pocha .bid-row { padding: 0.45rem 0.6rem; }
+  .pocha .bid-row .who { font-size: 1.05rem; }
+  .pocha .actions button, .pocha a.button-link { padding: 0.7rem 1.2rem; }
+  .pocha a.tab { padding: 0.5rem 1.1rem; }
+}
+
+/* landscape tablets and laptops: round on the left, scoreboard on the right */
+@media (min-width: 1000px) {
+  .pocha .game-grid {
+    display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    gap: var(--pocha-gap); align-items: start; margin-bottom: var(--pocha-gap);
+  }
+  .pocha .game-grid > .card { margin-bottom: 0; }
+  .pocha .game-grid .standings { grid-template-columns: 1fr; }
+}
+
+/* opened from the home screen: the app fills the screen without the website around it */
+@media (display-mode: standalone) {
+  body > header.header, body > footer.footer, .post-header, .breadcrumbs { display: none !important; }
+  .pocha { margin-top: 0.5rem; }
+}
+html.pocha-installed body > header.header,
+html.pocha-installed body > footer.footer,
+html.pocha-installed .post-header { display: none !important; }
+.pocha { -webkit-tap-highlight-color: transparent; }
+
+/* Game header: the four Spanish suits fanned like a hand of cards */
+.post-header { display: none; }
+.pocha-banner {
+  display: flex; align-items: center; justify-content: center; gap: 1.6rem;
+  margin: 0.5rem 0 1rem; padding: 1.1rem 1.4rem 1rem;
+  border-radius: 16px;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.12), transparent 65%),
+    #1f5c43;
+  box-shadow: inset 0 0 0 2px rgba(227,178,60,0.55), inset 0 0 0 6px #1f5c43, inset 0 0 0 7px rgba(227,178,60,0.3), 0 2px 8px rgba(0,0,0,0.18);
+  color: #f6e7b8;
+  overflow: hidden;
+}
+.pocha-banner .suit-hand { display: flex; align-items: flex-end; padding: 0.4rem 0.9rem 0.2rem 1.2rem; flex: 0 0 auto; }
+.pocha-banner .banner-text { min-width: 0; }
+.pocha-banner .suit-card {
+  display: grid; place-items: center;
+  width: 3.4rem; height: 4.8rem; margin-left: -0.6rem;
+  background: #fbf6e9; border: 1px solid #d8cfb8; border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  transform-origin: 50% 120%;
+  transition: transform 0.2s ease;
+}
+.pocha-banner .suit-card svg { width: 72%; height: auto; display: block; }
+.pocha-banner .suit-card:nth-child(1) { transform: rotate(-15deg) translateY(4px); }
+.pocha-banner .suit-card:nth-child(2) { transform: rotate(-5deg); }
+.pocha-banner .suit-card:nth-child(3) { transform: rotate(5deg); }
+.pocha-banner .suit-card:nth-child(4) { transform: rotate(15deg) translateY(4px); }
+.pocha-banner .suit-hand:hover .suit-card:nth-child(1) { transform: rotate(-20deg) translateY(-2px); }
+.pocha-banner .suit-hand:hover .suit-card:nth-child(2) { transform: rotate(-7deg) translateY(-6px); }
+.pocha-banner .suit-hand:hover .suit-card:nth-child(3) { transform: rotate(7deg) translateY(-6px); }
+.pocha-banner .suit-hand:hover .suit-card:nth-child(4) { transform: rotate(20deg) translateY(-2px); }
+.pocha-banner .banner-text h1 {
+  margin: 0; font-size: 2.6rem; line-height: 1; font-weight: 800; letter-spacing: 0.04em;
+  color: #f6e7b8; text-shadow: 0 2px 0 rgba(0,0,0,0.25);
+}
+.pocha-banner .banner-text p {
+  margin: 0.35rem 0 0; font-size: 0.8rem; letter-spacing: 0.18em; text-transform: uppercase; white-space: nowrap;
+  color: #e3b23c;
+}
+@media (min-width: 600px) {
+  .pocha-banner .suit-card { width: 4rem; height: 5.6rem; }
+  .pocha-banner .banner-text h1 { font-size: 3.2rem; }
+}
+@media (max-width: 480px) {
+  .pocha-banner { gap: 0.3rem; padding: 0.8rem 0.7rem 0.7rem; }
+  .pocha-banner .suit-hand { padding: 0.3rem 0.5rem 0.2rem 1.2rem; }
+  .pocha-banner .suit-card { width: 2.5rem; height: 3.6rem; margin-left: -0.5rem; border-radius: 6px; }
+  .pocha-banner .banner-text h1 { font-size: 1.9rem; }
+  .pocha-banner .banner-text p { font-size: 0.6rem; letter-spacing: 0.08em; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pocha-banner .suit-card { transition: none; }
+}
+@media print { .pocha-banner { display: none; } }
