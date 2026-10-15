@@ -78,6 +78,12 @@
         return finishEmailLink();
       })
       .then(function () {
+        // errores al volver de la página de Google / errors on coming back from Google's page
+        return auth.getRedirectResult().catch(function (err) {
+          state.error = err.code || 'auth/error';
+        });
+      })
+      .then(function () {
         auth.onAuthStateChanged(function (user) {
           state.user = user ? {
             uid: user.uid,
@@ -111,8 +117,11 @@
       boot().catch(function () { /* ya avisado / already reported */ });
     },
 
-    signInGoogle: function () {
+    // la app instalada va a la página de Google y vuelve; el navegador usa una ventana
+    // the installed app goes to Google's page and back; the browser uses a pop-up
+    signInGoogle: function (useRedirect) {
       var provider = new window.firebase.auth.GoogleAuthProvider();
+      if (useRedirect) return auth.signInWithRedirect(provider);
       return auth.signInWithPopup(provider).catch(function (err) {
         if (err && err.code === 'auth/popup-blocked') return auth.signInWithRedirect(provider);
         throw err;
