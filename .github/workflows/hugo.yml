@@ -56,6 +56,20 @@ jobs:
           hugo \
             --minify \
             --baseURL "${{ steps.pages.outputs.base_url }}/"
+      # Pocha: Firebase's sign-in helper, served from this domain so that Google
+      # sign-in also works in browsers that partition storage (Safari, Brave, iOS apps).
+      # The pages go in as .html so GitHub Pages serves them as web pages.
+      - name: Self-host the Firebase sign-in helper for Pocha
+        run: |
+          base=https://pocha-37f93.firebaseapp.com
+          mkdir -p public/__/auth public/__/firebase
+          fetch() { curl -fsSL --retry 3 "$base/$1" -o "public/$2" || echo "::warning::Could not fetch $1; Pocha sign-in may not work"; }
+          fetch __/auth/handler        __/auth/handler.html
+          fetch __/auth/handler.js     __/auth/handler.js
+          fetch __/auth/experiments.js __/auth/experiments.js
+          fetch __/auth/iframe         __/auth/iframe.html
+          fetch __/auth/iframe.js      __/auth/iframe.js
+          fetch __/firebase/init.json  __/firebase/init.json
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

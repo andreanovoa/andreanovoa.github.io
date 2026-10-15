@@ -12,7 +12,9 @@
  */
 window.POCHA_FIREBASE = {
   apiKey: 'AIzaSyC4u2LeLoNJG4-VBKYdeNphyF8eIR-r2cE',
-  authDomain: 'pocha-37f93.firebaseapp.com',
+  // el inicio de sesión vuelve a este dominio (ver .github/workflows/hugo.yml)
+  // sign-in comes back to this domain (see .github/workflows/hugo.yml)
+  authDomain: 'andreanovoa.github.io',
   projectId: 'pocha-37f93',
   storageBucket: 'pocha-37f93.firebasestorage.app',
   messagingSenderId: '687494503690',

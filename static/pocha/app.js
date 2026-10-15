@@ -1087,7 +1087,7 @@
     google.type = 'button';
     google.addEventListener('click', function () {
       google.disabled = true;
-      cloud.signInGoogle().catch(function (err) {
+      cloud.signInGoogle(installed()).catch(function (err) {
         if (err && err.code === 'auth/popup-closed-by-user') return;
         report(t('signInFailed', err && (err.code || err.message)), 'bad');
       }).then(function () { google.disabled = false; });
