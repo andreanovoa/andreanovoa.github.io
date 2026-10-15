@@ -11,8 +11,10 @@
  * the scoreboard works without accounts.
  */
 window.POCHA_FIREBASE = {
-  apiKey: '',
-  authDomain: '',
-  projectId: '',
-  appId: ''
+  apiKey: 'AIzaSyC4u2LeLoNJG4-VBKYdeNphyF8eIR-r2cE',
+  authDomain: 'pocha-37f93.firebaseapp.com',
+  projectId: 'pocha-37f93',
+  storageBucket: 'pocha-37f93.firebasestorage.app',
+  messagingSenderId: '687494503690',
+  appId: '1:687494503690:web:17591a237cc097b68c6ef3'
 };
