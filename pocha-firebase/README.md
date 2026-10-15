@@ -27,6 +27,34 @@ Everything below fits in Firebase's free Spark plan.
    Firebase CLI you can run `firebase deploy --only firestore:rules` instead.
 7. **Index.** The game list sorts on one field, so no composite index is
    needed.
+8. **Let Google send sign-ins back to this site.** Safari, Brave and the
+   installed iOS app block the default sign-in, which returns through
+   `<project>.firebaseapp.com`. So the deploy workflow
+   (`.github/workflows/hugo.yml`) copies Firebase's sign-in helper into
+   `/__/auth/` on this site, and `authDomain` in `firebase-config.js` is
+   `andreanovoa.github.io`. For Google to accept that, open
+   <https://console.cloud.google.com/apis/credentials>, pick the project,
+   open **Web client (auto created by Google Service)** and add:
+   - Authorized JavaScript origins: `https://andreanovoa.github.io`
+   - Authorized redirect URIs: `https://andreanovoa.github.io/__/auth/handler`
+
+   If the Firebase project ever changes, update `base=` in the workflow step
+   *Self-host the Firebase sign-in helper for Pocha* as well.
+
+## Current project
+
+- Firebase project: `pocha-37f93` (Spark plan, no billing)
+- Console: <https://console.firebase.google.com/project/pocha-37f93>
+
+## Troubleshooting
+
+| Error | Fix |
+| --- | --- |
+| `auth/configuration-not-found` | Authentication not started, or the provider is off (step 3). |
+| `auth/unauthorized-domain` | Add `andreanovoa.github.io` to Authorized domains (step 4). |
+| `missing initial state` | Sign-in went through `firebaseapp.com`; check step 8. |
+| `redirect_uri_mismatch` | The redirect URI in step 8 is missing or mistyped. |
+| `permission-denied` when saving | The Firestore rules are not published (step 6). |
 
 ## Data layout
 
