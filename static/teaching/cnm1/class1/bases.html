@@ -29,7 +29,7 @@
 <div class="wrap">
 <header class="top">
   <h1>What is a base?</h1>
-  <p class="lede">In base b there are b digits, 0 to b − 1, and the digit in position k counts units of b<sup>k</sup>: x = Σ d<sub>k</sub> b<sup>k</sup>. The base changes how a number is written, not the number itself. Step through the conversion: the whole part by repeated division by b, the fractional part by repeated multiplication by b.</p>
+  <p class="lede">In base b there are b digits, 0 to b − 1, and the digit in position k counts units of b<sup>k</sup>: x = Σ d<sub>k</sub> b<sup>k</sup>. The base changes how a number is written, not the number itself. Step through the conversion: from the largest place value down, each digit is how many times b<sup>p</sup> fits in what is left of x, d<sub>p</sub> = ⌊x / b<sup>p</sup>⌋; subtract d<sub>p</sub> b<sup>p</sup> and move to the next place, b<sup>p−1</sup>. The digits come out left to right, through the point.</p>
 </header>
 <main class="layout">
   <section class="plotcard">
@@ -124,7 +124,8 @@ function decStr(N,D,max){max=max==null?12:max;let r=N%D,f='';const W=group((N/D)
 const fd=(n,D)=>isDec(D)?decStr(n,D,15):(n%D===0n?(n/D).toString():`${n}/${D}`);
 function primes(D){const p=[];let q=D;for(let k=2n;k*k<=q;k++){if(q%k===0n){p.push(k);while(q%k===0n)q/=k;}}if(q>1n)p.push(q);return p;}
 
-/* ---------- conversion: repeated division (whole part), repeated multiplication (fraction) ---------- */
+/* ---------- conversion: digits from the largest place value down. whole[p] is the digit of b^p (found by division, which gives the
+   same digits); frac[i] the digit of b^-(i+1), with what is left tracked exactly as f / (D b^i) ---------- */
 function expand(X,b){
   const B=BigInt(b),D=X.D,W=X.N/D;let r=X.N%D;
   const whole=[];for(let w=W;w>0n;w/=B)whole.push({x:w,q:w/B,d:Number(w%B)});
@@ -161,9 +162,9 @@ function contrib(d,k,b,mx){if(d===0)return{t:'0',n:1};
   const a=fmt(v,2);if(a.length+1<=mx&&!/e/.test(a))return{t:'≈'+a,n:a.length+1};
   return sciSvg(v,true,mx<=5);}
 const contribTxt=(d,k,b)=>contrib(d,k,b,9).t.replace(/<tspan[^>]*>/,'<sup>').replace('</tspan>','</sup>');
-/* exact value of the digits found after k steps */
+/* exact value of the digits found after k steps (the ki largest place values of the whole part first) */
 function partial(k){const ki=Math.min(k,E.nW),kf=Math.max(0,k-E.nW);let w=0n;
-  for(let j=0;j<ki;j++)w+=BigInt(E.whole[j].d)*E.B**BigInt(j);
+  for(let j=E.nW-ki;j<E.nW;j++)w+=BigInt(E.whole[j].d)*E.B**BigInt(j);
   let num=0n;for(let j=0;j<kf;j++)num=num*E.B+BigInt(E.frac[j].d);
   const den=E.B**BigInt(kf);return{n:w*den+num,d:den};}
 
@@ -178,10 +179,10 @@ function layoutRows(items,W){const rows=[[]];let x=0;
 
 function drawPV(k){
   const svg=$('pv'),W=Math.max(260,Math.round(svg.parentElement.clientWidth||700)),small=W<600,b=E.b,bc=baseCol(b);
-  const ki=Math.min(k,E.nW),kf=Math.max(0,k-E.nW),cur=k===0?null:k<=E.nW?{w:k-1}:{f:k-E.nW-1};
+  const ki=Math.min(k,E.nW),kf=Math.max(0,k-E.nW),cur=k===0?null:k<=E.nW?{w:E.nW-k}:{f:k-E.nW-1};
   const items=[];
   if(!E.nW)items.push({k:0,d:0,known:true});
-  for(let j=E.nW-1;j>=0;j--)items.push({k:j,d:E.whole[j].d,known:j<ki,cur:cur&&cur.w===j});
+  for(let j=E.nW-1;j>=0;j--)items.push({k:j,d:E.whole[j].d,known:j>=E.nW-ki,cur:cur&&cur.w===j});
   if(E.nF){items.push({pt:true});
     for(let j=0;j<E.nF;j++)items.push({k:-(j+1),d:E.frac[j].d,known:j<kf,cur:cur&&cur.f===j,fi:j});
     if(E.capped)items.push({more:true});}
@@ -289,8 +290,16 @@ function basesTable(){const list=[2,8,10,16,60];if(!list.includes(E.b))list.push
   renderTable('tblBases',['base','x written in base b','whole','fraction'],rows,list.indexOf(E.b));}
 
 /* ---------- stepping ---------- */
-function stepRow(j){if(j<E.nW){const r=E.whole[j];return[String(j),`${group(r.x.toString())} = ${group(r.q.toString())} × ${E.b} + ${r.d}`,'<b>'+digPlain(r.d,E.b)+'</b>'];}
-  const i=j-E.nW,r=E.frac[i];return['−'+(i+1),`${E.b} × ${fd(r.f,E.D)} = ${fd(r.p,E.D)}`,'<b>'+digPlain(r.d,E.b)+'</b>'];}
+/* exact value n/d, reduced: a decimal when it terminates, otherwise a fraction */
+const fdv=(n,d)=>{const g=gcd(n,d);return fd(n/g,d/g);};
+/* step j: place value b^p, what is left before (x) and after (rest), and the digit */
+function stepAt(j){const B=E.B,D=E.D,P=X.N%D;
+  if(j<E.nW){const p=E.nW-1-j,bp=B**BigInt(p);
+    return{p,d:E.whole[p].d,bp:group(bp.toString()),x:fdv((E.W%(bp*B))*D+P,D),rest:fdv((E.W%bp)*D+P,D)};}
+  const i=j-E.nW,r=E.frac[i],bi=B**BigInt(i);
+  return{p:-(i+1),d:r.d,bp:fdv(1n,bi*B),x:fdv(r.f,D*bi),rest:fdv(r.r,D*bi*B)};}
+function stepRow(j){const t=stepAt(j);
+  return[String(t.p).replace('-','−'),t.x,t.bp,`<b>${digPlain(t.d,E.b)}</b>`,t.rest];}
 function render(k){
   if(!E){$('pv').innerHTML='';$('groups').innerHTML='';$('bars').innerHTML='';setFormula('');setStatus('bad',$('numErr').textContent);
     renderTable('tblSteps',[],[],-1);renderTable('tblBases',[],[],-1);$('digits').innerHTML='';$('sumline').innerHTML='&nbsp;';return;}
@@ -302,24 +311,21 @@ function render(k){
     Array.from({length:b-10},(_,i)=>`${SYM[10+i]} = ${10+i}`).join(', ')+'.';}
   else if(b===60){key.hidden=false;key.innerHTML='Base 60 needs 60 digit symbols: each digit (0 to 59) is written as a decimal number, and the digits are separated by “;”, as on a clock.';}
   else key.hidden=true;
-  const known=()=>{const w=E.whole.slice(0,ki).map(r=>digPlain(r.d,b)).reverse().join(b===60?';':''),
+  const known=()=>{const w=E.whole.slice(E.nW-ki).map(r=>digPlain(r.d,b)).reverse().join(b===60?';':''),
     f=E.frac.slice(0,kf).map(r=>digPlain(r.d,b)).join(b===60?';':'');
-    const ws=ki===E.nW?(w||'0'):'…'+w;return '('+ws+(kf?'.'+f:'')+')'+sub(b);};
+    const ws=ki===E.nW?(w||'0'):w+'…';return '('+ws+(kf?'.'+f:'')+')'+sub(b);};
   let l1,l2,l3;
   if(k===0){const P=X.N%X.D;
     l1=`x = ${xTxt()}: whole part ${group(E.W.toString())}${P?`, fractional part ${fd(P,X.D)}`:''}${X.neg?' (the sign is kept separately)':''}`;
-    l2=E.nW?`Whole part: divide by ${b}; the remainder is the next digit, read upwards.`:'The whole part is 0.';
-    l3=P?`Fractional part: multiply by ${b}; the integer part is the next digit, read downwards.`:'&nbsp;';}
-  else if(k<=E.nW){const r=E.whole[k-1];
-    l1=`${group(r.x.toString())} ÷ ${b} = ${group(r.q.toString())} remainder ${r.d} &rarr; <b>d<sub>${k-1}</sub> = ${digPlain(r.d,b)}</b>${r.d>9&&b<=16?` (${SYM[r.d]} = ${r.d})`:''}`;
-    l2=`Check: ${group(r.q.toString())} × ${b} + ${r.d} = ${group(r.x.toString())}`;
-    l3=r.q===0n?`Quotient 0: whole part done. Read the remainders upwards: ${known()}`:`Digits so far, read upwards: ${known()}`;}
-  else{const j=kf,r=E.frac[j-1];
-    l1=`${b} × ${fd(r.f,E.D)} = ${fd(r.p,E.D)} &rarr; integer part ${r.d} &rarr; <b>d<sub>−${j}</sub> = ${digPlain(r.d,b)}</b>${r.d>9&&b<=16?` (${SYM[r.d]} = ${r.d})`:''}`;
-    if(r.r===0n)l2='The fractional part is 0: the expansion terminates.';
-    else if(E.rec&&j===E.start+E.period)l2=`Keep the fractional part ${fd(r.r,E.D)}: the same as before step ${E.start+1}, so the digits from d<sub>−${E.start+1}</sub> repeat for ever`;
-    else l2=`Keep the fractional part ${fd(r.r,E.D)} and multiply again`;
-    l3=`Digits so far, read downwards: ${known()}`;}
+    l2=E.nW?`The largest place value that fits is ${b}${sup(E.nW-1)} = ${group((E.B**BigInt(E.nW-1)).toString())}: start there. Each digit is how many times ${b}<sup>p</sup> fits in what is left.`:`The whole part is 0: start at ${b}${sup(-1)}. Each digit is how many times ${b}<sup>p</sup> fits in what is left.`;
+    l3='&nbsp;';}
+  else{const t=stepAt(k-1),ps=String(t.p).replace('-','−'),dd=`<b>d<sub>${ps}</sub> = ${digPlain(t.d,b)}</b>${t.d>9&&b<=16?` (${SYM[t.d]} = ${t.d})`:''}`;
+    l1=t.d?`${b}${sup(t.p)} = ${t.bp} fits ${t.d} time${t.d>1?'s':''} in ${t.x} &rarr; ${t.x} − ${t.d} × ${t.bp} = ${t.rest} &rarr; ${dd}`:`${b}${sup(t.p)} = ${t.bp} &gt; ${t.x} &rarr; skip &rarr; ${dd}`;
+    const j=kf,r=j?E.frac[j-1]:null;
+    if(t.rest==='0')l2='Nothing left: the expansion terminates.';
+    else if(r&&E.rec&&j===E.start+E.period)l2=`What is left, ${t.rest}, is what was left before p = −${E.start+1}, divided by ${b}${sup(E.period)}: the digits from d<sub>−${E.start+1}</sub> repeat for ever`;
+    else l2=`Next, compare ${t.rest} with ${b}${sup(t.p-1)}.`;
+    l3=`Digits so far, left to right: ${known()}`;}
   setFormula(`<span class="line1">${l1}</span><span class="line2">${l2}</span><span class="line3">${l3}</span>`);
   if(!done)setStatus('info',k===0?'Press Step (&rarr;) to find the first digit.':`Step ${k} of ${S.last}.`);
   else{const res=`${xTxt()} = (${(X.neg?'−':'')+repStr(E,{group:b===2?4:0})})${sub(b)}`;
@@ -329,8 +335,8 @@ function render(k){
     else{const why=` The denominator ${q} has the prime factor${ps.length>1?'s':''} ${ps.join(', ')}, which ${ps.length>1?'do':'does'} not divide ${b}.`;
       if(E.rec&&!E.capped)setStatus('ok',`${res}: recurring, period ${E.period}.`+why);
       else setStatus('ok',`${res}: first ${MAXF} digits shown`+(E.rec?`; the digits repeat with period ${E.period} after ${E.start} digit${E.start===1?'':'s'}.`:'.')+why);}}
-  renderTable('tblSteps',['k','operation','d<sub>k</sub>'],Array.from({length:k},(_,j)=>stepRow(j)),k-1);
-  if(!k)$('tblSteps').querySelector('tbody').innerHTML='<tr><td colspan="3" style="text-align:left;opacity:.75">The operations appear here as you step.</td></tr>';
+  renderTable('tblSteps',['p','x (left)','b<sup>p</sup>','d<sub>p</sub> = ⌊x / b<sup>p</sup>⌋','x − d<sub>p</sub> b<sup>p</sup>'],Array.from({length:k},(_,j)=>stepRow(j)),k-1);
+  if(!k)$('tblSteps').querySelector('tbody').innerHTML='<tr><td colspan="5" style="text-align:left;opacity:.75">The operations appear here as you step.</td></tr>';
   if(window.parent!==window)window.parent.postMessage({type:'module-demo-resize'},location.origin);}
 const S=Stepper(render);S.delay=900;
 
