@@ -22,6 +22,11 @@ url: "talks"
 
 | Year | Conference | Location | Presentation |
 |------|------------|----------|--------------|
+| 2027 | SIAM Conference on Applications of Dynamical Systems (DS27) | Atlanta, US |[**Real-time prediction of extreme events with self-learning reservoirs**](https://www.siam.org/conferences-events/siam-conferences/ds27/) <br> Consonni, Nóvoa and Magri |
+| 2027 | 24th IACM Computational Fluids Conference | Yokohama, Japan |**Real-time quantized local reduced order models** <br> Nóvoa, Colanera and Magri |
+| 2027 | 3rd IACM Digital Twins in Engineering Conference | Yokohama, Japan |**Real-time quantized local reduced order models** <br> Colanera, Nóvoa and Magri |
+| 2026 | APS-DFD 79th | Orlando, US |**Real-time assimilation in quantized local reduced order models: Data-driven approaches** <br> Nóvoa, Colanera, McKeon, Kaszás and Magri |
+| 2026 | APS-DFD 79th | Orlando, US |**Real-time assimilation in quantized local reduced order models: Intrusive approaches** <br> Colanera, Nóvoa and Magri |
 | 2026 | ERCOFTAC SIG 20: European Drag Reduction and Flow Control Meeting | Madrid, Spain |[**A data-built latent dynamics surrogate for opposition control under sparse and lagged wall measurements**](https://www.ercoftac.org/events/european-drag-reduction-and-flow-control-meeting-2026-edrfcm2026/) <br> Pérez Cuadrado, Cavallazzi, Nóvoa & Pinelli |
 | 2026 | EUROMECH Colloquium 668: Coherent Structures in Multiphysics Flows | Berlin, Germany |[**Wake interactions between porous discs: Linear nowcasting and forecasting from sparse experimental data**](https://668.euromech.org/program/) <br> Klopsch, Nóvoa, Goodwin, Laizet & Rigas |
 | 2026 | 3rd ERCOFTAC Workshop on ML for Fluid Dynamics | Amsterdam, Netherlands |[**Real-time data assimilation in latent spaces for chaotic forecasting**](https://ml4fluids2026.github.io/) <br> Magri, Özalp and Nóvoa |
