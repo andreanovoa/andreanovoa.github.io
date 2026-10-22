@@ -3,11 +3,11 @@ orgs:
   - key: sciml-da
     name: "SciML-DA"
     url: "https://github.com/SciML-DA"
-    blurb: "The group organisation. Code released with the group's papers and student projects lives here."
+    blurb: "Code released with our papers and student projects."
   - key: andreanovoa
     name: "andreanovoa"
     url: "https://github.com/andreanovoa"
-    blurb: "The PI's repositories: core methods, tutorials and general-purpose tooling for dynamical systems."
+    blurb: "Core methods, tutorials and general-purpose tooling for dynamical systems."
 
 # Software packages released with a citable DOI. `doi` is the concept DOI,
 # which always resolves to the latest version. `figure` is an optional graphical

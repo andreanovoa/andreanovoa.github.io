@@ -22,10 +22,8 @@
     {{- end }}
   </div>
 
-  {{- range $org := $data.orgs }}
-  {{- $repos := where $data.repos "org" $org.key }}
-  {{- with $repos }}
-  <h2 class="group-heading" id="{{ $org.key }}"><a href="{{ $org.url }}">{{ $org.name }}</a></h2>
+  {{- with $data.repos }}
+  <h2 class="group-heading" id="software">Software</h2>
   <ul class="repos">
     {{- range $repo := . }}
     <li class="repo{{ with $repo.figure }} repo--fig{{ end }}">
@@ -56,7 +54,6 @@
     </li>
     {{- end }}
   </ul>
-  {{- end }}
   {{- end }}
 
   {{- with $data.datasets }}
