@@ -26,9 +26,6 @@ menu:
         - name: Students
           url: students/
           weight: 4
-        # - name: Projects
-        #   url: projects/
-        #   weight: 5
         - name: Teaching
           url: teaching/
           weight: 6
@@ -78,8 +75,6 @@ params:
               url: outreach/
             - name: Students
               url: students/
-            # - name: Projects
-            #   url: projects/
             - name: Teaching
               url: teaching/
 
