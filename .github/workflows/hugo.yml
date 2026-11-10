@@ -79,7 +79,8 @@ jobs:
           add_docs dynamodels dynamodels
           add_docs qlroms-docs qlroms
 
-      # Pocha: Firebase's sign-in helper, served from this domain so that Google
+      # Pocha (its own repository, andreanovoa/pocha, served at /pocha/): Firebase's
+      # sign-in helper must sit at the root of this domain, so that Google
       # sign-in also works in browsers that partition storage (Safari, Brave, iOS apps).
       # The pages go in as .html so GitHub Pages serves them as web pages.
       - name: Self-host the Firebase sign-in helper for Pocha

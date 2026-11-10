@@ -48,12 +48,9 @@ menu:
     - name: "Teaching"
       url: /teaching/
       weight: 5
-    - name: "Join"
-      url: /join/
-      weight: 6
     - name: "Contact"
       url: /contact/
-      weight: 7
+      weight: 6
 
 markup:
   goldmark:

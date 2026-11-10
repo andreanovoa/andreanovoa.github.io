@@ -7,7 +7,7 @@
   <main class="wrap">
     {{- block "main" . }}{{ end }}
   </main>
-  {{- if not .Params.pwa }}{{ partial "footer.html" . }}{{ end }}
+  {{- partial "footer.html" . }}
   <script src="https://unpkg.com/feather-icons"></script>
   <script>
   document.addEventListener('DOMContentLoaded', function () {

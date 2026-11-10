@@ -65,10 +65,10 @@
   <h2>Join the group</h2>
   {{- with site.Data.openings }}
   <p>Open now: {{ range $i, $o := . }}{{ if $i }}; {{ end }}{{ $o.title }} (deadline {{ $o.deadline }}){{ end }}.</p>
-  <a class="button" href="{{ "/join/" | relURL }}">See the open positions</a>
+  <a class="button" href="{{ "/contact/#join" | relURL }}">See the open positions</a>
   {{- else }}
   <p>There are no open positions at the moment. Students interested in data assimilation and scientific machine learning for fluids are welcome to get in touch.</p>
-  <a class="button" href="{{ "/join/" | relURL }}">How to get in touch</a>
+  <a class="button" href="{{ "/contact/#join" | relURL }}">How to get in touch</a>
   {{- end }}
 </section>
 {{ end }}
