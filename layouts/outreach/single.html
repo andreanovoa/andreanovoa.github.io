@@ -1,0 +1,19 @@
+{{ define "main" }}
+<article class="page">
+  <p class="back-link"><a href="{{ "/talks/#outreach" | relURL }}">&larr; Talks &amp; Outreach</a></p>
+  <h1 class="page-title">{{ .Title }}</h1>
+  <p class="lead">
+    {{- with .Params.event_type }}{{ . }} · {{ end }}
+    {{- with .Params.location }}{{ . }} · {{ end }}
+    {{- .Date.Format "2 January 2006" -}}
+  </p>
+  <div class="prose">{{ .Content }}</div>
+  {{- with .Params.links }}
+  <ul class="link-boxes">
+    {{- range . }}
+    <li><a class="link-box" href="{{ .url }}" target="_blank" rel="noopener noreferrer"><span data-feather="external-link" aria-hidden="true"></span> {{ .name }}</a></li>
+    {{- end }}
+  </ul>
+  {{- end }}
+</article>
+{{ end }}

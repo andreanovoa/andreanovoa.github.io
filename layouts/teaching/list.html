@@ -1,0 +1,15 @@
+{{ define "main" }}
+<article class="page">
+  {{- with .Params.backLink }}<p class="back-link"><a href="{{ . | relURL }}">{{ $.Params.backLabel | default "&larr; Back" | safeHTML }}</a></p>{{ end }}
+  <h1 class="page-title">{{ .Title }}</h1>
+  {{ with .Params.lead }}<p class="lead">{{ . }}</p>{{ end }}
+  <div class="prose prose--wide">{{ .Content }}</div>
+  {{- with .Sections }}
+  <div class="entry-grid">
+    {{- range .ByDate.Reverse }}
+    {{- partial "entry-card.html" (dict "page" .) }}
+    {{- end }}
+  </div>
+  {{- end }}
+</article>
+{{ end }}

@@ -1,0 +1,26 @@
+{{- /* Card for a talk, outreach event or course: cover image, title, meta line
+       and summary. Pass dict "page" and "href" (defaults to the page itself). */ -}}
+{{- $p := .page }}
+{{- $href := .href | default $p.RelPermalink }}
+{{- $external := strings.HasPrefix $href "http" }}
+{{- $src := "" }}
+{{- with $p.Params.cover }}{{ with .image }}
+  {{- with $p.Resources.GetMatch . }}{{ $src = .RelPermalink }}{{ else }}{{ $src = . }}{{ end }}
+{{- end }}{{ end }}
+<article class="pub-card entry-card">
+  {{- with $src }}
+  <a class="pub-card-cover" href="{{ $href }}"{{ if $external }} target="_blank" rel="noopener noreferrer"{{ end }} tabindex="-1" aria-hidden="true">
+    <img src="{{ . }}" alt="" loading="lazy">
+  </a>
+  {{- end }}
+  <div class="pub-card-body">
+    <h3 class="pub-card-title"><a href="{{ $href }}"{{ if $external }} target="_blank" rel="noopener noreferrer"{{ end }}>{{ $p.Title }}</a></h3>
+    <p class="pub-card-venue">
+      {{- with $p.Params.event_type }}{{ . }} · {{ end }}
+      {{- with $p.Params.event }}{{ . }} · {{ end }}
+      {{- with $p.Params.location }}{{ . }} · {{ end }}
+      {{- $p.Date.Format "January 2006" -}}
+    </p>
+    {{- with $p.Summary }}<p class="pub-card-blurb">{{ . | plainify }}</p>{{ end }}
+  </div>
+</article>

@@ -9,6 +9,13 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+  # Rebuild when a package publishes new docs (send a repository_dispatch event
+  # of type "docs-updated"), and weekly in case a notification was missed.
+  repository_dispatch:
+    types: [docs-updated]
+  schedule:
+    - cron: "0 5 * * 1"
+
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
@@ -31,7 +38,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      HUGO_VERSION: 0.147.2
+      HUGO_VERSION: 0.152.1
     steps:
       - name: Install Hugo CLI
         run: |
@@ -56,6 +63,22 @@ jobs:
           hugo \
             --minify \
             --baseURL "${{ steps.pages.outputs.base_url }}/"
+      # Package documentation, served under /docs/<package>/. Each package
+      # publishes its built MkDocs site to a gh-pages branch; copy it in.
+      - name: Add package documentation
+        run: |
+          add_docs() {
+            if git clone --quiet --depth 1 --branch gh-pages "https://github.com/andreanovoa/$1.git" "public/docs/$2"; then
+              rm -rf "public/docs/$2/.git"
+            else
+              echo "::warning::Could not fetch the docs of $1"
+            fi
+          }
+          add_docs EchoStateNetwork echostatenetwork
+          add_docs ntsa ntsa
+          add_docs dynamodels dynamodels
+          add_docs qlroms-docs qlroms
+
       # Pocha: Firebase's sign-in helper, served from this domain so that Google
       # sign-in also works in browsers that partition storage (Safari, Brave, iOS apps).
       # The pages go in as .html so GitHub Pages serves them as web pages.

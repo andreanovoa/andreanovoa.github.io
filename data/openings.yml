@@ -1,0 +1,8 @@
+# Open positions shown on the Join page and the home page. Delete an entry when
+# it closes; with no entries the Join page says that no positions are open.
+- title: "PhD studentship: real-time data assimilation for multi-physics flows"
+  ref: "AE0095"
+  meta: "Fully funded · 3.5 years · Home, EU and international students"
+  deadline: "4 January 2027"
+  summary: "Bias-aware data assimilation that estimates and corrects the model error of multi-physics flows as the dynamics evolve, from low-order systems to high-dimensional problems."
+  url: "https://www.imperial.ac.uk/aeronautics/study/phd/phd-opportunities-and-funding/new-phd-studentships-admissions-round/ae0095/"

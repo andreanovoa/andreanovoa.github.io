@@ -1,0 +1,200 @@
+<header class="site-header">
+  <div class="wrap nav-inner">
+    <a class="brand" href="{{ "/" | relURL }}">
+      <span class="brand-name">{{ site.Params.shortTitle }}</span>
+      <span class="brand-sub">{{ site.Params.brandSub }}</span>
+    </a>
+    <nav class="nav" id="site-nav">
+      {{- range site.Menus.main }}
+      <a href="{{ .URL | relURL }}"{{ if $.IsMenuCurrent "main" . }} class="is-active"{{ end }}>{{ .Name }}</a>
+      {{- end }}
+    </nav>
+    <div class="nav-toggles">
+      <button class="theme-toggle" data-theme-toggle accesskey="t" title="Toggle theme (Alt + T)" aria-label="Toggle theme">
+        <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+        <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+      </button>
+      <button class="accent-toggle" id="accent-toggle" aria-haspopup="listbox" aria-expanded="false" title="Colour theme" aria-label="Colour theme">
+        <span class="rainbow-ring-container" aria-hidden="true"><span class="rainbow-circle"></span></span>
+      </button>
+    </div>
+    <button class="nav-burger" type="button" aria-controls="nav-more" aria-expanded="false" aria-label="More pages">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <path class="burger-lines" d="M4 7h16M4 12h16M4 17h16"></path>
+        <path class="burger-close" d="M6 6l12 12M18 6L6 18"></path>
+      </svg>
+    </button>
+    <div class="nav-more" id="nav-more">
+      {{- range site.Menus.main }}
+      <a href="{{ .URL | relURL }}"{{ if $.IsMenuCurrent "main" . }} class="is-active"{{ end }}>{{ .Name }}</a>
+      {{- end }}
+    </div>
+    <div id="accent-menu" class="accent-menu accent-slider" role="dialog" aria-label="Colour theme">
+      <label for="accent-hue">Colour</label>
+      <input id="accent-hue" type="range" min="0" max="359" step="1" value="260">
+    </div>
+  </div>
+</header>
+<script>
+(function () {
+  var btn = document.getElementById('accent-toggle');
+  var menu = document.getElementById('accent-menu');
+
+  document.querySelectorAll('[data-theme-toggle]').forEach(function (toggle) {
+    toggle.addEventListener('click', function () {
+      var root = document.documentElement;
+      // No explicit choice yet: fall back to what the system is showing.
+      var isDark = root.classList.contains('dark') ||
+        (!root.classList.contains('light') &&
+         window.matchMedia('(prefers-color-scheme: dark)').matches);
+      root.classList.toggle('dark', !isDark);
+      root.classList.toggle('light', isDark);
+      localStorage.setItem('pref-theme', isDark ? 'light' : 'dark');
+    });
+  });
+
+  // Priority menu: the bar keeps as many tabs as fit; the burger opens a
+  // dropdown with the rest. On phones the toggles move into the dropdown too.
+  var header = document.querySelector('.site-header');
+  var nav = document.getElementById('site-nav');
+  var burger = document.querySelector('.nav-burger');
+  var more = document.getElementById('nav-more');
+  var toggles = document.querySelector('.nav-toggles');
+  var inner = document.querySelector('.nav-inner');
+  var phone = window.matchMedia('(max-width: 40rem)');
+
+  function setOpen(isOpen) {
+    header.classList.toggle('nav-open', isOpen);
+    burger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    burger.setAttribute('aria-label', isOpen ? 'Close menu' : 'More pages');
+  }
+
+  function fit() {
+    if (!nav || !more) return;
+    var tabs = Array.prototype.slice.call(nav.children);
+    var spare = Array.prototype.slice.call(more.querySelectorAll('a'));
+    // toggles: in the bar, or at the bottom of the dropdown on phones
+    if (phone.matches && toggles.parentNode !== more) { more.appendChild(toggles); }
+    if (!phone.matches && toggles.parentNode === more) { inner.insertBefore(toggles, burger); }
+    tabs.forEach(function (a) { a.classList.remove('is-overflow'); });
+    header.classList.remove('has-overflow');
+    // Measure the tabs themselves: right-aligned items overflow to the left,
+    // which scrollWidth does not report.
+    var gap = parseFloat(getComputedStyle(nav).columnGap) || 0;
+    var widths = tabs.map(function (a) { return a.offsetWidth; });
+    function needed(n) {
+      var w = 0;
+      for (var k = 0; k < n; k++) { w += widths[k]; }
+      return w + gap * Math.max(0, n - 1);
+    }
+    var shown = tabs.length;
+    if (!phone.matches && needed(shown) > nav.clientWidth + 1) {
+      header.classList.add('has-overflow');
+      var room = nav.clientWidth;          // re-read: the burger now takes space
+      while (shown > 0 && needed(shown) > room + 1) { shown--; }
+    }
+    var hidden = tabs.length - shown;
+    tabs.forEach(function (a, i) { a.classList.toggle('is-overflow', i >= shown); });
+    if (phone.matches) { hidden = tabs.length; }
+    spare.forEach(function (a, i) { a.classList.toggle('is-shown', i >= tabs.length - hidden); });
+    if (phone.matches) { header.classList.add('has-overflow'); }
+    if (!header.classList.contains('has-overflow')) { setOpen(false); }
+  }
+
+  if (header && burger) {
+    burger.addEventListener('click', function (event) {
+      event.stopPropagation();
+      setOpen(!header.classList.contains('nav-open'));
+    });
+    document.addEventListener('click', function (event) {
+      if (header.classList.contains('nav-open') && !more.contains(event.target) &&
+          !document.getElementById('accent-menu').contains(event.target)) { setOpen(false); }
+    });
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') { setOpen(false); }
+    });
+    window.addEventListener('resize', fit);
+    if (document.fonts && document.fonts.ready) { document.fonts.ready.then(fit); }
+    fit();
+  }
+
+  if (!btn || !menu) return;
+
+  var slider = document.getElementById('accent-hue');
+  var root = document.documentElement;
+  var presets = { blue: 210, teal: 175, purple: 260, rose: 345 };
+
+  function currentHue() {
+    var h = parseFloat(getComputedStyle(root).getPropertyValue('--accent-h'));
+    return isNaN(h) ? 260 : Math.round(h);
+  }
+
+  // Nearest named preset, for pages (the teaching demos) that only know those.
+  function nearestPreset(h) {
+    var best = 'purple', d = 999;
+    Object.keys(presets).forEach(function (k) {
+      var x = Math.abs(((h - presets[k] + 540) % 360) - 180);
+      if (x < d) { d = x; best = k; }
+    });
+    return best;
+  }
+
+  function open() {
+    var rect = btn.getBoundingClientRect();
+    menu.classList.add('open');
+    // Align the popup's right edge with the button, but keep it on screen
+    // (in the burger menu the button sits at the left edge).
+    var w = menu.offsetWidth;
+    var left = Math.min(Math.max(8, rect.right - w), window.innerWidth - w - 8);
+    menu.style.top = (rect.bottom + 6) + 'px';
+    menu.style.left = left + 'px';
+    menu.style.right = 'auto';
+    btn.setAttribute('aria-expanded', 'true');
+    slider.value = currentHue();
+    slider.focus();
+  }
+
+  function close() {
+    menu.classList.remove('open');
+    btn.setAttribute('aria-expanded', 'false');
+  }
+
+  btn.addEventListener('click', function (event) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (menu.classList.contains('open')) { close(); } else { open(); }
+  });
+
+  slider.addEventListener('input', function () {
+    var h = slider.value;
+    root.style.setProperty('--accent-h', h);
+    root.setAttribute('data-accent', nearestPreset(+h));
+    try {
+      localStorage.setItem('pref-hue', h);
+      localStorage.setItem('pref-accent', nearestPreset(+h));
+    } catch (e) {}
+  });
+
+  document.addEventListener('click', function (event) {
+    if (!menu.contains(event.target) && !btn.contains(event.target)) { close(); }
+  });
+
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') { close(); }
+  });
+})();
+</script>

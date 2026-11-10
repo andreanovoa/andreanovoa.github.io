@@ -1,0 +1,25 @@
+{{ define "main" }}
+{{- $p := site.Params }}
+<article class="page">
+  <section class="pi-card">
+    <header class="pi-head">
+      <img class="pi-photo" src="{{ $p.piPhoto | relURL }}" alt="{{ $p.pi }}" width="160" height="160">
+      <div class="pi-id">
+        <h1 class="pi-name">{{ $p.pi }}</h1>
+        {{- range $p.piPositions }}
+        <p class="pi-pos"><strong>{{ .title }}</strong><br><span>{{ .inst }}</span></p>
+        {{- end }}
+        <p class="pi-links">
+          <a class="icon-link" href="{{ "/contact/" | relURL }}"><span data-feather="mail" aria-hidden="true"></span> Contact</a>
+          <a class="icon-link" href="{{ $p.scholar }}"><span data-feather="book-open" aria-hidden="true"></span> Scholar</a>
+          <a class="icon-link" href="{{ $p.orcid }}"><span data-feather="award" aria-hidden="true"></span> ORCID</a>
+          <a class="icon-link" href="{{ $p.github }}"><span data-feather="github" aria-hidden="true"></span> GitHub</a>
+          <a class="icon-link" href="{{ $p.linkedin }}"><span data-feather="linkedin" aria-hidden="true"></span> LinkedIn</a>
+          {{- with .Params.cvPdf }}<a class="icon-link" href="{{ . | relURL }}"><span data-feather="download" aria-hidden="true"></span> CV (PDF)</a>{{ end }}
+        </p>
+      </div>
+    </header>
+    <div class="prose prose--wide pi-cv">{{ .Content }}</div>
+  </section>
+</article>
+{{ end }}

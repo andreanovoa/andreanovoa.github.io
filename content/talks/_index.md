@@ -1,9 +1,9 @@
 ---
-title: "Talks & Seminars"  
-description: "Invited talks, conference presentations, and recent online seminar videos."
-type: "talk"
-layout: "list"
-url: "talks"
+title: "Talks & Outreach"
+description: "Invited talks, conference presentations, recorded seminars, and outreach and public engagement."
+lead: "Invited talks, conference presentations and recorded seminars, followed by outreach and public engagement."
+url: "/talks/"
+aliases: ["/outreach/"]
 ---
 
 ## Invited Keynote Talks & Seminars  {.capital-title}
@@ -18,7 +18,7 @@ url: "talks"
 | 2024 | The Alan Turing Institute <br> *Phi-ML meets Engineering seminar series* | Online |[**Real-time data assimilation in nonlinear thermoacoustic instabilities**](https://www.turing.ac.uk/events/phi-ml-meets-engineering-real-time-data-assimilation-nonlinear-thermoacoustic-instabilities) |
 | 2024 | The AI for Net Zero Webinar Series | Online |[**A real-time digital twin of a hydrogen-fuelled annular combustor**](https://www.youtube.com/watch?v=BB-Qp1RTBdA&t=2098s) |
 
-## Conference Contrubutions  {.capital-title}
+## Conference Contributions  {.capital-title}
 
 | Year | Conference | Location | Presentation |
 |------|------------|----------|--------------|

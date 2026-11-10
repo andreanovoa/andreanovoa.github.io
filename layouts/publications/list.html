@@ -1,0 +1,72 @@
+{{ define "main" }}
+{{- $pubs := site.Data.publications }}
+<article class="page">
+  <h1 class="page-title">{{ .Title }}</h1>
+  {{ with .Params.lead }}<p class="lead">{{ . }}</p>{{ end }}
+  <div class="prose">{{ .Content }}</div>
+
+  <div class="scroller scroller--lead" data-scroller>
+    <div class="pub-cards pub-cards--wide scroll-view">
+    {{- range first 6 (where $pubs "cover" "!=" nil) }}
+    {{- partial "pub-card.html" . }}
+    {{- end }}
+    </div>
+    <div class="scroll-rail" aria-hidden="true"><span class="scroll-thumb"></span></div>
+  </div>
+
+  <h2 class="group-heading" id="all">Complete list</h2>
+  <div class="filters" role="group" aria-label="Filter publications by type">
+    <button type="button" class="filter is-active" data-filter="all">All</button>
+    <button type="button" class="filter" data-filter="journal">Journal</button>
+    <button type="button" class="filter" data-filter="proceedings">Proceedings</button>
+    <button type="button" class="filter" data-filter="book">Book chapter</button>
+    <button type="button" class="filter" data-filter="under-review">Under review</button>
+  </div>
+
+  <div class="table-scroll">
+  <table class="pub-table">
+    <thead>
+      <tr><th>Year</th><th>Publication</th><th>Journal</th><th>Links</th></tr>
+    </thead>
+    <tbody>
+      {{- range $pubs }}
+      {{- $page := "" }}
+      {{- with .key }}{{ $page = site.GetPage (printf "/publications/%s" .) }}{{ end }}
+      <tr data-kind="{{ .type }}">
+        <td class="c-year">{{ .year }}</td>
+        <td class="c-pub">
+          <strong>{{ if $page }}<a href="{{ $page.RelPermalink }}">{{ .title }}</a>{{ else }}{{ .title }}{{ end }}</strong>
+          <br><sub>{{ .authors }}</sub>
+        </td>
+        <td class="c-journal">{{ .venue }}{{ with .detail }}<br><sub>{{ . }}</sub>{{ end }}</td>
+        <td class="c-links">{{ partial "pub-links-compact.html" . }}</td>
+      </tr>
+      {{- end }}
+    </tbody>
+  </table>
+  </div>
+</article>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var buttons = Array.prototype.slice.call(document.querySelectorAll('.filter'));
+  var items = Array.prototype.slice.call(document.querySelectorAll('.pub-table tbody tr[data-kind]'));
+
+  buttons.forEach(function (button) {
+    var key = button.getAttribute('data-filter');
+    var count = key === 'all'
+      ? items.length
+      : items.filter(function (i) { return i.getAttribute('data-kind') === key; }).length;
+    button.textContent = button.textContent + ': ' + count;
+
+    button.addEventListener('click', function () {
+      buttons.forEach(function (b) { b.classList.toggle('is-active', b === button); });
+      items.forEach(function (item) {
+        var show = key === 'all' || item.getAttribute('data-kind') === key;
+        item.style.display = show ? '' : 'none';
+      });
+    });
+  });
+});
+</script>
+{{ end }}

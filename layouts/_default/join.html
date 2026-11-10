@@ -1,0 +1,20 @@
+{{ define "main" }}
+<article class="page">
+  <h1 class="page-title">{{ .Title }}</h1>
+  {{- with site.Data.openings }}
+  {{- range . }}
+  <div class="cta opening">
+    <h2>{{ .title }}</h2>
+    <p class="opening-meta">{{ .meta }} · <strong>Deadline: {{ .deadline }}</strong></p>
+    <p>{{ .summary }}</p>
+    <a class="button" href="{{ .url }}" target="_blank" rel="noopener noreferrer">Full advert and how to apply</a>
+  </div>
+  {{- end }}
+  {{- else }}
+  <p class="lead">There are no open positions at the moment.</p>
+  {{- end }}
+  <div class="prose">
+    {{ .Content }}
+  </div>
+</article>
+{{ end }}

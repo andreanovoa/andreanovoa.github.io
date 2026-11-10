@@ -4,7 +4,7 @@
   function applyTheme() {
     root.classList.toggle('light', localStorage.getItem('pref-theme') === 'light');
     root.classList.toggle('dark', localStorage.getItem('pref-theme') !== 'light');
-    root.setAttribute('data-accent', localStorage.getItem('pref-accent') || 'blue');
+    root.setAttribute('data-accent', localStorage.getItem('pref-accent') || 'purple');
   }
 
   applyTheme();

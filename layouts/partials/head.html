@@ -1,192 +1,43 @@
-<meta charset="utf-8">
-<script>
-(function(){var a=localStorage.getItem('pref-accent')||'blue';document.documentElement.setAttribute('data-accent',a);})();
-{{- if (not site.Params.disableThemeToggle) }}
-(function(){
-    var pref=localStorage.getItem('pref-theme');
-    if(pref==='dark'){document.documentElement.classList.add('dark');document.body&&document.body.classList.add('dark');}
-    else if(pref==='light'){document.documentElement.classList.add('light');document.body&&document.body.classList.add('light');}
-    else{
-        {{- if eq site.Params.defaultTheme "dark" }}
-        document.documentElement.classList.add('dark');
-        {{- else if eq site.Params.defaultTheme "light" }}
-        document.documentElement.classList.add('light');
-        {{- else }}
-        if(window.matchMedia('(prefers-color-scheme: dark)').matches){document.documentElement.classList.add('dark');}
-        else{document.documentElement.classList.add('light');}
-        {{- end }}
+<head>
+  <meta charset="utf-8">
+  <script>
+  // Runs before first paint so the page never flashes the wrong theme.
+  (function () {
+    try {
+    var accent = localStorage.getItem('pref-accent') || 'purple';
+    document.documentElement.setAttribute('data-accent', accent);
+    var hue = localStorage.getItem('pref-hue');
+    if (hue !== null && !isNaN(+hue)) { document.documentElement.style.setProperty('--accent-h', hue); }
+    var theme = localStorage.getItem('pref-theme');
+    // With no saved choice, follow the system but still set the class: embedded
+    // apps (Pocha, the teaching demos) read the theme from it.
+    if (theme !== 'dark' && theme !== 'light') {
+      theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
-})();
-{{- end }}
-</script>
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-{{- if hugo.IsProduction | and (ne .Params.robotsNoIndex true) }}
-<meta name="robots" content="index, follow">
-{{- else }}
-<meta name="robots" content="noindex, nofollow">
-{{- end }}
-
-{{- /* Title */}}
-<title>
-  {{- if eq .Kind "404" -}}
-    404: Page not found | {{ .Site.Title }}
-  {{- else if and (not .IsHome) .Title -}}
-    {{ .Title }} | {{ .Site.Title }}
-  {{- else -}}
-    {{ .Site.Title }}
-  {{- end -}}
-</title>
-
-{{- /* Meta */}}
-{{- if .IsHome }}
-{{ with site.Params.keywords -}}<meta name="keywords" content="{{- range $i, $e := . }}{{ if $i }}, {{ end }}{{ $e }}{{ end }}">{{ end }}
-{{- else }}
-<meta name="keywords" content="{{ if .Params.keywords -}}
-    {{- range $i, $e := .Params.keywords }}{{ if $i }}, {{ end }}{{ $e }}{{ end }} {{- else }}
-    {{- range $i, $e := .Params.tags }}{{ if $i }}, {{ end }}{{ $e }}{{ end }} {{- end -}}">
-{{- end }}
-<meta name="description" content="{{- with .Description }}{{ . }}{{- else }}{{- if or .IsPage .IsSection}}
-    {{- .Summary | default (printf "%s - %s" .Title  site.Title) }}{{- else }}
-    {{- with site.Params.description }}{{ . }}{{- end }}{{- end }}{{- end -}}">
-<meta name="author" content="{{ (partial "author.html" . ) }}">
-<link rel="canonical" href="{{ if .Params.canonicalURL -}} {{ trim .Params.canonicalURL " " }} {{- else -}} {{ .Permalink }} {{- end }}">
-
-{{- /* Styles */}}
-
-{{- /* includes */}}
-{{- $includes := slice }}
-{{- $includes = $includes | append (" " | resources.FromString "assets/css/includes-blank.css")}}
-
-{{- if not (eq site.Params.assets.disableScrollBarStyle true) }}
-    {{- $ScrollStyle := (resources.Get "css/includes/scroll-bar.css") }}
-    {{- $includes = (append $ScrollStyle $includes) }}
-{{- end }}
-
-{{- $includes_all := $includes | resources.Concat "assets/css/includes.css" }}
-
-{{- $theme_vars := (resources.Get "css/core/theme-vars.css") }}
-{{- $reset := (resources.Get "css/core/reset.css") }}
-{{- $media := (resources.Get "css/core/zmedia.css") }}
-{{- $license_css := (resources.Get "css/core/license.css") }}
-{{- $common := (resources.Match "css/common/*.css") | resources.Concat "assets/css/common.css" }}
-
-{{- /* markup.highlight.noClasses should be set to `false` */}}
-{{- $chroma_styles := (resources.Get "css/includes/chroma-styles.css") }}
-{{- $chroma_mod := (resources.Get "css/includes/chroma-mod.css") }}
-
-{{- /* order is important */}}
-{{- $core := (slice $theme_vars $reset $common $chroma_styles $chroma_mod $includes_all $media) | resources.Concat "assets/css/core.css" | resources.Minify }}
-{{- $extended := (resources.Match "css/extended/*.css") | resources.Concat "assets/css/extended.css" | resources.Minify }}
-
-{{- /* bundle all required css */}}
-{{- /* Add extended css after theme style */ -}}
-{{- $stylesheet := (slice $license_css $core $extended) | resources.Concat "assets/css/stylesheet.css"  }}
-
-{{- if not site.Params.assets.disableFingerprinting }}
-{{- $stylesheet := $stylesheet | fingerprint }}
-<link crossorigin="anonymous" href="{{ $stylesheet.RelPermalink }}" integrity="{{ $stylesheet.Data.Integrity }}" rel="preload stylesheet" as="style">
-{{- else }}
-<link crossorigin="anonymous" href="{{ $stylesheet.RelPermalink }}" rel="preload stylesheet" as="style">
-{{- end }}
-
-{{- /* Search */}}
-{{- if (eq .Layout `search`) -}}
-<link crossorigin="anonymous" rel="preload" as="fetch" href="../index.json">
-{{- $fastsearch := resources.Get "js/fastsearch.js" | js.Build (dict "params" (dict "fuseOpts" site.Params.fuseOpts)) | resources.Minify }}
-{{- $fusejs := resources.Get "js/fuse.basic.min.js" }}
-{{- $license_js := resources.Get "js/license.js" }}
-{{- if not site.Params.assets.disableFingerprinting }}
-{{- $search := (slice $fusejs $license_js $fastsearch ) | resources.Concat "assets/js/search.js" | fingerprint }}
-<script defer crossorigin="anonymous" src="{{ $search.RelPermalink }}" integrity="{{ $search.Data.Integrity }}"></script>
-{{- else }}
-{{- $search := (slice $fusejs $fastsearch ) | resources.Concat "assets/js/search.js" }}
-<script defer crossorigin="anonymous" src="{{ $search.RelPermalink }}"></script>
-{{- end }}
-{{- end -}}
-
-{{- /* Favicons */}}
-<link id="favicon-ico" rel="icon" href="{{ "favicon_black/favicon.ico" | absURL }}">
-<link id="favicon-16" rel="icon" type="image/png" sizes="16x16" href="{{ "favicon_black/favicon-16x16.png" | absURL }}">
-<link id="favicon-32" rel="icon" type="image/png" sizes="32x32" href="{{ "favicon_black/favicon-32x32.png" | absURL }}">
-<link id="favicon-apple" rel="apple-touch-icon" href="{{ "favicon_black/apple-touch-icon.png" | absURL }}">
-<meta name="theme-color" content="{{ site.Params.assets.theme_color | default "#2e2e33" }}">
-<meta name="msapplication-TileColor" content="{{ site.Params.assets.msapplication_TileColor | default "#2e2e33" }}">
-
-<script>
-(function () {
-  function setHref(id, href) {
-    var el = document.getElementById(id);
-    if (el) el.setAttribute('href', href);
-  }
-
-  window.updateThemeFavicons = function (mode) {
-    var folder = mode === 'dark' ? 'favicon_black' : 'favicon_white';
-    var base = window.location.origin + '/';
-
-    setHref('favicon-ico', base + folder + '/favicon.ico');
-    setHref('favicon-16', base + folder + '/favicon-16x16.png');
-    setHref('favicon-32', base + folder + '/favicon-32x32.png');
-    setHref('favicon-apple', base + folder + '/apple-touch-icon.png');
-
-    var logoSrc = mode === 'dark'
-      ? (base + 'favicon_black/favicon-32x32.png')
-      : (base + 'favicon_white/favicon-32x32.png');
-    document.querySelectorAll('.theme-switch-logo').forEach(function (img) {
-      var darkSrc = img.getAttribute('data-logo-black');
-      var lightSrc = img.getAttribute('data-logo-white');
-      img.setAttribute('src', mode === 'dark' ? (darkSrc || logoSrc) : (lightSrc || logoSrc));
-    });
-  };
-
-  var pref = localStorage.getItem('pref-theme');
-  var mode = pref === 'dark' || pref === 'light'
-    ? pref
-    : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-  window.updateThemeFavicons(mode);
-  document.addEventListener('DOMContentLoaded', function () {
-    window.updateThemeFavicons(mode);
-  });
-})();
-</script>
-
-{{- /* RSS */}}
-{{ range .AlternativeOutputFormats -}}
-<link rel="{{ .Rel }}" type="{{ .MediaType.Type | html }}" href="{{ .Permalink | safeURL }}">
-{{ end -}}
-{{- range .AllTranslations -}}
-<link rel="alternate" hreflang="{{ .Lang }}" href="{{ .Permalink }}">
-{{ end -}}
-
-<noscript>
-    <style>
-        #theme-toggle,
-        .top-link {
-            display: none;
-        }
-    </style>
-</noscript>
-
-
-<script src="https://unpkg.com/feather-icons"></script>
-{{- partial "templates/opengraph.html" . }}
-{{- partial "templates/twitter_cards.html" . }}
-{{- partial "templates/schema_json.html" . }}
-
-{{ if and (hugo.IsProduction) (.Site.Params.googleAnalyticsID) }}
-{{- partial "analytics.html" . }}
-{{ end }}
-
-{{ if or .Page.Params.math .Site.Params.math }}
-{{- partial "math.html" .}}
-{{ end }} 
-
-{{- /* Pocha: aplicación instalable en tablets y móviles / installable app on tablets and phones */}}
-{{ if .Params.pwa }}
-<link rel="manifest" href="/pocha/manifest.webmanifest">
-<link rel="apple-touch-icon" sizes="180x180" href="/pocha/icons/apple-touch-icon.png">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Pocha">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-{{ end }}
+    document.documentElement.classList.add(theme);
+    } catch (e) {}
+  })();
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ if .IsHome }}{{ site.Title }} · {{ site.Params.brandSub }}{{ else }}{{ .Title }} · {{ site.Title }}{{ end }}</title>
+  <meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ site.Params.description }}{{ end }}">
+  {{- $parts := slice (resources.Get "css/main.css") }}
+  {{- range resources.Match "css/extended/*.css" }}{{ $parts = $parts | append . }}{{ end }}
+  {{- $parts = $parts | append (resources.Get "css/merged.css") }}
+  {{- $css := $parts | resources.Concat "css/site.css" | minify | fingerprint }}
+  <link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="{{ "favicon_black/favicon.ico" | relURL }}" sizes="any">
+  <link rel="icon" href="{{ "favicon/favicon.svg" | relURL }}" type="image/svg+xml">
+  {{- if .Params.pwa }}
+  <link rel="manifest" href="{{ "pocha/manifest.webmanifest" | relURL }}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ "pocha/icons/apple-touch-icon.png" | relURL }}">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Pocha">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  {{- end }}
+  {{- if or .Params.math site.Params.math }}{{ partial "math.html" . }}{{ end }}
+</head>

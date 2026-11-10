@@ -1,0 +1,30 @@
+{{ define "main" }}
+<article class="page">
+  <h1 class="page-title">{{ .Title }}</h1>
+  {{ with .Params.lead }}<p class="lead">{{ . }}</p>{{ end }}
+
+  {{- $videos := where .RegularPages "Params.tags" "intersect" (slice "video") }}
+  {{- with $videos }}
+  <h2 class="group-heading" id="videos">Recorded talks</h2>
+  <div class="entry-grid">
+    {{- range .ByDate.Reverse }}
+    {{- $href := .RelPermalink }}
+    {{- with .Params.related_links }}{{ $href = (index . 0).url }}{{ end }}
+    {{- partial "entry-card.html" (dict "page" . "href" $href) }}
+    {{- end }}
+  </div>
+  {{- end }}
+
+  <div class="prose prose--wide">{{ .Content }}</div>
+
+  {{- with site.GetPage "/outreach" }}
+  <h2 class="group-heading" id="outreach">{{ .Title }}</h2>
+  {{ with .Params.lead }}<p class="lead">{{ . }}</p>{{ end }}
+  <div class="entry-grid">
+    {{- range .RegularPages.ByDate.Reverse }}
+    {{- partial "entry-card.html" (dict "page" .) }}
+    {{- end }}
+  </div>
+  {{- end }}
+</article>
+{{ end }}

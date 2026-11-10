@@ -6,6 +6,7 @@ disableAnchoredHeadings: true
 hideAuthor: true
 pwa: true
 hideHeader: true
+hideTitle: true
 ---
 
 <link rel="stylesheet" href="/pocha/app.css">

@@ -1,0 +1,313 @@
+/* ==========================================================================
+   Pages carried over from the personal site (PI profile and CV, talks and
+   outreach, teaching, contact) restyled on the lab palette.
+   ========================================================================== */
+
+/* Older stylesheets (projects, module demos, call-to-action box) use the
+   personal-site variable names; map them onto the lab palette. */
+:root {
+  --primary: var(--brand);
+  --secondary: var(--muted);
+  --tertiary: var(--brand);
+  --theme: var(--bg);
+  --entry: var(--bg-soft);
+  --content: var(--text);
+  --content-mid: var(--muted);
+  --linkcolor: var(--accent);
+  --table-header-bg: var(--brand);
+  --table-bg-1: var(--bg);
+  --table-bg-2: var(--bg-soft);
+  --border-light: var(--border);
+  --border-color: var(--border);
+  --code-bg: var(--bg-soft);
+  --gap: 1.5rem;
+  --content-gap: 1.5rem;
+  --lineheight: 1.6;
+}
+
+/* ---------- prose tables (CV, talks) ---------- */
+.prose--wide { max-width: none; }
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  margin: 0.5rem 0 1.5rem;
+  display: block;
+  overflow-x: auto;
+}
+.prose table th {
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--brand-fg);
+  background: var(--brand);
+  padding: 0.3rem 0.7rem;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+/* the CV's "Notes & achievements" heading is wrapped in .cv-note; keep it the
+   same size as the other column headings */
+.prose table th .cv-note { display: inline; font-size: inherit; }
+.prose table td { padding: 0.65rem 0.7rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+.prose table tbody tr:nth-child(odd) td { background: var(--bg-soft); }
+.prose table td:first-child { color: var(--muted); white-space: nowrap; }
+.prose table a strong, .prose table strong a { color: var(--text); }
+.prose table a:hover strong { color: var(--accent); }
+
+.prose .capital-title,
+.prose .cv-academic-title {
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--brand);
+  margin: 2.25rem 0 0.6rem;
+}
+
+/* CV: labelled notes inside the third column */
+.cv-note { display: block; font-size: 0.85rem; }
+.cv-note-label {
+  display: inline-block;
+  min-width: 5.5rem;
+  color: var(--brand);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-style: italic;
+  font-size: 0.7rem;
+  letter-spacing: 0.03em;
+}
+.cv-highlight { color: var(--brand); font-weight: 600; padding: 0 0.15em; }
+
+/* ---------- PI profile card ---------- */
+.pi-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.75rem;
+  background: var(--bg);
+}
+.pi-head {
+  display: flex;
+  gap: 1.75rem;
+  align-items: center;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.pi-photo {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex: 0 0 auto;
+  background: var(--brand-soft);
+}
+.pi-name { font-family: var(--serif); font-size: 2rem; margin: 0 0 0.6rem; }
+.pi-pos { margin: 0 0 0.5rem; font-size: 0.95rem; line-height: 1.4; }
+.pi-pos strong { color: var(--brand); }
+.pi-pos span { color: var(--muted); font-size: 0.88rem; }
+.pi-links { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; margin: 0.9rem 0 0; font-size: 0.88rem; }
+.pi-cv > h2:first-child { margin-top: 1.25rem; }
+
+@media (max-width: 40rem) {
+  .pi-card { padding: 1.1rem; }
+  .pi-head { flex-direction: column; align-items: flex-start; gap: 1rem; }
+  .pi-photo { width: 120px; height: 120px; }
+}
+
+/* People page: the PI entry opens the profile */
+.person--linked .person-avatar { transition: box-shadow 0.15s ease; }
+.person--linked .person-avatar:hover { box-shadow: 0 0 0 3px var(--accent); }
+.person-name a { color: inherit; }
+.person-name a:hover { color: var(--accent); }
+
+/* ---------- talk, outreach and course cards ---------- */
+.entry-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+  gap: 1.25rem;
+  margin: 0.5rem 0 1.5rem;
+}
+.entry-grid .entry-card { width: auto; min-width: 0; flex: none; }
+.entry-card .pub-card-cover { display: block; }
+.entry-card .pub-card-cover img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block; }
+.entry-card .pub-card-title a { color: inherit; }
+
+/* ---------- back link (course and class pages, outreach entries) ---------- */
+.back-link { display: flex; align-items: center; gap: 0.75rem; margin: 0 0 1rem; font-size: 0.9rem; }
+.back-link a { color: var(--muted); }
+.back-link a:hover { color: var(--accent); }
+
+/* ---------- header: the whole bar in the card tint of the colour-wheel hue
+   (same saturation and lightness as the "What we work on" cards) ---------- */
+.site-header {
+  --bar-bg: hsl(var(--accent-h), 60%, 94%);
+  --bar-bd: hsl(var(--accent-h), 45%, 84%);
+  --bar-fg: hsl(var(--accent-h), 60%, 29%);
+  background: var(--bar-bg);
+  border-bottom: 1px solid var(--bar-bd);
+  color: var(--bar-fg);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) .site-header {
+    --bar-bg: hsl(var(--accent-h), 30%, 20%);
+    --bar-bd: hsl(var(--accent-h), 25%, 32%);
+    --bar-fg: hsl(var(--accent-h), 47%, 70%);
+  }
+}
+:root.dark .site-header {
+  --bar-bg: hsl(var(--accent-h), 30%, 20%);
+  --bar-bd: hsl(var(--accent-h), 25%, 32%);
+  --bar-fg: hsl(var(--accent-h), 47%, 70%);
+}
+.brand, .brand-sub { color: var(--bar-fg); opacity: 1; }
+.brand-name { color: var(--text); }
+.brand:hover {
+  color: var(--bar-fg);
+  border-color: var(--bar-bd);
+  background: color-mix(in srgb, var(--bar-fg) 8%, transparent);
+}
+.nav a { color: var(--bar-fg); opacity: 0.85; }
+.nav a:hover, .nav a.is-active { color: var(--bar-fg); opacity: 1; }
+.nav a.is-active { box-shadow: inset 0 -2px 0 var(--bar-fg); }
+.nav-toggles button, .nav-toggles button svg { color: var(--bar-fg); stroke: var(--bar-fg); }
+.rainbow-ring-container { box-shadow: 0 0 0 1px var(--bar-fg); }
+
+/* ---------- colour-wheel slider (replaces the four named presets) ---------- */
+.accent-slider { padding: 0.7rem 0.85rem 0.8rem; min-width: 13rem; }
+.accent-slider label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--muted); margin-bottom: 0.45rem; }
+.accent-slider input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 0.75rem;
+  border-radius: 999px;
+  background: linear-gradient(to right,
+    hsl(0,60%,55%), hsl(60,60%,55%), hsl(120,60%,55%), hsl(180,60%,55%),
+    hsl(240,60%,55%), hsl(300,60%,55%), hsl(359,60%,55%));
+  outline: none;
+  cursor: pointer;
+}
+.accent-slider input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 1.1rem; height: 1.1rem; border-radius: 50%;
+  background: hsl(var(--accent-h), 60%, 55%);
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--text);
+}
+.accent-slider input[type="range"]::-moz-range-thumb {
+  width: 1.1rem; height: 1.1rem; border-radius: 50%;
+  background: hsl(var(--accent-h), 60%, 55%);
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--text);
+}
+.accent-slider input[type="range"]:focus-visible { box-shadow: 0 0 0 2px var(--brand); }
+
+/* ---------- priority menu: tabs that fit stay in the bar, the rest go
+   into a dropdown behind the burger ---------- */
+.nav-inner { flex-wrap: nowrap; position: relative; gap: 1rem; }
+.brand, .nav-toggles { flex: none; }
+.nav {
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  overflow: hidden;
+  gap: 1.1rem;
+  padding-block: 0.2rem;
+}
+.nav a { flex: none; white-space: nowrap; }
+.nav a.is-overflow { display: none; }
+
+.nav-burger {
+  display: none;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  padding: 0;
+  background: none;
+  border: 1px solid var(--bar-bd);
+  border-radius: var(--radius);
+  color: var(--bar-fg);
+  cursor: pointer;
+}
+.has-overflow .nav-burger { display: inline-flex; }
+.nav-burger .burger-close { display: none; }
+.nav-open .nav-burger .burger-lines { display: none; }
+.nav-open .nav-burger .burger-close { display: inline; }
+
+.nav-more {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 1.25rem;
+  min-width: 15rem;
+  flex-direction: column;
+  padding: 0.25rem 1rem 0.5rem;
+  background: var(--bar-bg);
+  border: 1px solid var(--bar-bd);
+  border-top: 0;
+  border-radius: 0 0 var(--radius) var(--radius);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+  z-index: 20;
+}
+.nav-open .nav-more { display: flex; }
+.nav-more a {
+  display: none;
+  padding: 0.7rem 0.25rem;
+  color: var(--bar-fg);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--bar-bd);
+}
+.nav-more a.is-shown { display: block; }
+.nav-more a:hover { text-decoration: none; background: color-mix(in srgb, var(--bar-fg) 8%, transparent); }
+.nav-more a.is-active { box-shadow: inset 3px 0 0 var(--bar-fg); padding-left: 0.75rem; }
+.nav-more .nav-toggles { margin: 0; padding: 0.7rem 0.25rem 0.2rem; gap: 1rem; }
+
+@media (max-width: 40rem) {
+  .nav { display: none; }
+  .nav-burger { margin-left: auto; }
+  .nav-more { left: 0; right: 0; min-width: 0; border-radius: 0; border-inline: 0; }
+}
+
+/* ---------- Code & Data: two columns of cards, figure on top ---------- */
+.repos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+.repo, .repo:last-child {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.repo--fig { display: flex; grid-template-columns: none; gap: 0; }
+.repo .repo-figure {
+  display: block;
+  order: -1;
+  height: 11rem;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+}
+.repo-body { padding: 1rem 1.1rem 1.15rem; }
+@media (max-width: 40rem) {
+  .repos { grid-template-columns: minmax(0, 1fr); }
+}
+
+
+/* topic-page figures: never enlarge an image beyond its own size */
+.figure--lead img { width: auto; max-width: 100%; }
+.figure--lead figcaption { max-width: none; }
+
+/* anchored jumps (e.g. Back to "What we work on") clear the sticky header */
+[id] { scroll-margin-top: 5rem; }
