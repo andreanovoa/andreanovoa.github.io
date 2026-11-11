@@ -24,7 +24,7 @@ repos:
     doi: "10.5281/zenodo.23266679"
     date: "2026"
     license: "MIT"
-    description: "Echo state networks in pure numpy: ridge-regression training with chaotic recycle validation, parametric inputs, Bayesian hyperparameter search, closed-loop prediction, and Jacobians for data assimilation, with a parallel layout of one reservoir per patch for spatially extended systems. The reservoir core behind qlroms and romda. Includes a live demo that builds a network from your choices."
+    description: "Echo state networks in pure numpy, with chaotic recycle validation, Bayesian hyperparameter search and Jacobians for data assimilation."
 
   - name: "ntsa"
     figure: "img/code/ntsa.png"
@@ -36,7 +36,7 @@ repos:
     doi: "10.5281/zenodo.21843575"
     date: "2026"
     license: "MIT"
-    description: "Nonlinear time-series analysis of dynamical systems from a single long trajectory: Lyapunov exponents, delay-embedding analysis, and classification of the dynamical regime (fixed point, limit cycle, quasiperiodicity, chaos), with diagnostic figures for each case. Works with any model following the dynamodels protocol."
+    description: "Lyapunov exponents, delay embedding and classification of the dynamical regime from a single trajectory."
 
   - name: "romda"
     figure: "img/code/romda.svg"
@@ -46,7 +46,7 @@ repos:
     docs: "https://andreanovoa.github.io/real-time-bias-aware-DA/"
     pypi: "https://pypi.org/project/romda/"
     license: "MIT"
-    description: "Real-time reduced-order modelling and bias-aware data assimilation: ensemble Kalman filters including the regularized bias-aware EnKF, physical and data-driven forecast models (ESN, POD-ESN), bias estimators, and POD/SPOD decompositions, with tutorials building up to full real-data digital twins."
+    description: "Real-time reduced-order modelling and bias-aware data assimilation, up to digital twins of laboratory experiments."
 
   - name: "qlroms"
     figure: "img/code/qlroms.png"
@@ -56,7 +56,7 @@ repos:
     docs: "/docs/qlroms/"
     pypi: "https://pypi.org/project/qlroms/"
     license: "MIT"
-    description: "Quantized-local reduced-order models: the state space is partitioned into charts by k-means, each chart gets its own local POD basis, and an exact shared atlas stitches them into one global coordinate system, with the local dynamics advanced by an intrusive Galerkin projection. Includes live demos on a travelling wave of the 2-D Kuramoto–Sivashinsky equation and on the chaotic 1-D case."
+    description: "Quantized-local reduced-order models: k-means charts, each with a local POD basis and a Galerkin model."
 
   - name: "dynamodels"
     figure: "img/code/dynamodels.png"
@@ -68,7 +68,7 @@ repos:
     doi: "10.5281/zenodo.21843588"
     date: "2026"
     license: "MIT"
-    description: "Dynamical-system models with history tracking and pluggable integrators. Currently includes Van der Pol, Rijke, annular thermoacoustics, Kuramoto–Sivashinsky, Lorenz 63 and Lorenz 96."
+    description: "Dynamical-system models with history tracking and pluggable time integrators."
 
 # Zenodo profile (uploads are made under the andreanovoa account).
 zenodo:
@@ -85,9 +85,6 @@ datasets:
     date: "2024"
     license: "CC BY 4.0"
     size: "1.5 GB"
-    description: >-
-      Acoustic pressure data from an annular combustor, recorded by four microphones at 0°, 60°, 120° and 240°,
-      for four equivalence ratios between 0.4875 and 0.575 at a constant power of 6 kW. Originally created by
-      Indlekofer et al. (2022); also used by the tutorials in real-time-bias-aware-DA.
+    description: "Acoustic pressure from four microphones in an annular combustor at four equivalence ratios (Indlekofer et al., 2022)."
     paper: "https://doi.org/10.1017/jfm.2024.1052"
     paperTitle: "A real-time digital twin of azimuthal thermoacoustic instabilities (JFM, 2024)"
