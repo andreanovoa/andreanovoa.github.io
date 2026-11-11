@@ -276,32 +276,27 @@
   .nav-more { left: 0; right: 0; min-width: 0; border-radius: 0; border-inline: 0; }
 }
 
-/* ---------- Code & Data: two columns of cards, figure on top ---------- */
+/* ---------- Code & Data: one boxed card per entry, figure to the right of the text ---------- */
 .repos {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.25rem;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
 }
 .repo, .repo:last-child {
-  display: flex;
-  flex-direction: column;
   padding: 0;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
 }
-.repo--fig { display: flex; grid-template-columns: none; gap: 0; }
+.repo--fig { display: grid; grid-template-columns: minmax(0, 1fr) 18rem; gap: 0; }
 .repo .repo-figure {
-  display: block;
-  order: -1;
-  height: 11rem;
-  border: 0;
-  border-bottom: 1px solid var(--border);
-  border-radius: 0;
+  margin: 0.75rem 0.75rem 0.75rem 0;
+  min-height: 9rem;
 }
 .repo-body { padding: 1rem 1.1rem 1.15rem; }
 @media (max-width: 40rem) {
-  .repos { grid-template-columns: minmax(0, 1fr); }
+  .repo--fig { display: block; }
+  .repo .repo-figure { display: none; }
 }
 
 
