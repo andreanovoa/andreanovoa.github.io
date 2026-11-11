@@ -276,11 +276,14 @@
   .nav-more { left: 0; right: 0; min-width: 0; border-radius: 0; border-inline: 0; }
 }
 
-/* ---------- Code & Data: one boxed card per entry, figure to the right of the text ---------- */
+/* ---------- Code & Data: boxed cards, two columns on wide screens, figure to the right of the text ---------- */
 .repos {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 1rem;
+}
+@media (min-width: 64rem) {
+  .repos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 .repo, .repo:last-child {
   padding: 0;
