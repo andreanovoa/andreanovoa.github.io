@@ -53,6 +53,7 @@ alumni:
     photo: "img/people/konstantinos-barmpounis.jpg"
     project: "Real-time bias-aware data assimilation for turbulent wind farm wake estimation"
     cosupervisor: "Luca Magri"
+    now: "PhD student at New York University"
 
   - name: "Salvatore Aloj"
     role: "MSc student"
