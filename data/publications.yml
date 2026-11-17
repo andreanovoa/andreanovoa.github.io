@@ -1,6 +1,25 @@
 # type: journal | proceedings | book | under-review
 - year: 2026
   type: under-review
+  title: "Washout-free synchronization, parameter estimation and uncertainty quantification of echo state networks"
+  bibtex: |-
+    @article{novoa2026washoutfree,
+      title = {Washout-free synchronization, parameter estimation and uncertainty quantification of echo state networks},
+      author = {Nóvoa, Andrea},
+      journal = {arXiv preprint arXiv:2611.20112},
+      year = {2026},
+      eprint = {2611.20112},
+      archivePrefix = {arXiv},
+      note = {Under review},
+    }
+  key: "novoa-washout-free"
+  apa: "Nóvoa, A. (2026). <em>Washout-free synchronization, parameter estimation and uncertainty quantification of echo state networks</em> [Preprint]. arXiv."
+  authors: "Nóvoa"
+  venue: "Under review"
+  arxiv: "https://arxiv.org/abs/2611.20112"
+
+- year: 2026
+  type: under-review
   title: "A wall-based, interpretable reduced-order model for real-time estimation of near-wall turbulence"
   bibtex: |-
     @article{perezcuadrado2026interpretable,
