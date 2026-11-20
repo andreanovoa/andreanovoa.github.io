@@ -256,7 +256,7 @@
   detail: "1001, A49"
   doi: "https://doi.org/10.1017/jfm.2024.1052"
   arxiv: "https://arxiv.org/abs/2404.18793"
-  code: "https://github.com/andreanovoa/real-time-bias-aware-DA"
+  code: "https://github.com/andreanovoa/romda"
 
 - year: 2024
   type: book

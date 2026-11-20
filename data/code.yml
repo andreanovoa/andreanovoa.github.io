@@ -42,8 +42,8 @@ repos:
     figure: "img/code/romda.svg"
     invertDark: true
     org: andreanovoa
-    url: "https://github.com/andreanovoa/real-time-bias-aware-DA"
-    docs: "https://andreanovoa.github.io/real-time-bias-aware-DA/"
+    url: "https://github.com/andreanovoa/romda"
+    docs: "https://andreanovoa.github.io/romda/"
     pypi: "https://pypi.org/project/romda/"
     license: "MIT"
     description: "Real-time reduced-order modelling and bias-aware data assimilation, up to digital twins of laboratory experiments."
