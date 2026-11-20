@@ -20,7 +20,8 @@ Loading a page sends your IP address to the services that deliver parts of it:
 
 - **GitHub Pages**, which hosts the website, and may log IP addresses for security ([GitHub privacy statement](https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement));
 - **Google Fonts**, which delivers the fonts ([Google privacy policy](https://policies.google.com/privacy));
-- **unpkg**, which delivers the icon library ([unpkg](https://unpkg.com/)).
+- **unpkg**, which delivers the icon library ([unpkg](https://unpkg.com/));
+- **jsDelivr**, which delivers the library that typesets equations ([jsDelivr privacy policy](https://www.jsdelivr.com/terms/privacy-policy-jsdelivr-net)).
 
 ## People on this website
 
@@ -30,4 +31,4 @@ The People page shows the names, roles, projects and photographs of current and 
 
 You have the right to access, correct and erase your personal data, and to object to its processing. The [Imperial College London privacy notice](https://www.imperial.ac.uk/about-the-site/privacy/) explains these rights and how to contact the Data Protection Officer.
 
-*Last updated: [date of publication].*
+*Last updated: 20 November 2026.*
