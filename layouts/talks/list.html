@@ -3,28 +3,27 @@
   <h1 class="page-title">{{ .Title }}</h1>
   {{ with .Params.lead }}<p class="lead">{{ . }}</p>{{ end }}
 
+  {{- /* Recent activity: outreach events and recorded talks in one feed,
+         newest first. A talk card opens its recording. */}}
   {{- $videos := where .RegularPages "Params.tags" "intersect" (slice "video") }}
-  {{- with $videos }}
-  <h2 class="group-heading" id="videos">Recorded talks</h2>
-  <div class="entry-grid">
+  {{- $outreach := slice }}
+  {{- with site.GetPage "/outreach" }}{{ $outreach = .RegularPages }}{{ end }}
+  {{- $recent := $videos | union $outreach }}
+  {{- with $recent }}
+  <h2 class="group-heading" id="recent">Recent activity</h2>
+  <div class="scroller scroller--lead" data-scroller>
+    <div class="pub-cards pub-cards--wide scroll-view">
     {{- range .ByDate.Reverse }}
     {{- $href := .RelPermalink }}
     {{- with .Params.related_links }}{{ $href = (index . 0).url }}{{ end }}
     {{- partial "entry-card.html" (dict "page" . "href" $href) }}
     {{- end }}
+    </div>
+    <div class="scroll-rail" aria-hidden="true"><span class="scroll-thumb"></span></div>
   </div>
   {{- end }}
 
   <div class="prose prose--wide">{{ .Content }}</div>
 
-  {{- with site.GetPage "/outreach" }}
-  <h2 class="group-heading" id="outreach">{{ .Title }}</h2>
-  {{ with .Params.lead }}<p class="lead">{{ . }}</p>{{ end }}
-  <div class="entry-grid">
-    {{- range .RegularPages.ByDate.Reverse }}
-    {{- partial "entry-card.html" (dict "page" .) }}
-    {{- end }}
-  </div>
-  {{- end }}
 </article>
 {{ end }}

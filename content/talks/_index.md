@@ -1,7 +1,7 @@
 ---
-title: "Talks & Outreach"
+title: "Outreach & Dissemination"
 description: "Invited talks, conference presentations, recorded seminars, and outreach and public engagement."
-lead: "Invited talks, conference presentations and recorded seminars, followed by outreach and public engagement."
+lead: "Recent outreach, public engagement and recorded talks, followed by invited talks and conference presentations."
 url: "/talks/"
 aliases: ["/outreach/"]
 ---
