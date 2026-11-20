@@ -4,6 +4,7 @@
   <h1 class="page-title">{{ .Title }}</h1>
   {{ with .Params.lead }}<p class="lead">{{ . }}</p>{{ end }}
   <div class="prose">{{ .Content }}</div>
+  <p class="people-join"><a class="button" href="{{ "/contact/#join" | relURL }}">Join the group</a></p>
 
   <h2 class="group-heading" id="current">Current group <span class="group-count">({{ len $people.current }})</span></h2>
   <ul class="people">

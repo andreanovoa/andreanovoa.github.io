@@ -359,3 +359,6 @@ main:focus { outline: none; }
 @media (max-width: 34rem) {
   .cards--compact .card { flex: 0 0 calc(50% - 0.5rem); max-width: calc(50% - 0.5rem); }
 }
+
+/* People: the call to join, between the introduction and the group. */
+.people-join { margin: -0.75rem 0 2rem; }
