@@ -30,7 +30,20 @@ current:
     role: "PhD student"
     since: "2026"
     affiliation: "Aeronautics, Imperial College London"
+    photo: "img/people/mingyang-gao.jpg"
     cosupervisor: "Luca Magri (main)"
+
+  - name: "Erica Keung"
+    role: "MEng final-year project"
+    since: "2026"
+    affiliation: "Aeronautics, Imperial College London"
+    photo: "img/people/erica-keung.jpg"
+
+  - name: "Tomás Freitas"
+    role: "MEng final-year project"
+    since: "2026"
+    affiliation: "Aeronautics, Imperial College London"
+    photo: "img/people/tomas-freitas.jpg"
 
 alumni:
   - name: "Lukas Campbell"
@@ -44,6 +57,7 @@ alumni:
     role: "Undergraduate summer researcher"
     years: "2026"
     affiliation: "Aeronautics, Imperial College London"
+    photo: "img/people/tarek-obegi.jpg"
     project: "Bidirectional digital twins for the control of chaotic systems"
 
   - name: "Konstantinos Barmpounis"
@@ -76,6 +90,7 @@ alumni:
     role: "MSc student"
     years: "2025"
     affiliation: "MSc Advanced Aeronautical Engineering, Imperial College London"
+    photo: "img/people/josh-coskun.jpg"
     project: "Real-time data assimilation and modelling from particle image velocimetry measurements"
     cosupervisor: "Luca Magri (main)"
 
@@ -83,5 +98,6 @@ alumni:
     role: "MEng final-year project"
     years: "2024–25"
     affiliation: "Aeronautics, Imperial College London"
+    photo: "img/people/leo-hsieh.jpg"
     project: "Real-time prediction of chaotic systems' states and parameters"
     cosupervisor: "Luca Magri (main)"
