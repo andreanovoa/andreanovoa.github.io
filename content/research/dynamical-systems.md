@@ -1,6 +1,6 @@
 ---
 title: "Dynamical systems & nonlinear time-series analysis"
-weight: 6
+weight: 4
 blurb: "Characterizing a system before modelling it: delay embeddings, Lyapunov exponents and regime classification, from the equations or from data alone."
 publications:
   - "magri-chapter"
