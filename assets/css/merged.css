@@ -353,3 +353,9 @@ main:focus { outline: none; }
 /* People photos in grayscale, so that portraits taken against different
    backgrounds read as one set. The files keep their colour. */
 .person-avatar img, .pi-photo { filter: grayscale(1); }
+
+/* "What we work on": the four topic cards share the row and fill its width. */
+.cards--compact .card { flex: 1 1 11rem; max-width: none; }
+@media (max-width: 34rem) {
+  .cards--compact .card { flex: 0 0 calc(50% - 0.5rem); max-width: calc(50% - 0.5rem); }
+}
