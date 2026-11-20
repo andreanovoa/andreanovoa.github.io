@@ -58,6 +58,7 @@
     @article{zighed2026efficient,
       title = {Efficient adaptation of ROMs for unsteady flows using data assimilation},
       journal = {Computers & Fluids},
+      volume = {319},
       pages = {107250},
       year = {2026},
       issn = {0045-7930},
@@ -68,13 +69,13 @@
       author = {Zighed, Ismaël and Nóvoa, Andrea and Magri, Luca and Sayadi, Taraneh},
     }
   key: "zighed-rom"
-  apa: "Zighed, I., Nóvoa, A., Magri, L., & Sayadi, T. (2026). Efficient adaptation of ROMs for unsteady flows using data assimilation. <em>Computers & Fluids</em>, 107250."
+  apa: "Zighed, I., Nóvoa, A., Magri, L., & Sayadi, T. (2026). Efficient adaptation of ROMs for unsteady flows using data assimilation. <em>Computers & Fluids</em>, <em>319</em>, 107250."
   cover: "img/pubs/rom-adaptation.jpg"
   invertDark: true
   blurb: "A parameterised variational autoencoder with a transformer latent propagator, retrained on sparse data to follow a flow into regimes it never saw."
   authors: "Zighed, Nóvoa, Magri and Sayadi"
   venue: "Computers & Fluids"
-  detail: "107250"
+  detail: "319, 107250"
   doi: "https://doi.org/10.1016/j.compfluid.2026.107250"
   arxiv: "https://arxiv.org/abs/2602.23188"
   code: "https://github.com/SciML-DA/p-DynSys_EncoderTransformerDecoder"
