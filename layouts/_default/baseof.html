@@ -2,9 +2,10 @@
 <html lang="{{ site.LanguageCode | default "en" }}">
 {{- partial "head.html" . }}
 <body{{ if eq .Section "research" }}{{ with .Params.weight }} data-topic="{{ . }}"{{ end }}{{ end }}>
-  {{- $bare := and .IsPage (.Params.hideHeader) }}
+  <a class="skip-link" href="#main">Skip to content</a>
+  {{- $bare := .Params.hideHeader }}
   {{- if not $bare }}{{ partial "nav.html" . }}{{ end }}
-  <main class="wrap">
+  <main class="wrap" id="main" tabindex="-1">
     {{- block "main" . }}{{ end }}
   </main>
   {{- partial "footer.html" . }}
@@ -12,6 +13,21 @@
   <script>
   document.addEventListener('DOMContentLoaded', function () {
     if (typeof feather !== 'undefined') { feather.replace(); }
+
+    // Theme toggles: the one in the menu and, on pages without the menu
+    // (hideHeader), the one beside the back link.
+    document.querySelectorAll('[data-theme-toggle]').forEach(function (toggle) {
+      toggle.addEventListener('click', function () {
+        var root = document.documentElement;
+        // No explicit choice yet: fall back to what the system is showing.
+        var isDark = root.classList.contains('dark') ||
+          (!root.classList.contains('light') &&
+           window.matchMedia('(prefers-color-scheme: dark)').matches);
+        root.classList.toggle('dark', !isDark);
+        root.classList.toggle('light', isDark);
+        localStorage.setItem('pref-theme', isDark ? 'light' : 'dark');
+      });
+    });
 
     document.querySelectorAll('.bib-copy').forEach(function (button) {
       var label = button.querySelector('.bib-label');

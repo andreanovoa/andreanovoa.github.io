@@ -5,6 +5,7 @@
   {{ with .Params.lead }}<p class="lead">{{ . }}</p>{{ end }}
   <div class="prose">{{ .Content }}</div>
 
+  <h2 class="visually-hidden">Selected publications</h2>
   <div class="scroller scroller--lead" data-scroller>
     <div class="pub-cards pub-cards--wide scroll-view">
     {{- range first 6 (where $pubs "cover" "!=" nil) }}

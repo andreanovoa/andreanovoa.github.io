@@ -54,19 +54,6 @@
   var btn = document.getElementById('accent-toggle');
   var menu = document.getElementById('accent-menu');
 
-  document.querySelectorAll('[data-theme-toggle]').forEach(function (toggle) {
-    toggle.addEventListener('click', function () {
-      var root = document.documentElement;
-      // No explicit choice yet: fall back to what the system is showing.
-      var isDark = root.classList.contains('dark') ||
-        (!root.classList.contains('light') &&
-         window.matchMedia('(prefers-color-scheme: dark)').matches);
-      root.classList.toggle('dark', !isDark);
-      root.classList.toggle('light', isDark);
-      localStorage.setItem('pref-theme', isDark ? 'light' : 'dark');
-    });
-  });
-
   // Priority menu: the bar keeps as many tabs as fit; the burger opens a
   // dropdown with the rest. On phones the toggles move into the dropdown too.
   var header = document.querySelector('.site-header');

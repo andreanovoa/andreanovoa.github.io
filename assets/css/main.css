@@ -43,7 +43,7 @@
     --accent-soft: #3a221f;
 
     /* the personal site flips the header to a lighter blue in dark mode */
-    --brand: hsl(var(--accent-h), 47%, 56%);
+    --brand: hsl(var(--accent-h), 47%, 72%);
     --brand-fg: hsl(var(--accent-h), 20%, 8%);
     --brand-soft: hsl(var(--accent-h), 30%, 20%);
   }
@@ -59,7 +59,7 @@
   --accent: #FF6A5C;
   --accent-soft: #3a221f;
 
-  --brand: hsl(var(--accent-h), 47%, 56%);
+  --brand: hsl(var(--accent-h), 47%, 72%);
   --brand-fg: hsl(var(--accent-h), 20%, 8%);
   --brand-soft: hsl(var(--accent-h), 30%, 20%);
 }
@@ -259,7 +259,7 @@ body[data-topic] .page {
   :root:not(.light) body[data-topic] .page {
     background: hsl(var(--card-h), 26%, 14%);
     border-color: hsl(var(--card-h), 22%, 24%);
-    --brand: hsl(var(--card-h), 47%, 56%);
+    --brand: hsl(var(--card-h), 47%, 72%);
     --brand-soft: hsl(var(--card-h), 30%, 24%);
   }
 }
@@ -267,7 +267,7 @@ body[data-topic] .page {
 :root.dark body[data-topic] .page {
   background: hsl(var(--card-h), 26%, 14%);
   border-color: hsl(var(--card-h), 22%, 24%);
-  --brand: hsl(var(--card-h), 47%, 56%);
+  --brand: hsl(var(--card-h), 47%, 72%);
   --brand-soft: hsl(var(--card-h), 30%, 24%);
 }
 
@@ -285,14 +285,14 @@ body[data-topic] .page {
   :root:not(.light) .cards .card {
     --card-bg: hsl(var(--card-h), 30%, 20%);
     --card-border: hsl(var(--card-h), 25%, 32%);
-    --card-cta: hsl(var(--card-h), 47%, 56%);
+    --card-cta: hsl(var(--card-h), 47%, 72%);
   }
 }
 
 :root.dark .cards .card {
   --card-bg: hsl(var(--card-h), 30%, 20%);
   --card-border: hsl(var(--card-h), 25%, 32%);
-  --card-cta: hsl(var(--card-h), 47%, 56%);
+  --card-cta: hsl(var(--card-h), 47%, 72%);
 }
 .card h3 { font-size: 1rem; margin: 0 0 0.4rem; }
 .card p { margin: 0; font-size: 0.9rem; color: var(--muted); }

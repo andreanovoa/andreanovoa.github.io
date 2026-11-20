@@ -133,11 +133,23 @@
 .entry-card .pub-card-cover { display: block; }
 .entry-card .pub-card-cover img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block; }
 .entry-card .pub-card-title a { color: inherit; }
+/* Teaching: one course per row, the cover to the left of the text. */
+.entry-grid--wide { grid-template-columns: minmax(0, 1fr); }
+.entry-grid--wide .entry-card { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); }
+.entry-grid--wide .entry-card .pub-card-cover { border-bottom: 0; border-right: 1px solid var(--border); }
+.entry-grid--wide .entry-card .pub-card-cover img { height: 100%; }
+.entry-grid--wide .entry-card .pub-card-body { justify-content: center; padding: 1.25rem 1.5rem; }
+@media (max-width: 40rem) {
+  .entry-grid--wide .entry-card { display: flex; flex-direction: column; }
+  .entry-grid--wide .entry-card .pub-card-cover { border-right: 0; border-bottom: 1px solid var(--border); }
+}
 
 /* ---------- back link (course and class pages, outreach entries) ---------- */
 .back-link { display: flex; align-items: center; gap: 0.75rem; margin: 0 0 1rem; font-size: 0.9rem; }
 .back-link a { color: var(--muted); }
 .back-link a:hover { color: var(--accent); }
+/* On pages without the menu, the theme switch sits at the right end of the back-link row. */
+.back-link .page-theme-toggle { margin-left: auto; }
 
 /* ---------- header: the whole bar in the card tint of the colour-wheel hue
    (same saturation and lightness as the "What we work on" cards) ---------- */
@@ -153,13 +165,13 @@
   :root:not(.light) .site-header {
     --bar-bg: hsl(var(--accent-h), 30%, 20%);
     --bar-bd: hsl(var(--accent-h), 25%, 32%);
-    --bar-fg: hsl(var(--accent-h), 47%, 70%);
+    --bar-fg: hsl(var(--accent-h), 47%, 78%);
   }
 }
 :root.dark .site-header {
   --bar-bg: hsl(var(--accent-h), 30%, 20%);
   --bar-bd: hsl(var(--accent-h), 25%, 32%);
-  --bar-fg: hsl(var(--accent-h), 47%, 70%);
+  --bar-fg: hsl(var(--accent-h), 47%, 78%);
 }
 .brand, .brand-sub { color: var(--bar-fg); opacity: 1; }
 .brand-name { color: var(--text); }
@@ -284,6 +296,7 @@
 }
 @media (min-width: 64rem) {
   .repos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .repos--single { grid-template-columns: minmax(0, 1fr); }
 }
 .repo, .repo:last-child {
   padding: 0;
@@ -319,3 +332,24 @@
 
 /* anchored jumps (e.g. Back to "What we work on") clear the sticky header */
 [id] { scroll-margin-top: 5rem; }
+
+/* ---------- accessibility helpers ---------- */
+/* Read by screen readers, not shown: headings that give a card row its place
+   in the outline. */
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+/* First stop of the Tab key on every page: jumps past the menu. Hidden until
+   it has the keyboard focus. */
+.skip-link {
+  position: absolute; left: 0.75rem; top: -3rem; z-index: 1000;
+  padding: 0.5rem 0.9rem; border-radius: var(--radius);
+  background: var(--brand); color: var(--brand-fg); font-weight: 600;
+}
+.skip-link:focus { top: 0.75rem; }
+main:focus { outline: none; }
+
+/* People photos in grayscale, so that portraits taken against different
+   backgrounds read as one set. The files keep their colour. */
+.person-avatar img, .pi-photo { filter: grayscale(1); }

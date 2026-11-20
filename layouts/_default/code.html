@@ -42,7 +42,7 @@
 
   {{- with $data.datasets }}
   <h2 class="group-heading" id="data">Data</h2>
-  <ul class="repos">
+  <ul class="repos repos--single">
     {{- range $set := . }}
     <li class="repo dataset{{ with $set.figure }} repo--fig{{ end }}">
       <div class="repo-body">

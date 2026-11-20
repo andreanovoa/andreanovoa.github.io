@@ -1,6 +1,6 @@
 ---
 title: "Teaching"
-description: "Course materials and interactive demos for the modules I teach."
+description: "Course materials and interactive demos."
 url: "/teaching/"
-lead: "Course materials and interactive demos for the modules I teach."
+lead: "Course materials and interactive demos."
 ---
