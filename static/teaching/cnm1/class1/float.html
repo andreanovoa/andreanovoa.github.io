@@ -468,7 +468,7 @@ const TABS=['line','gap','cmp'];
 function showTab(t){TABS.forEach(n=>{const on=n===t;$('tab-'+n).setAttribute('aria-selected',on);$('tab-'+n).tabIndex=on?0:-1;$('pane-'+n).hidden=!on;});
   S.show();if(window.parent!==window)window.parent.postMessage({type:'module-demo-resize'},location.origin);}
 TABS.forEach(n=>$('tab-'+n).addEventListener('click',()=>showTab(n)));
-recompute();
+recompute();S.reset();
 </script>
 </body>
 </html>

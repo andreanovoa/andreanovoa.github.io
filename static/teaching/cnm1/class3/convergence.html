@@ -265,7 +265,7 @@ onThemeChange(()=>{COL.pink=getComputedStyle(document.documentElement).getProper
 function placeStepTable(){const w=$('stepWrap'),to=window.innerWidth>=1200?document.querySelector('.results-card'):document.querySelector('.plotcard');if(w.parentElement!==to)to.appendChild(w);}
 placeStepTable();
 window.addEventListener('resize',debounce(()=>{placeStepTable();renderPreview();},100));
-$('fsel').value='osc';F=readF();compute();renderPreview();S.set(4);
+$('fsel').value='osc';F=readF();compute();renderPreview();S.reset();
 </script>
 </body>
 </html>

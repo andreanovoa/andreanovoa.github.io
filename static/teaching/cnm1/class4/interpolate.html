@@ -211,7 +211,7 @@ svg.addEventListener('dblclick',e=>{if(PR.id!=='own')return;const q=toPx(e);
     OWN.splice(nOf(S.k),0,[x,y]);S.last=lastK();S.set(S.k+1);}});
 enablePanZoom(plot2,view2,()=>S.show(),{onView:v=>{view.xr=v.xr.slice();}});
 bindViewControls([view,view2],()=>S.show());
-load();
+load();S.reset();
 </script>
 </body>
 </html>
