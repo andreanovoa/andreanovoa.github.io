@@ -73,6 +73,7 @@
   </div>
   <section class="results-card">
     <div class="tablewrap scroll" style="max-height:196px;margin-top:0" aria-label="Step by step"><table id="tblSteps"></table></div>
+    <div id="more" hidden>
     <div class="tabs" role="tablist" aria-label="More about this number">
       <button type="button" role="tab" id="tab-bases" aria-controls="pane-bases" aria-selected="true">Other bases</button>
       <button type="button" role="tab" id="tab-groups" aria-controls="pane-groups" aria-selected="false">Grouping bits</button>
@@ -92,6 +93,7 @@
         <div class="digits" id="digits"></div>
         <svg class="plot static" id="bars" role="img" aria-label="Number of digits of the whole part in each base"></svg>
       </div>
+    </div>
     </div>
   </section>
 </main>
@@ -328,6 +330,7 @@ function stepAt(j){const B=E.B,D=E.D,P=X.N%D;
 function stepRow(j){const t=stepAt(j);
   return[String(t.p).replace('-','−'),t.x,t.bp,`<b>${digPlain(t.d,E.b)}</b>`,t.rest];}
 function render(k){
+  $('more').hidden=!E||k!==S.last;
   if(!E){$('pv').innerHTML='';$('groups').innerHTML='';$('bars').innerHTML='';setFormula('');setStatus('bad',$('numErr').textContent);
     renderTable('tblSteps',[],[],-1);renderTable('tblBases',[],[],-1);$('digits').innerHTML='';$('sumline').innerHTML='&nbsp;';return;}
   const b=E.b,done=k===S.last,ki=Math.min(k,E.nW),kf=Math.max(0,k-E.nW);
@@ -391,7 +394,7 @@ const TABS=['bases','groups','digits'];
 function showTab(t){TABS.forEach(n=>{const on=n===t;$('tab-'+n).setAttribute('aria-selected',on);$('tab-'+n).tabIndex=on?0:-1;$('pane-'+n).hidden=!on;});
   if(window.parent!==window)window.parent.postMessage({type:'module-demo-resize'},location.origin);}
 TABS.forEach(n=>$('tab-'+n).addEventListener('click',()=>showTab(n)));
-recompute();
+recompute();S.reset();
 </script>
 </body>
 </html>
