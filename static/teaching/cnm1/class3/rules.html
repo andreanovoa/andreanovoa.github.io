@@ -12,6 +12,23 @@
 #tbl tr.sum td{border-top:2px solid var(--grey);font-weight:750}
 #cmp tr.cur td{font-weight:750}
 .ebar{display:inline-block;height:.6em;background:var(--orange);border-radius:2px;vertical-align:middle;margin-right:.4em;opacity:.8}
+#nodesWrap{max-height:150px;margin-top:6px}
+#tbl th,#tbl td{padding:3px 8px}
+/* custom integrand on wide screens: f, a and b beside the integrand menu, the hint beside n */
+@media (min-width:761px){
+  .side.custom>.f-field{order:-2}
+  .side.custom>#customBox{order:-1;grid-column:span 4}
+  .side.custom>#nHint{grid-column:span 3;align-self:center}
+}
+#cmp th{white-space:normal;vertical-align:bottom}
+#cmp th,#cmp td{padding:3px 5px}
+#cmp{font-size:.8rem}
+.side{padding:10px 12px;row-gap:8px}
+.results-card .formula{font-size:1.1rem}
+.results-card .status{font-size:1.05rem}
+.keys{font-size:.85rem;opacity:.75;margin-left:6px}
+#cmpHead{margin:.5rem 0 .2rem;font-weight:700}
+@media (max-width:600px){.controls.btns .keys{grid-column:1/-1;margin-left:0}}
 .custom-row{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr);gap:10px}
 @media (max-width:600px){.custom-row{grid-template-columns:1fr 1fr}.custom-row>:first-child{grid-column:1/-1}}
 </style>
@@ -21,15 +38,16 @@
 <div class="wrap">
 <header class="top">
   <h1>Integration rules</h1>
-  <p class="lede">The shaded area is what the rule computes; the dots are where f is evaluated. Each step adds one strip, or one Gauss point.</p>
+  <p class="lede">The shaded area is what the rule computes; the dots are where f is evaluated. </p>
 </header>
 <main class="layout">
   <section class="plotcard">
     <svg class="plot" id="plot" role="img" aria-label="Integrand, quadrature nodes and the area computed by the rule"></svg>
     <p class="plot-hint">Drag to pan · scroll to zoom</p>
+    <div class="tablewrap scroll" id="nodesWrap"><table id="tbl"></table></div>
   </section>
   <aside class="side">
-    <label class="field span2">f(x) and interval<select id="fsel"></select></label>
+    <label class="field span2 f-field">f(x) and interval<select id="fsel"></select></label>
     <label class="field span2">Rule<select id="rsel"></select></label>
     <label class="field"><span id="nLab">Strips n</span><input id="n" type="number" step="1" min="1"></label>
     <div id="customBox" class="full" hidden>
@@ -41,7 +59,6 @@
       <div id="customErr" class="err"></div>
     </div>
     <p class="hint" id="nHint"></p>
-    <p class="hint">Keys: &rarr; step, &larr; back, p play, r reset</p>
   </aside>
   <div class="controls btns">
     <button id="btnBack" type="button" title="Back (left arrow)">&larr; Back</button>
@@ -49,12 +66,12 @@
     <button id="btnPlay" type="button" title="Play / pause (p)">Play</button>
     <button id="btnReset" type="button" title="Reset (r)">Reset</button>
     <button id="btnResetView" type="button" title="Restore the original graph view">Reset view</button>
+    <span class="keys">Keys: &rarr; step, &larr; back, p play, r reset</span>
   </div>
   <section class="results-card">
     <div class="formula wrap" id="formula">&nbsp;</div>
     <div class="status" id="status">&nbsp;</div>
-    <div class="tablewrap scroll"><table id="tbl"></table></div>
-    <p class="hint" id="cmpHead" style="margin:.9rem 0 .3rem;font-weight:700">Every rule with the same n</p>
+    <p class="hint" id="cmpHead">Every rule with the same n</p>
     <div class="tablewrap scroll"><table id="cmp"></table></div>
   </section>
 </main>
@@ -135,6 +152,8 @@ function applyRule(rule,f,a,b,n){
 let F=null,RULE=RULES.find(r=>r.id==='simp');
 const view={xr:null,yr:null};
 const plot=new Plot($('plot'));
+/* plot height: fixed band on wide screens so the demo fits one screen; default (aspect-based) on phones */
+const plotH=()=>{const w=plot.svg.parentElement.clientWidth||800;return window.innerWidth<=600?0:Math.round(Math.max(220,Math.min(320,w*0.5)));};
 const stepN=()=>RULE.m>0?RULE.m:1;
 const nMin=()=>RULE.m>0?RULE.m:1;
 const nOf=k=>nMin()+k*stepN();
@@ -169,7 +188,7 @@ function render(k){
   if(!F||F.error){plot.begin([0,1],[-1,1]);plot.axes();plot.end();setFormula('');setStatus('bad',F?F.error:'');renderTable('tbl',[],[],-1);return;}
   const R=applyRule(RULE,F.f,F.a,F.b,n),pad=(F.b-F.a)*0.08;
   const xr=view.xr||[F.a-pad,F.b+pad],yr=view.yr||autoY([F.f],xr[0],xr[1],{extra:R.nodes.map(q=>q.f)});
-  const p=plot.begin(xr,yr);p.axes();
+  const p=plot.begin(xr,yr,{h:plotH()});p.axes();
   const many=R.nodes.length>24;
   /* the area the rule computes: rectangles, or the area under each interpolating polynomial */
   if(R.polys.length){for(const Q of R.polys){const x0=Q.xs[0],x1=Q.xs[Q.xs.length-1],N=Math.max(24,Math.round((p.X(x1)-p.X(x0))/2));
@@ -218,11 +237,11 @@ function compareAll(n){
     const R=applyRule(r,F.f,F.a,F.b,m),e=Math.abs(F.exact-R.I);errs.push(e);
     rows.push({r,m,ev:R.nodes.length,I:R.I,e});}
   const lmax=Math.log10(Math.max(...errs,1e-16)),lmin=-16;
-  const out=rows.map(q=>{const w=q.e<1e-16?0:Math.max(2,Math.round(70*(Math.log10(q.e)-lmin)/(lmax-lmin)));
-    return[q.r.name.replace(' rule','').replace(' quadrature',''),(q.r.m===-2?'N = ':'n = ')+q.m,q.ev,fmt(q.I,10),
+  const out=rows.map(q=>{const w=q.e<1e-16?0:Math.max(2,Math.round(40*(Math.log10(q.e)-lmin)/(lmax-lmin)));
+    return[q.r.name.replace(' rule','').replace(' quadrature','').replace(' sum',''),(q.r.m===-2?'N = ':'n = ')+q.m,q.ev,fmt(q.I,10),
       `<span class="ebar" style="width:${w}px"></span>${q.e<1e-15?'&lt; 10⁻¹⁵':fmt(q.e,2)}`];});
-  $('cmpHead').textContent=`Every rule with n = ${base} (rounded up where a rule needs a multiple), on the same integrand`;
-  renderTable('cmp',['rule','n / N','evaluations of f','I','|error| (bar: log scale)'],out,-1);
+  $('cmpHead').textContent=`Every rule with n = ${base} (or the next multiple the rule needs)`;
+  renderTable('cmp',['rule','n / N','evaluations of f','I','|error|<br><span style="font-weight:500">(log bar)</span>'],out,-1);
   const cur=cmpRules.findIndex(r=>r.id===RULE.id);
   if(cur>=0){const tr=$('cmp').querySelectorAll('tbody tr')[cur];if(tr)tr.className='cur';}
 }
@@ -239,7 +258,7 @@ function setRule(keepN){const nPrev=nOf(S.k);RULE=RULES.find(r=>r.id===$('rsel')
   S.pause();S.set(keepN?Math.round((Math.max(nMin(),nPrev)-nMin())/stepN()):S.k);}
 function recompute(){F=readF();$('customErr').textContent=F.error||'';view.xr=null;view.yr=null;S.show();}
 fillSelect('fsel',FPRE);fillSelect('rsel',RULES.map(r=>({id:r.id,label:r.name})));$('rsel').value='simp';
-onSelectChange('fsel',()=>{$('customBox').hidden=$('fsel').value!=='custom';recompute();});
+onSelectChange('fsel',()=>{const c=$('fsel').value==='custom';$('customBox').hidden=!c;document.querySelector('.side').classList.toggle('custom',c);recompute();});
 onSelectChange('rsel',()=>setRule(true));
 $('n').addEventListener('input',()=>{const v=Math.round(num('n'));if(!isFinite(v))return;S.pause();S.set(Math.round((Math.max(nMin(),v)-nMin())/stepN()));});
 $('n').addEventListener('keydown',e=>{if(e.key==='Enter')e.target.blur();});
