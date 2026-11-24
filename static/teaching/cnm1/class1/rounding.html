@@ -188,7 +188,6 @@ function showX(x,maxSig){const e=expand(x,10,70);let s=e.ip+(e.fr?'.'+e.fr:'');s
 /* ---------- small helpers ---------- */
 const sg=s=>String(s).replace(/-/g,'−');
 const powH=(b,e)=>e===0?'1':e===1?String(b):`${b}<sup>${sg(e)}</sup>`;
-const powS=(b,e)=>`${b}<tspan dy="-0.5em" font-size="72%">${e}</tspan>`;
 const tw=(t,fs)=>String(t).replace(/<[^>]+>/g,'').length*fs*0.56;
 const thin=n=>String(n).replace(/\B(?=(\d{3})+(?!\d))/g,' ');
 const sciA=(v,s)=>v===0?'0':sci(v,s||3);
@@ -295,26 +294,6 @@ function drawLine(R){
     p.ptext(X,Y-3,t1,{anchor:an,c:col,weight:800});p.ptext(X,Y+fs-2,t2,{anchor:an,c:col,weight:650,size:fs-2});};
   bandLabel(0,s,yC,'chopped','|ε| < 1 unit',COL.curve);
   bandLabel(uR-0.5,uR+0.5,yR,'rounded','|ε| ≤ ½ unit',COL.orange);
-  p.end();}
-
-function drawErrPlot(j){
-  const p=plot2,small=narrow(),H=small?165:190,b=A.b,sig=A.sig,rows=A.rows;
-  const bc=n=>sig?b**(1-n):b**(-n),br=n=>bc(n)/2,val=(r,w)=>Math.abs(sig?r[w].er:r[w].e);
-  const all=[bc(A.n0),br(A.n1)];rows.forEach(r=>{for(const w of ['R','C']){const v=val(r,w);if(v>0&&!r[w].zero)all.push(v);}});
-  const ymin=10**Math.floor(Math.log10(Math.min(...all))-0.3),ymax=10**Math.ceil(Math.log10(Math.max(...all))+0.2);
-  const Lpx=small?100:225,W=Math.max(260,p.svg.parentElement.clientWidth||600),pwEst=W-(small?50:70)-(small?12:22);
-  const U=A.n1-A.n0+1,xr=[A.n0-0.5,A.n1+0.5+Lpx*U/Math.max(60,pwEst-Lpx)];
-  p.begin(xr,[ymin,ymax],{log:true,h:H});
-  const st=Math.max(1,Math.round(niceStep(A.n1-A.n0+1,small?5:10))),xt=[];for(let n=Math.ceil(A.n0/st)*st;n<=A.n1;n+=st)xt.push(n);
-  p.axes({xticks:xt,xfmt:v=>String(v)});
-  const e1=sig?'1−n':'−n',half=small?'½·':'½ · ';
-  p.path([[A.n0,bc(A.n0)],[A.n1,bc(A.n1)]],{c:COL.curve,w:2.2,dash:'8 6'});
-  p.path([[A.n0,br(A.n0)],[A.n1,br(A.n1)]],{c:COL.orange,w:2.2,dash:'8 6'});
-  for(const [w,c] of [['C',COL.curve],['R',COL.orange]]){const pts=[];
-    for(let i=0;i<=j;i++){const r=rows[i];pts.push(r[w].zero?null:[r.n,val(r,w)]);}
-    p.path(pts,{c,w:3});pts.forEach((q,i)=>{if(q)p.dot(q[0],q[1],i===j?6.5:4.5,c,'top',i===j?null:c);});}
-  endLabels(p,[{X:p.X(A.n1),Y:p.Y(bc(A.n1)),t:(small?'':'chopping bound ')+powS(b,e1),c:COL.curve},
-               {X:p.X(A.n1),Y:p.Y(br(A.n1)),t:(small?'':'rounding bound ')+half+powS(b,e1),c:COL.orange}],{w:Lpx-14});
   p.end();}
 
 function renderRound(j){
@@ -557,15 +536,13 @@ const TITLE={round:'Number line around x',accum:'|Error of the running sum| agai
 function setLegend(){
   const sw=(c,cls)=>`<i class="${cls||''}" style="border-color:${c};${cls?'':'background:'+c+'33'}"></i>`;
   if(PART==='round'){$('legend').innerHTML=`<span>${sw(COL.teal,'ln')}x</span><span>${sw(COL.curve)}chopped band</span><span>${sw(COL.orange)}rounded band</span><span>${sw(COL.grey,'dl')}half-way</span><span>solid: ε = x − x̃</span>`;
-    const sig=$('mode').value==='sig';
-    $('plot2Title').innerHTML=(sig?'|ε<sub>r</sub>|':'|ε|')+' against n (log scale), with the bounds';
-    $('legend2').innerHTML=`<span>${sw(COL.orange,'ln')}rounding</span><span>${sw(COL.curve,'ln')}chopping</span><span>${sw(COL.grey,'dl')}bounds</span><span>no point: error 0</span>`;}
+}
   else if(PART==='accum'){$('legend').innerHTML=`<span>${sw(COL.curve,'ln')}single precision (Math.fround)</span><span>${sw(COL.teal,'ln')}double precision</span><span>${sw(COL.orange,'ln')}24-bit register, c chopped after 23 bits (Patriot)</span><span>${sw(COL.grey,'dl')}N × (error in storing c)</span>`;}
   else{$('legend').innerHTML=`<span>${sw(COL.curve,'ln')}inputs x ± δx, y ± δy</span><span>${sw(COL.orange,'ln')}worst-case bound f ± δf</span><span>${sw(COL.teal,'ln')}true extremes over the 4 corners</span><span>• central value</span>`;
     $('plot2Title').textContent='Relative errors';$('legend2').innerHTML='';}}
 function setPart(){PART=$('part').value;
   $('grpA').hidden=PART!=='round';$('grpB').hidden=PART!=='accum';$('grpC').hidden=PART!=='prop';showTab(PART==='prop'?TAB:'tbl');$('tabs').hidden=PART!=='prop';
-  $('tab-plot2').textContent=PART==='prop'?'Relative errors':'Error against n';
+  $('tab-plot2').textContent='Relative errors';
   /* Part 1: the status explains the number line and sits under it; Parts 2 and 3: beside the read-out */
   $(PART==='round'?'statusLeft':'statusRight').appendChild($('status'));
   $('lede').textContent=LEDE[PART];$('partHint').textContent=HINT[PART];$('plotTitle').textContent=TITLE[PART];
