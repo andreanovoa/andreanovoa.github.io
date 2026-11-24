@@ -10,6 +10,15 @@
 @font-face{font-family:"CMU Sans Serif";src:url("../fonts/cmunss.woff2") format("woff2");font-weight:400 600;font-display:swap}
 @font-face{font-family:"CMU Sans Serif";src:url("../fonts/cmunsx.woff2") format("woff2");font-weight:700 900;font-display:swap}
 #plotTop{margin-top:2px}
+.side>.hint{margin-top:-2px}
+.tablewrap.scroll{max-height:250px}
+th{background:linear-gradient(var(--soft),var(--soft)),var(--bg)}
+/* a custom f(x) shares the control row instead of adding one */
+.side:has(#customBox:not([hidden]))>.span2{grid-column:span 1}
+.side>#customBox.full{grid-column:span 2}
+.side>#customBox input{font-size:.85rem;padding-left:6px;padding-right:6px}
+.side:has(#x0Box[hidden])>#customBox.full{grid-column:span 1}
+@media (max-width:760px){.side>#customBox.full,.side:has(#x0Box[hidden])>#customBox.full{grid-column:1/-1}}
 </style>
 <link rel="stylesheet" href="../theme.css">
 </head>
@@ -17,7 +26,7 @@
 <div class="wrap">
 <header class="top">
   <h1>Minimisation is root finding</h1>
-  <p class="lede">At a smooth minimum the slope is zero, so the minimum of f is a root of f′(x) = 0. Apply bisection or Newton’s method to f′ and follow the iterate on both graphs.</p>
+  <p class="lede">At a smooth minimum the slope is zero, f′(x) = 0, so we find it with bisection or Newton’s method on f′.</p>
 </header>
 <main class="layout">
   <section class="plotcard">
@@ -35,11 +44,11 @@
     <div class="field" id="bBox"><label for="b">b (right end)</label><input id="b" type="number" step="0.1"></div>
     <label class="field">Tolerance<select id="tol"></select></label>
     <div id="customBox" class="field full" hidden>
-      <input id="custom" type="text" value="x^4 - 3x^2 + x" spellcheck="false" autocomplete="off" aria-label="Custom f(x)">
+      <label for="custom">Custom f(x)</label>
+      <input id="custom" type="text" value="x^4 - 3x^2 + x" spellcheck="false" autocomplete="off">
       <div id="customErr" class="err"></div>
     </div>
-    <p class="hint" id="methodHint"></p>
-    <p class="hint">Keys: &rarr; step, &larr; back, p play, r reset</p>
+    <p class="hint"><span id="methodHint"></span> &nbsp;·&nbsp; Keys: &rarr; step, &larr; back, p play, r reset</p>
   </aside>
   <div class="controls btns">
     <button id="btnBack" type="button" title="Back (left arrow)">&larr; Back</button>
@@ -52,7 +61,7 @@
   <section class="results-card">
     <div class="formula" id="formula">&nbsp;</div>
     <div class="status" id="status">&nbsp;</div>
-    <div class="tablewrap"><table id="tbl"></table></div>
+    <div class="tablewrap scroll"><table id="tbl"></table></div>
   </section>
 </main>
 <footer style="margin-top:1rem;color:var(--grey);font-size:.8rem">© Andrea Nóvoa</footer>
@@ -184,8 +193,8 @@ function recompute(resetK){F=getF();$('customErr').textContent=F.error||'';
   else R=null;
   S.last=R?R.last:0;S.pause();S.set(resetK?0:S.k);}
 function applyMethod(){const nw=isNewton();$('x0Box').hidden=!nw;$('aBox').hidden=nw;$('bBox').hidden=nw;
-  $('methodHint').innerHTML=nw?'Newton for minimisation: x<sub>n+1</sub> = x<sub>n</sub> − f′(x<sub>n</sub>)/f″(x<sub>n</sub>), i.e. Newton’s method applied to f′.'
-    :'Bisection on f′: keep the half of [a, b] where f′ changes sign.';}
+  $('methodHint').innerHTML=nw?'Newton on f′: x<sub>n+1</sub> = x<sub>n</sub> − f′(x<sub>n</sub>)/f″(x<sub>n</sub>)'
+    :'Bisection on f′: keep the half of [a, b] where f′ changes sign';}
 function applyPreset(){PR=PRESETS.find(p=>p.id===$('fsel').value);$('customBox').hidden=PR.id!=='custom';
   vTop.xr=vTop.yr=vBot.xr=vBot.yr=null;$('zoomWithIterations').checked=false;
   if(PR.id!=='custom'){XR=PR.range.slice();setVal('x0',PR.x0);setVal('a',PR.bis[0]);setVal('b',PR.bis[1]);}

@@ -18,92 +18,72 @@ body{margin:0;background:var(--bg);color:var(--navy);font-family:"CMU Sans Serif
 header.top{display:flex;flex-wrap:wrap;align-items:center;gap:6px 20px;margin-bottom:12px}
 header.top h1{font-size:1.9rem;line-height:1.15;margin:0;font-weight:750;letter-spacing:-0.01em}
 .lede{margin:0;flex-basis:100%;font-size:1.05rem;opacity:.85}
-.layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"side side" "controls controls" "plot table";gap:16px 22px;align-items:start}
+/* one screen: settings card, then the plot beside buttons, progress and iterations, then the summary */
+.layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"side side" "plot controls" "plot table" "sum sum";grid-template-rows:auto auto 1fr auto;gap:12px 22px;align-items:start}
 .plotcard{grid-area:plot;min-width:0}
 .side{grid-area:side;min-width:0}
 .results-card{grid-area:table;min-width:0}
+.sumcard{grid-area:sum;min-width:0}
 .tablewrap{min-width:0}
-.formula{font-size:1.2rem;line-height:1.5;min-height:3.3em;padding:10px 14px;background:var(--soft);border-radius:10px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.formula{font-size:.95rem;line-height:1.45;padding:8px 12px;background:var(--soft);border-radius:10px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .formula b{font-weight:750}
-.formula .line2{display:block;font-size:1.05rem}
-.compare-progress{display:grid;grid-template-columns:minmax(150px,.8fr) minmax(0,1.2fr);gap:14px;align-items:start}
-.compare-progress-main,.compare-progress-methods{display:grid;gap:6px}
-.compare-method{display:grid;grid-template-columns:minmax(90px,.8fr) minmax(0,1.2fr);gap:8px;align-items:start}
-.status{margin:8px 2px 0;font-size:1.15rem;font-weight:700;min-height:1.5em}
+.compare-progress-methods{display:grid;grid-template-columns:1fr 1fr;gap:0 14px;margin-top:2px}
+.compare-method{display:flex;gap:8px;flex-wrap:wrap}
+.status{margin:6px 2px 0;font-size:1rem;font-weight:700;min-height:1.4em}
 .status.ok{color:var(--teal)}
 .status.bad{color:var(--orange)}
 .status.info{color:var(--navy);font-weight:500;opacity:.75}
-svg.plot{display:block;width:100%;height:auto;margin-top:6px;user-select:none;-webkit-user-select:none}
+svg.plot{display:block;width:100%;height:auto;user-select:none;-webkit-user-select:none}
 svg.plot text{font-family:"CMU Sans Serif",system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
-.side{background:var(--soft);border-radius:12px;padding:12px;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(240px,.75fr);align-items:start;gap:12px}
-.method-settings{display:flex;flex-direction:column;gap:12px;min-width:0}
-.function-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;align-items:end}
-.method-options{display:grid;grid-template-columns:1fr;gap:8px}
-.method-option{display:grid;grid-template-columns:130px minmax(0,1fr);align-items:center;gap:12px;width:fit-content;max-width:100%;justify-self:start;min-width:0;padding:10px;border:1px solid var(--border);border-radius:9px;background:var(--entry)}
-.method-option h2{margin:0;font-size:1rem}
-.method-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));align-items:end;gap:8px}
-.method-option .pair{margin:0}
-.method-option .hint{margin-top:8px}
-.method-option:has(#gsel) .method-fields{grid-template-columns:repeat(2,minmax(170px,220px))}
-.method-option:has(#gsel) #customGBox{grid-column:1/-1}
-.function-preview{min-width:0;padding:10px;border:1px solid var(--border);border-radius:9px;background:var(--entry)}
-.function-preview h2{margin:0 0 8px;font-size:1rem}
+.side{background:var(--soft);border-radius:12px;padding:10px 12px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.8fr) minmax(0,1fr) minmax(0,1.5fr) minmax(0,1.2fr);align-items:start;gap:8px 10px}
+#fBox{grid-area:1/1}.side:has(#customFBox[hidden]) #fBox{grid-column:1/3}#customFBox{grid-area:1/2}#tolBox{grid-area:1/3}#customGBox{grid-area:1/4}
+.side .hint{margin:0;font-size:.8rem;opacity:.75}
+.method-option{grid-row:2;display:flex;flex-direction:column;gap:4px;min-width:0;padding:6px 8px;border:1px solid var(--border);border-radius:9px;background:var(--entry)}
+.method-option h2{margin:0;font-size:.9rem}
+.method-fields{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;min-width:0}
+.method-fields>select{flex:1 1 110px;min-width:0}
+.side input[type=text]{font-size:.85rem;padding:6px 6px}
+.plot-hint{margin:2px 0 0;font-size:.8rem;opacity:.75}
+.inl{display:flex;align-items:center;gap:5px;flex:1 1 60px;min-width:0;font-size:.9rem;font-weight:650;white-space:nowrap}
+.function-preview{grid-column:5;grid-row:1/3;min-width:0;padding:6px 8px;border:1px solid var(--border);border-radius:9px;background:var(--entry)}
+.function-preview h2{margin:0 0 2px;font-size:.85rem}
 svg.function-plot{display:block;width:100%;height:auto;user-select:none}
-.controls.btns{grid-area:controls;display:grid;grid-template-columns:repeat(5,max-content);justify-content:start;gap:8px}
+.controls.btns{grid-area:controls;display:flex;flex-wrap:wrap;gap:8px}
 button{font:inherit;font-size:.9rem;font-weight:700;padding:6px 9px;min-height:38px;border-radius:9px;border:2px solid var(--navy);background:#fff;color:var(--navy);cursor:pointer;touch-action:manipulation}
 button.primary{background:var(--navy);color:#fff}
 button:active{transform:translateY(1px)}
 button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
-.field{display:flex;flex-direction:column;gap:4px;font-size:.95rem;font-weight:650}
-select,input[type=number],input[type=text]{font:inherit;font-size:1rem;font-weight:500;padding:8px 10px;border:2px solid var(--grey);border-radius:8px;background:#fff;color:var(--navy);width:100%;min-width:0}
+.field{display:flex;flex-direction:column;gap:3px;font-size:.9rem;font-weight:650;min-width:0}
+select,input[type=number],input[type=text]{font:inherit;font-size:1rem;font-weight:500;padding:5px 8px;border:2px solid var(--grey);border-radius:8px;background:#fff;color:var(--navy);width:100%;min-width:0}
 input[type=text]{font-family:ui-monospace,Menlo,Consolas,monospace}
-.numslide{display:grid;grid-template-columns:96px minmax(0,1fr);gap:10px;align-items:center}
-input[type=range]{width:100%;min-width:0;accent-color:var(--orange);height:28px}
-.pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.side>.hint{margin:0;font-size:.85rem;opacity:.75}
-.err{color:var(--orange);font-size:.9rem;font-weight:600;min-height:0}
+.err{color:var(--orange);font-size:.85rem;font-weight:600;min-height:0}
 .tablewrap{overflow-x:auto;overflow-y:visible;max-height:none;border:2px solid var(--soft);border-radius:10px;-webkit-overflow-scrolling:touch}
-table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:1rem}
-th,td{padding:7px 12px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--soft)}
-th{position:sticky;top:0;background:var(--soft);font-weight:700;z-index:1}
+/* the iteration table scrolls inside its box instead of growing the page */
+.iterwrap{margin-top:6px;max-height:130px;overflow-y:auto}
+#tbl th{white-space:normal;vertical-align:bottom}
+#tbl th,#tbl td{padding:4px 6px}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:.85rem}
+th,td{padding:4px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--soft)}
+th{position:sticky;top:0;background:linear-gradient(var(--soft),var(--soft)),var(--bg);font-weight:700;z-index:1}
 th:first-child,td:first-child{text-align:center}
 tr.cur td{background:rgba(228,87,46,.13);font-weight:750}
-.badge{display:inline-block;padding:3px 12px;border-radius:999px;font-weight:700;color:#fff;font-size:.95rem;white-space:nowrap}
-.badge.teal{background:var(--teal)}.badge.orange{background:var(--orange)}.badge.grey{background:var(--grey)}
-.chip{display:inline-block;margin-right:14px;white-space:nowrap}
-@media (max-width:980px){
-  .layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"side" "controls" "plot" "table"}
+.summary td:first-child,.summary th:first-child{text-align:left}
+.summary td span.fail{white-space:normal}
+.swatch{display:inline-block;width:28px;height:0;border-top:4px solid;vertical-align:middle;margin-right:8px}
+@media (max-width:760px){
+  .layout{grid-template-columns:minmax(0,1fr);grid-template-rows:none;grid-template-areas:"side" "controls" "plot" "table" "sum"}
+  .side{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #fBox,#customFBox,#customGBox,#tolBox,.method-option{grid-area:auto}
+  .function-preview{grid-column:1/-1;grid-row:auto}
 }
-@media (max-width:720px){.side{grid-template-columns:1fr}}
-@media (max-width:720px){.method-option{grid-template-columns:1fr;gap:6px}.method-fields{grid-template-columns:repeat(auto-fit,minmax(145px,1fr))}}
 @media (max-width:600px){
-  .compare-progress{grid-template-columns:1fr;gap:8px}
   html{font-size:16px}
   header.top h1{font-size:1.5rem}
-  .formula{font-size:1.02rem}
-  .formula .line2{font-size:.95rem}
+  th,td{padding:4px 6px}
+  .swatch{width:18px;margin-right:5px}
 }
-@media (max-width:420px){.method-fields{grid-template-columns:1fr}}
-
-.summary-wrap{margin-top:14px}
-.summary td:first-child,.summary th:first-child{text-align:left}
-#sum,#tbl{table-layout:fixed}
-#sum th,#sum td,#tbl th,#tbl td{white-space:normal;overflow-wrap:anywhere}
-#sum th:nth-child(1),#sum td:nth-child(1){width:16%}
-#sum th:nth-child(2),#sum td:nth-child(2){width:18%}
-#sum th:nth-child(3),#sum td:nth-child(3){width:16%}
-#sum th:nth-child(4),#sum td:nth-child(4){width:20%}
-#sum th:nth-child(5),#sum td:nth-child(5){width:30%}
-#tbl th:first-child,#tbl td:first-child{width:8%}
-#tbl th:not(:first-child),#tbl td:not(:first-child){width:23%}
-.swatch{display:inline-block;width:28px;height:0;border-top:4px solid;vertical-align:middle;margin-right:8px}
-/* phone layout: buttons wrap, nothing wider than the screen */
-@media (max-width:600px){
-  .controls.btns{display:flex;flex-wrap:wrap;align-items:center}
-  .controls.btns .zoom-option{flex-basis:100%;margin-left:0}
-  .badge{white-space:normal}
-  .method-option{width:auto;justify-self:stretch}
-  .method-option:has(#gsel) .method-fields{grid-template-columns:minmax(0,1fr)}
+@media (max-width:480px){
+  .side{grid-template-columns:minmax(0,1fr)}
 }
 </style>
 <link rel="stylesheet" href="../theme.css">
@@ -117,48 +97,41 @@ tr.cur td{background:rgba(228,87,46,.13);font-weight:750}
 <main class="layout">
   <section class="plotcard">
     <svg class="plot" id="plot" role="img" aria-label="Error versus iteration, log scale"></svg>
-    <div class="tablewrap summary-wrap"><table id="sum" class="summary"></table></div>
+    <p class="plot-hint">Keys: &rarr; step, &larr; back, p play, r reset, End show all</p>
   </section>
   <aside class="side">
-    <div class="method-settings">
-    <div class="function-options">
-      <label class="field">Function f(x)<select id="fsel"></select></label>
-      <div id="customFBox" class="field" hidden>
-        <label for="customF">Custom f(x)</label>
-        <input id="customF" type="text" value="x^2 - 2x - 3" spellcheck="false" autocomplete="off">
-        <div id="customFErr" class="err"></div>
+    <label class="field" id="fBox">Function f(x)<select id="fsel"></select></label>
+    <div id="customFBox" class="field" hidden>
+      <label for="customF">Custom f(x)</label>
+      <input id="customF" type="text" value="x^2 - 2x - 3" spellcheck="false" autocomplete="off">
+      <div id="customFErr" class="err"></div>
+    </div>
+    <div id="customGBox" class="field" hidden>
+      <label for="customG">Custom g(x)</label>
+      <input id="customG" type="text" value="sqrt(2x + 3)" spellcheck="false" autocomplete="off">
+      <p class="hint">Its fixed point must be a root of f.</p>
+      <div id="customGErr" class="err"></div>
+    </div>
+    <label class="field" id="tolBox"><span>Tolerance 10<sup>n</sup>, n =</span><input id="tol" type="number" step="1" value="-6"></label>
+    <section class="method-option">
+      <h2>Bisection</h2>
+      <div class="method-fields"><label class="inl">a<input id="a" type="number" step="0.1"></label><label class="inl">b<input id="b" type="number" step="0.1"></label></div>
+    </section>
+    <section class="method-option">
+      <h2>Newton</h2>
+      <div class="method-fields"><label class="inl"><span>x<sub>0</sub></span><input id="nx0" type="number" step="0.1"></label></div>
+    </section>
+    <section class="method-option">
+      <h2>Secant</h2>
+      <div class="method-fields"><label class="inl"><span>x<sub>0</sub></span><input id="sx0" type="number" step="0.1"></label><label class="inl"><span>x<sub>1</sub></span><input id="sx1" type="number" step="0.1"></label></div>
+    </section>
+    <section class="method-option">
+      <h2>Fixed point</h2>
+      <div class="method-fields">
+        <select id="gsel" aria-label="g(x)"></select>
+        <label class="inl"><span>x<sub>0</sub></span><input id="gx0" type="number" step="0.1"></label>
       </div>
-    </div>
-    <div class="method-options" aria-label="Starting options for each method">
-      <section class="method-option">
-        <h2>Bisection</h2>
-        <div class="method-fields"><div class="pair"><label class="field">a<input id="a" type="number" step="0.1"></label><label class="field">b<input id="b" type="number" step="0.1"></label></div></div>
-      </section>
-      <section class="method-option">
-        <h2>Newton</h2>
-        <div class="method-fields"><label class="field"><span>Starting value x<sub>0</sub></span><input id="nx0" type="number" step="0.1"></label></div>
-      </section>
-      <section class="method-option">
-        <h2>Secant</h2>
-        <div class="method-fields"><div class="pair"><label class="field"><span>x<sub>0</sub></span><input id="sx0" type="number" step="0.1"></label><label class="field"><span>x<sub>1</sub></span><input id="sx1" type="number" step="0.1"></label></div></div>
-      </section>
-      <section class="method-option">
-        <h2>Fixed point</h2>
-        <div class="method-fields">
-          <label class="field">g(x)<select id="gsel"></select></label>
-          <div id="customGBox" class="field" hidden>
-            <label for="customG">Custom g(x)</label>
-            <input id="customG" type="text" value="sqrt(2x + 3)" spellcheck="false" autocomplete="off">
-            <p class="hint">Choose g so its fixed point is a root of f(x).</p>
-            <div id="customGErr" class="err"></div>
-          </div>
-          <label class="field"><span>Starting value x<sub>0</sub></span><input id="gx0" type="number" step="0.1"></label>
-        </div>
-      </section>
-    </div>
-    <label class="field">Tolerance exponent n for 10<sup>n</sup><input id="tol" type="number" step="1" value="-6"></label>
-    <p class="hint">Keys: &rarr; step, &larr; back, p play, r reset, End show all</p>
-    </div>
+    </section>
     <section class="function-preview">
       <h2>Selected function</h2>
       <svg class="function-plot" id="functionPlot" role="img" aria-label="Graph of selected f(x)"></svg>
@@ -176,6 +149,9 @@ tr.cur td{background:rgba(228,87,46,.13);font-weight:750}
     <div class="formula" id="formula">&nbsp;</div>
     <div class="status" id="status">&nbsp;</div>
     <div class="tablewrap iterwrap"><table id="tbl"></table></div>
+  </section>
+  <section class="sumcard">
+    <div class="tablewrap summary-wrap"><table id="sum" class="summary"></table></div>
   </section>
 </main>
 <footer style="margin-top:1rem;color:var(--grey);font-size:.8rem">© Andrea Nóvoa</footer>
@@ -279,7 +255,8 @@ class Plot{
     const w=Math.max(260,Math.round(this.svg.parentElement.clientWidth||800));
     const small=w<600;this.small=small;
     const hmax=Math.max(320,window.innerHeight*0.62);
-    const h=Math.round(Math.min(hmax,Math.max(250,w*(small?0.85:0.6))));
+    let h=Math.round(Math.min(hmax,Math.max(250,w*(small?0.85:0.6))));
+    if(o.hmax)h=Math.min(h,o.hmax);if(o.h)h=o.h;
     this.W=w;this.H=h;this.fs=small?15:18;
     this.m={l:small?46:68,r:small?12:22,t:12,b:small?34:44};
     this.pw=w-this.m.l-this.m.r;this.ph=h-this.m.t-this.m.b;
@@ -429,7 +406,7 @@ let F=null,RES=[],LAST=0,YR=[FLOOR,10],INPUT_ERROR='';
 
 function renderFunctionPreview(){
   const range=F?.preset?.range||[-5,5],bad=F?.error;
-  functionPlot.begin(range,bad?[-1,1]:autoY([F.f],range[0],range[1]));
+  functionPlot.begin(range,bad?[-1,1]:autoY([F.f],range[0],range[1]),{h:170});
   functionPlot.axes({xlabel:'x'});
   if(!bad&&F)functionPlot.curve(F.f,{get c(){return COL.curve;},w:3});
   functionPlot.end();
@@ -466,13 +443,13 @@ function compute(){
 
 function render(k){
   if(INPUT_ERROR){
-    plot.begin([0,8],YR,{log:true});plot.axes({noYaxis:true});plot.end();
+    plot.begin([0,8],YR,{log:true,hmax:290});plot.axes({noYaxis:true});plot.end();
     setFormula('');setStatus('bad',INPUT_ERROR);
     renderTable('sum',['Method','iterations to tol','x at stop','|error| at stop','convergence'],[],-1);
     renderTable('tbl',['n','Bisection '+sb('c','n'),'Newton '+sb('x','n'),'Secant '+sb('x','n'),'Fixed point '+sb('x','n')],[],-1);
     return;
   }
-  const p=plot;const XMAX=Math.max(8,k);p.begin([0,XMAX],YR,{log:true});p.axes({noYaxis:true});
+  const p=plot;const XMAX=Math.max(8,k);p.begin([0,XMAX],YR,{log:true,hmax:290});p.axes({noYaxis:true});
   const tol=10**Number($('tol').value);
   p.hline(tol,{get c(){return COL.grey;},w:2,dash:'3 6'});p.text(0,tol,'tol',{dx:6,dy:-8,anchor:'start',get c(){return COL.grey;},weight:700,size:p.fs-2});
   const labels=[];
@@ -491,7 +468,7 @@ function render(k){
   for(const L of labels)p.ptext(L.X,L.Y,L.t,{anchor:L.right?'end':'start',c:L.c,weight:800});
   p.end();
   /* error chips for the current n */
-  setFormula(`<div class="compare-progress"><div class="compare-progress-main"><div>iteration n = <b>${k}</b></div><div>error |${sb('x','n')} − root|</div></div><div class="compare-progress-methods">`+RES.map((s,i)=>{const q=s.pts.find(t=>t.n===k);
+  setFormula(`<div class="compare-progress"><div>Error |${sb('x','n')} − root| at iteration n = <b>${k}</b></div><div class="compare-progress-methods">`+RES.map((s,i)=>{const q=s.pts.find(t=>t.n===k);
     const lastN=s.pts.length?s.pts[s.pts.length-1].n:-1;
     const val=q&&isFinite(q.e)?fmt(q.e,3):(k>lastN&&lastN>=0&&s.N!==null?'done at n = '+s.iters:'–');
     return `<div class="compare-method" style="color:${METHODS[i].c}"><b>${METHODS[i].name}</b><span>${val}</span></div>`;}).join('')+'</div></div>');
@@ -501,7 +478,7 @@ function render(k){
   /* summary table */
   renderTable('sum',['Method','iterations to tol','x at stop','|error| at stop','convergence'],RES.map((s,i)=>{const M=METHODS[i];
     const sw=`<span class="swatch" style="border-color:${M.c};${M.dash?'border-top-style:dashed':''}"></span>${M.name}`;
-    if(s.N===null)return[sw,`<span style="color:${COL.orange}">${s.fail||'not reached'}</span>`,'','',M.rate];
+    if(s.N===null)return[sw,`<span class="fail" style="color:${COL.orange}">${s.fail||'not reached'}</span>`,'','',M.rate];
     const q=s.pts[s.N];return[sw,'<b>'+s.iters+'</b>',fmt(q.x,10),fmt(q.e,3),M.rate];}),-1);
   /* iteration table (values of x_n) */
   const rows=[];for(let n=0;n<=k;n++){rows.push([n,...RES.map(s=>{const q=s.pts.find(t=>t.n===n),last=s.pts[s.pts.length-1];return q?fmt(q.x,10):!s.fail&&last&&n>last.n?fmt(last.x,10):'';})]);}
