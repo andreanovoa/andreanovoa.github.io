@@ -13,7 +13,7 @@
 @media (max-width:600px){.custom-row{grid-template-columns:1fr}}
 /* triangular divided-difference table: each entry sits between the two entries it is computed from */
 .ddwrap{overflow-x:auto;margin-top:10px;border:2px solid var(--soft);border-radius:10px;padding:8px 6px;-webkit-overflow-scrolling:touch}
-.dd{display:grid;grid-auto-rows:1.05em;column-gap:6px;font-variant-numeric:tabular-nums;font-size:.9rem;min-width:max-content}
+.dd{display:grid;grid-auto-rows:1em;column-gap:6px;font-variant-numeric:tabular-nums;font-size:.86rem;min-width:max-content}
 .dd .h{font-weight:700;text-align:center;background:var(--soft);border-radius:6px;padding:2px 6px;line-height:1.6em;grid-row:1/span 2}
 .dd .c{display:flex;align-items:center;justify-content:center;border-radius:7px;padding:0 6px;min-width:52px;white-space:nowrap;border:2px solid transparent}
 .dd .lab{color:var(--grey);font-weight:600}
@@ -25,6 +25,22 @@
 .poly .t{white-space:nowrap}
 .poly .t.newest{color:var(--orange);font-weight:800}
 .legend{margin:6px 0 0;font-size:.85rem;opacity:.8}
+/* the Newton form (up to 8 terms) scrolls sideways instead of wrapping onto many lines */
+.formula.wrap .line3.poly{white-space:nowrap;overflow-x:auto;overflow-wrap:normal;scrollbar-width:thin}
+/* readout (formula and status) across the full width under the buttons; plot (left) beside the table (right) */
+.layout{grid-template-areas:"side side" "controls controls" "readout readout" "plot table"}
+.readout{grid-area:readout;min-width:0}
+.readout .formula{margin-top:0;font-size:1.1rem}
+.readout .status{margin-top:4px;font-size:1.05rem}
+.results-card .ddwrap{margin-top:0}
+@media (max-width:760px){.layout{grid-template-areas:"side" "controls" "readout" "plot" "table"}}
+/* own data on wide screens: x and y beside the data menu, the hint beside the fill order */
+@media (min-width:761px){
+  .side.custom>.preset-field{order:-2;grid-column:span 2}
+  .side.custom>#customBox{order:-1;grid-column:span 4}
+  .side.custom>.hint{grid-column:span 3;align-self:center}
+}
+
 .legend span{white-space:nowrap;margin-right:12px}
 .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:5px;border:2px solid}
 </style>
@@ -34,7 +50,7 @@
 <div class="wrap">
 <header class="top">
   <h1>Newton's divided differences</h1>
-  <p class="lede">Each step computes one entry of the divided-difference table from the two entries beside it. The top diagonal holds the coefficients: each new one adds a term c<sub>k</sub>(x − x<sub>0</sub>)…(x − x<sub>k−1</sub>) that is zero at every earlier point, so the earlier fit is kept and only corrected at the new point.</p>
+  <p class="lede">One divided difference per step. The top diagonal holds the coefficients c<sub>k</sub>; each new term is zero at every earlier point.</p>
 </header>
 <main class="layout">
   <section class="plotcard">
@@ -42,7 +58,7 @@
     <p class="plot-hint">Click the graph to add a point · drag to pan · scroll to zoom</p>
   </section>
   <aside class="side">
-    <label class="field span3">Data<select id="preset"></select></label>
+    <label class="field span3 preset-field">Data<select id="preset"></select></label>
     <label class="field span3">Fill the table<select id="order">
       <option value="pt">Point by point (one new diagonal per point)</option>
       <option value="col">Column by column</option>
@@ -54,8 +70,7 @@
       </div>
       <div id="customErr" class="err"></div>
     </div>
-    <p class="hint">Points are used in the order listed (2 to 8 points, distinct x). Adding a point keeps every entry already computed: only its new diagonal is needed.</p>
-    <p class="hint">Keys: &rarr; step, &larr; back, p play, r reset, End show all</p>
+    <p class="hint">Points are used in the order listed (2 to 8, distinct x). Keys: &rarr; step, &larr; back, p play, r reset, End show all</p>
   </aside>
   <div class="controls btns">
     <button id="btnBack" type="button" title="Back (left arrow)">&larr; Back</button>
@@ -66,9 +81,11 @@
     <button id="btnUndo" type="button" title="Remove the last data point">Remove last point</button>
     <button id="btnResetView" type="button" title="Restore the original graph view">Reset view</button>
   </div>
-  <section class="results-card">
+  <section class="readout">
     <div class="formula wrap" id="formula">&nbsp;</div>
     <div class="status" id="status">&nbsp;</div>
+  </section>
+  <section class="results-card">
     <div class="ddwrap"><div class="dd" id="dd"></div></div>
     <p class="legend"><span><i style="border-color:var(--orange);background:rgba(228,87,46,.16)"></i>just computed</span><span><i style="border-color:var(--grey)"></i>used to compute it</span><span style="color:var(--teal);font-weight:700">coefficients c<sub>k</sub></span></p>
   </section>
@@ -112,6 +129,8 @@ const PRESETS=[
 fillSelect('preset',PRESETS);
 
 const plot=new Plot($('plot'));
+/* plot height: fixed band on wide screens so the demo fits one screen; default (aspect-based) on phones */
+const plotH=()=>{const w=plot.svg.parentElement.clientWidth||800;return window.innerWidth<=600?0:Math.round(Math.max(220,Math.min(290,w*0.5)));};
 const view={xr:null,yr:null};
 let X=[],Y=[],D=[],ORD=[],err='',note='';
 function parseList(s){const v=s.split(/[,;\s]+/).filter(t=>t.length).map(Number);if(v.some(t=>!isFinite(t)))throw new Error('Use numbers separated by commas');return v;}
@@ -119,7 +138,8 @@ function buildOrder(){const n=X.length;ORD=[];
   if($('order').value==='col'){for(let j=1;j<n;j++)for(let i=0;i<n-j;i++)ORD.push([i,j]);}
   else{for(let k=1;k<n;k++)for(let j=1;j<=k;j++)ORD.push([k-j,j]);}
   D=divDiff(X,Y);S.last=ORD.length;}
-function load(keepK){const id=$('preset').value;$('customBox').hidden=id!=='custom';err='';note='';
+const syncCustom=()=>document.querySelector('.side').classList.toggle('custom',!$('customBox').hidden);
+function load(keepK){const id=$('preset').value;$('customBox').hidden=id!=='custom';syncCustom();err='';note='';
   if(id==='custom'){try{X=parseList($('cx').value);Y=parseList($('cy').value);
       if(X.length!==Y.length)throw new Error('x and y need the same number of values');
       if(X.length<2||X.length>8)throw new Error('Use between 2 and 8 points');
@@ -131,7 +151,7 @@ function load(keepK){const id=$('preset').value;$('customBox').hidden=id!=='cust
   if(!keepK)view.xr=view.yr=null;
   S.pause();S.set(keepK?Math.min(keepK,S.last):0);}
 /* write the current data into the custom boxes (6 significant figures) */
-function toCustom(){const r=v=>+(+v).toPrecision(6);$('preset').value='custom';$('customBox').hidden=false;
+function toCustom(){const r=v=>+(+v).toPrecision(6);$('preset').value='custom';$('customBox').hidden=false;syncCustom();
   $('cx').value=X.map(r).join(', ');$('cy').value=Y.map(r).join(', ');}
 /* add a point: everything already computed stays valid, so we keep it and only the new diagonal is left */
 function addPoint(x,y){if(X.length>=8){note='At most 8 points.';S.show();return;}
@@ -162,7 +182,7 @@ function render(k){
   const xr=view.xr||[Math.min(...X)-0.12*span,Math.max(...X)+0.12*span];
   const prevPoly=m>0?(x=>newtonEval(X,D[0].slice(0,m),x)):null;
   const yr=view.yr||autoY([poly,...(prevPoly?[prevPoly]:[])],xr[0],xr[1],{extra:Y,noClip:true});
-  const p=plot.begin(xr,yr);
+  const p=plot.begin(xr,yr,{h:plotH()});
   p.m.r=p.small?72:112;p.pw=p.W-p.m.l-p.m.r;   /* room on the right for direct labels */
   p.axes();
   const labels=[],endY=f=>p.Y(f(p.x1));

@@ -10,6 +10,15 @@
 @font-face{font-family:"CMU Sans Serif";src:url("../fonts/cmunss.woff2") format("woff2");font-weight:400 600;font-display:swap}
 @font-face{font-family:"CMU Sans Serif";src:url("../fonts/cmunsx.woff2") format("woff2");font-weight:700 900;font-display:swap}
 #plot2{margin-top:2px}
+#tblWrap{max-height:220px;margin-top:8px}
+.results-card sup{line-height:0}
+.results-card .formula{font-size:1.08rem}
+.results-card .status{font-size:1.02rem}
+/* menus wide, the two numbers narrow, in one row */
+@media (min-width:761px){.side{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 92px 104px}}
+#tbl th{background:linear-gradient(var(--soft),var(--soft)),var(--bg)}
+.keys{font-size:.85rem;opacity:.75;margin-left:6px}
+@media (max-width:600px){.controls.btns .keys{grid-column:1/-1;margin-left:0}}
 </style>
 <link rel="stylesheet" href="../theme.css">
 </head>
@@ -17,25 +26,24 @@
 <div class="wrap">
 <header class="top">
   <h1>Polynomial and cubic spline</h1>
-  <p class="lede">Each step adds one data point. One polynomial of degree N through all N + 1 points, against a cubic spline: one cubic per interval with continuous y, y′ and y″.</p>
+  <p class="lede">A polynomial of degree N through all N + 1 points against a cubic spline: one cubic per interval, y, y′ and y″ continuous.</p>
 </header>
 <main class="layout">
   <section class="plotcard">
     <svg class="plot" id="plot" role="img" aria-label="Data points, the interpolating polynomial, the cubic spline and the underlying function"></svg>
-    <p class="panel-title">Spline second derivative y″(x): linear between the data points</p>
+    <p class="panel-title">Spline second derivative y″(x), linear between the points</p>
     <svg class="plot" id="plot2" role="img" aria-label="Second derivative of the cubic spline"></svg>
     <p class="plot-hint" id="plotHint">Drag to pan · scroll to zoom</p>
   </section>
   <aside class="side">
-    <label class="field span3">Data<select id="preset"></select></label>
-    <label class="field span3">Spline end conditions<select id="ends">
-      <option value="natural">Free run-out (natural): y″ = 0 at the ends</option>
+    <label class="field">Data<select id="preset"></select></label>
+    <label class="field">Spline end conditions<select id="ends">
+      <option value="natural">Free run-out: y″ = 0 at both ends</option>
       <option value="parabolic">Parabolic run-out: y″₀ = y″₁, y″<sub>N</sub> = y″<sub>N−1</sub></option>
     </select></label>
     <label class="field">Points N + 1<input id="n" type="number" min="2" max="21" step="1"></label>
-    <label class="field span2">Evaluate at x<input id="xe" type="number" step="0.05"></label>
+    <label class="field">Evaluate at x<input id="xe" type="number" step="0.05"></label>
     <p class="hint" id="nHint"></p>
-    <p class="hint">Keys: &rarr; step, &larr; back, p play, r reset</p>
   </aside>
   <div class="controls btns">
     <button id="btnBack" type="button" title="Back (left arrow)">&larr; Back</button>
@@ -43,11 +51,12 @@
     <button id="btnPlay" type="button" title="Play / pause (p)">Play</button>
     <button id="btnReset" type="button" title="Reset (r)">Reset</button>
     <button id="btnResetView" type="button" title="Restore the original graph view">Reset view</button>
+    <span class="keys">Keys: &rarr; step, &larr; back, p play, r reset</span>
   </div>
   <section class="results-card">
     <div class="formula wrap" id="formula">&nbsp;</div>
     <div class="status" id="status">&nbsp;</div>
-    <div class="tablewrap scroll"><table id="tbl"></table></div>
+    <div class="tablewrap scroll" id="tblWrap"><table id="tbl"></table></div>
   </section>
 </main>
 <footer style="margin-top:1rem;color:var(--grey);font-size:.8rem">© Andrea Nóvoa</footer>
@@ -96,6 +105,8 @@ const PRESETS=[
 fillSelect('preset',PRESETS);
 
 const plot=new Plot($('plot')),plot2=new Plot($('plot2'));
+/* plot heights: fixed bands on wide screens so the demo fits one screen; default (aspect-based) on phones */
+const plotH=(f,lo,hi)=>{const w=plot.svg.parentElement.clientWidth||800;return window.innerWidth<=600?0:Math.round(Math.max(lo,Math.min(hi,w*f)));};
 const view={xr:null,yr:null},view2={xr:null,yr:null};
 let PR=PRESETS[0],OWN=PRESETS[5].pts.map(q=>q.slice()),dragIdx=-1;
 const nMin=2;
@@ -124,7 +135,7 @@ function render(k){
     /* let the polynomial widen the view, but not without limit (it can blow up near the ends) */
     const pr=autoY([B.poly],a,b,{noZero:true,pad:0.05}),h=r[1]-r[0];
     yr=[Math.max(r[0]-1.5*h,Math.min(r[0],pr[0])),Math.min(r[1]+1.5*h,Math.max(r[1],pr[1]))];}
-  const p=plot.begin(xr,yr);p.m.r=p.small?60:124;p.pw=p.W-p.m.l-p.m.r;p.axes();
+  const p=plot.begin(xr,yr,{h:plotH(0.56,240,300)});p.m.r=p.small?60:124;p.pw=p.W-p.m.l-p.m.r;p.axes();
   const labs=[],edge=p.m.l+p.pw-0.01;
   if(PR.f){p.curve(PR.f,{c:COL.curve,w:3});labs.push({X:edge,Y:p.Y(PR.f(p.x1)),t:'f(x)',c:COL.curve});}
   if(B.sx.length>=2){p.curve(B.spl,{c:COL.teal,w:3.5},Math.max(p.x0,B.sx[0]),Math.min(p.x1,B.sx[B.sx.length-1]));
@@ -139,7 +150,7 @@ function render(k){
   /* second derivative of the spline (piecewise linear) */
   const xr2=view2.xr||view.xr||xr;
   const yr2=view2.yr||autoY([],0,1,{extra:B.M.concat([0]),pad:0.15});
-  const q=plot2.begin(xr2,yr2,{hfrac:.42});q.m.r=p.m.r;q.pw=q.W-q.m.l-q.m.r;q.axes();
+  const q=plot2.begin(xr2,yr2,window.innerWidth>600?{h:plotH(0.32,140,150)}:{hfrac:.42});q.m.r=p.m.r;q.pw=q.W-q.m.l-q.m.r;q.axes();
   q.path(B.sx.map((x,i)=>[x,B.M[i]]),{c:COL.teal,w:3});B.sx.forEach((x,i)=>q.dot(x,B.M[i],5,COL.teal));
   q.end();
 
@@ -152,7 +163,7 @@ function render(k){
     if(k===0)stat=`Two points: both interpolants are the same straight line. Press Step (&rarr;) to add a point.`;
     else{const Ep=maxErr(build(n-1)),gp=E.ep>Ep.ep*1.0001,gs=E.es>Ep.es*1.0001;
       stat=`N + 1 = ${n-1} → ${n}: polynomial max error ${gp?'grows':'shrinks'} (${sci(Ep.ep,2)} → ${sci(E.ep,2)})`+
-        (gp&&PR.id==='eq'?': Runge phenomenon':'')+`; spline max error ${gs?'grows':'shrinks'} (${sci(Ep.es,2)} → ${sci(E.es,2)})`;
+        (gp&&PR.id==='eq'?', Runge phenomenon':'')+`; spline ${gs?'grows':'shrinks'} (${sci(Ep.es,2)} → ${sci(E.es,2)})`;
       if(gp&&!gs)kindS='bad';else if(!gp&&!gs)kindS='ok';}}
   else{let dmax=0;for(let i=0;i<=1000;i++){const x=a+(b-a)*i/1000;const d=Math.abs(B.poly(x)-B.spl(x));if(isFinite(d))dmax=Math.max(dmax,d);}
     stat=k===0?'Two points: both interpolants are the same straight line. Press Step (&rarr;) to add a point.'

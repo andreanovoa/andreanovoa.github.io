@@ -14,7 +14,28 @@
 :root.dark{--pink:#E3A3CB;--amber:#F2B33D}
 .custom-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
 @media (max-width:600px){.custom-row{grid-template-columns:1fr}}
-#plot2{margin-top:2px}
+.keys{font-size:.85rem;opacity:.75;margin-left:6px}
+@media (max-width:600px){.controls.btns .keys{grid-column:1/-1;margin-left:0}}
+/* wide screens: the two plots side by side, then the formula (left) beside the table (right) */
+.plots{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 22px}
+.plots .panel-title{margin-top:0}
+#tblWrap{max-height:212px;margin-top:6px}
+/* the long first line (basis or sum with up to 21 terms) scrolls sideways; the values below it wrap */
+.formula.wrap .line1{white-space:nowrap;overflow-x:auto;overflow-wrap:normal;scrollbar-width:thin}
+#tbl th{background:linear-gradient(var(--soft),var(--soft)),var(--bg)}
+@media (min-width:761px){
+  .layout{grid-template-areas:"side side" "controls controls" "plot plot" "table table"}
+  .results-card{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"formula tbl" "status tbl";grid-template-rows:auto 1fr;column-gap:22px;align-items:start}
+  .results-card .formula{grid-area:formula;margin-top:0}
+  .results-card .status{grid-area:status}
+  .results-card #tblWrap{grid-area:tbl;margin-top:0}
+}
+@media (max-width:760px){.plots{grid-template-columns:minmax(0,1fr)}}
+/* own data on wide screens: the x and y boxes beside the data menu */
+@media (min-width:761px){
+  .side.custom>.preset-field{order:-2;grid-column:span 2}
+  .side.custom>#customBox{order:-1;grid-column:span 2}
+}
 </style>
 <link rel="stylesheet" href="../theme.css">
 </head>
@@ -22,18 +43,20 @@
 <div class="wrap">
 <header class="top">
   <h1>Lagrange basis</h1>
-  <p class="lede">Each basis polynomial l<sub>j</sub>(x) is 1 at its own node and 0 at all the others. Weighting each by y<sub>j</sub> and adding gives the interpolating polynomial.</p>
+  <p class="lede">Each basis polynomial l<sub>j</sub>(x) is 1 at node j and 0 at the other nodes; the sum of y<sub>j</sub> l<sub>j</sub>(x) interpolates the data.</p>
 </header>
 <main class="layout">
   <section class="plotcard">
-    <p class="panel-title">Basis polynomials l<sub>j</sub>(x)</p>
-    <svg class="plot" id="plot" role="img" aria-label="Lagrange basis polynomials"></svg>
-    <p class="panel-title">Weighted terms y<sub>j</sub> l<sub>j</sub>(x) and their running sum</p>
-    <svg class="plot" id="plot2" role="img" aria-label="Weighted basis polynomials and their sum through the data points"></svg>
+    <div class="plots">
+      <div><p class="panel-title">Basis polynomials l<sub>j</sub>(x)</p>
+      <svg class="plot" id="plot" role="img" aria-label="Lagrange basis polynomials"></svg></div>
+      <div><p class="panel-title">Weighted terms y<sub>j</sub> l<sub>j</sub>(x) and their running sum</p>
+      <svg class="plot" id="plot2" role="img" aria-label="Weighted basis polynomials and their sum through the data points"></svg></div>
+    </div>
     <p class="plot-hint">Drag to pan · scroll to zoom</p>
   </section>
   <aside class="side">
-    <label class="field span3">Data<select id="preset"></select></label>
+    <label class="field span3 preset-field">Data<select id="preset"></select></label>
     <label class="field" id="nBox">Nodes N + 1<input id="n" type="number" min="2" max="21" step="1" value="5"></label>
     <label class="field span2">Evaluate at x<input id="xe" type="number" step="0.05" value="0.8"></label>
     <div id="customBox" class="full" hidden>
@@ -44,7 +67,6 @@
       <div id="customErr" class="err"></div>
     </div>
     <p class="hint">Steps 1 to N + 1 add the basis polynomials; the next N + 1 steps add the weighted terms to the sum.</p>
-    <p class="hint">Keys: &rarr; step, &larr; back, p play, r reset</p>
   </aside>
   <div class="controls btns">
     <button id="btnBack" type="button" title="Back (left arrow)">&larr; Back</button>
@@ -52,11 +74,12 @@
     <button id="btnPlay" type="button" title="Play / pause (p)">Play</button>
     <button id="btnReset" type="button" title="Reset (r)">Reset</button>
     <button id="btnResetView" type="button" title="Restore the original graph view">Reset view</button>
+    <span class="keys">Keys: &rarr; step, &larr; back, p play, r reset</span>
   </div>
   <section class="results-card">
     <div class="formula wrap" id="formula">&nbsp;</div>
     <div class="status" id="status">&nbsp;</div>
-    <div class="tablewrap scroll"><table id="tbl"></table></div>
+    <div class="tablewrap scroll" id="tblWrap"><table id="tbl"></table></div>
   </section>
 </main>
 <footer style="margin-top:1rem;color:var(--grey);font-size:.8rem">© Andrea Nóvoa</footer>
@@ -92,11 +115,13 @@ const PRESETS=[
 fillSelect('preset',PRESETS);
 
 const plot=new Plot($('plot')),plot2=new Plot($('plot2'));
+/* plot height: fixed band on wide screens so the demo fits one screen; default (aspect-based) on phones */
+const plotH=()=>{const w=plot.svg.parentElement.clientWidth||800;return window.innerWidth<=600?0:Math.round(Math.max(190,Math.min(260,w*0.5)));};
 const view={xr:null,yr:null},view2={xr:null,yr:null};
 let PR=PRESETS[0],X=[],Y=[],err='';
 function parseList(s){const v=s.split(/[,;\s]+/).filter(t=>t.length).map(Number);if(v.some(t=>!isFinite(t)))throw new Error('Use numbers separated by commas');return v;}
 function load(resetX){PR=PRESETS.find(p=>p.id===$('preset').value);err='';
-  $('customBox').hidden=PR.id!=='custom';$('nBox').hidden=!PR.nodes;
+  $('customBox').hidden=PR.id!=='custom';document.querySelector('.side').classList.toggle('custom',PR.id==='custom');$('nBox').hidden=!PR.nodes;
   if(PR.nodes){let n=Math.round(num('n'));if(!(n>=2&&n<=21)){n=Math.max(2,Math.min(21,n||5));}
     X=PR.nodes(n);Y=X.map(PR.f);}
   else if(PR.id==='custom'){try{X=parseList($('cx').value);Y=parseList($('cy').value);
@@ -130,7 +155,7 @@ function render(k){
   const xr=view.xr||xr0;
   const fns=[];for(let j=0;j<n;j++)fns.push(x=>L(j,x));
   const yr=view.yr||autoY(fns,a,b,{extra:[-0.2,1.15],noClip:true});
-  const p=plot.begin(xr,yr,{hfrac:.62});p.m.r=p.small?40:56;p.pw=p.W-p.m.l-p.m.r;p.axes();
+  const p=plot.begin(xr,yr,plotH()?{h:plotH()}:{hfrac:.62});p.m.r=p.small?40:56;p.pw=p.W-p.m.l-p.m.r;p.axes();
   p.hline(1,{c:COL.grey,w:1.2,dash:'3 5'},'under');
   const labs=[];
   for(let j=0;j<nb;j++){const cur=j===bStep;
@@ -147,7 +172,7 @@ function render(k){
   const xr2=view2.xr||view.xr||xr0;
   const fns2=[full];if(PR.f)fns2.push(PR.f);
   const yr2=view2.yr||autoY(fns2,a,b,{extra:Y});
-  const q=plot2.begin(xr2,yr2,{hfrac:.72});q.m.r=p.m.r;q.pw=q.W-q.m.l-q.m.r;q.axes();
+  const q=plot2.begin(xr2,yr2,plotH()?{h:plotH()}:{hfrac:.72});q.m.r=p.m.r;q.pw=q.W-q.m.l-q.m.r;q.axes();
   const labs2=[];
   if(PR.f){q.curve(PR.f,{c:COL.curve,w:2.5,op:.8});labs2.push({X:q.m.l+q.pw-0.01,Y:q.Y(PR.f(q.x1)),t:'f',c:COL.curve});}
   for(let j=0;j<nt;j++){const cur=j===tStep&&!done,g=x=>Y[j]*L(j,x);
