@@ -45,3 +45,15 @@ button, select, input[type="number"], input[type="text"] {
   border-color: var(--grey);
 }
 button.primary { background: var(--curve); color: var(--bg); border-color: var(--curve); }
+
+/* Embedded in a class page: the panel header names the demo and the page has
+   its own footer, so the title and footer go, and the type is a step smaller,
+   so that each demo fits one screen. */
+:root.embedded { font-size: 16px; }
+:root.embedded header.top h1,
+:root.embedded footer { display: none; }
+:root.embedded .wrap { padding-top: 10px; padding-bottom: 12px; }
+
+/* --soft is translucent in the dark theme, so a sticky table header lays it
+   over the page colour, or scrolled rows show through it. */
+th { background: linear-gradient(var(--soft), var(--soft)), var(--bg); }
