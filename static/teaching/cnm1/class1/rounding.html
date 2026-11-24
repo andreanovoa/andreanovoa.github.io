@@ -320,7 +320,7 @@ function drawErrPlot(j){
 function renderRound(j){
   if(!A||A.error){emptyPlots();setFormula('');setStatus('bad',A?A.error:'');fitTable();renderTable('tbl',[],[],-1);return;}
   const R=A.rows[j],Q=R.q,b=A.b,neg=A.x.neg,nm=NAMES[b][A.sig?'sig':'dp'],n=R.n;
-  drawLine(R);drawErrPlot(j);
+  drawLine(R);
   const rS=valFull(Q.rr,Q.k,neg),cS=valFull(Q.t,Q.k,neg);
   const xs=b===2?' = '+showX(A.x,20):'';
   setFormula(`<span class="line1">x = ${xDigits(Q.k)}${xs}</span>`+
@@ -564,7 +564,7 @@ function setLegend(){
   else{$('legend').innerHTML=`<span>${sw(COL.curve,'ln')}inputs x ± δx, y ± δy</span><span>${sw(COL.orange,'ln')}worst-case bound f ± δf</span><span>${sw(COL.teal,'ln')}true extremes over the 4 corners</span><span>• central value</span>`;
     $('plot2Title').textContent='Relative errors';$('legend2').innerHTML='';}}
 function setPart(){PART=$('part').value;
-  $('grpA').hidden=PART!=='round';$('grpB').hidden=PART!=='accum';$('grpC').hidden=PART!=='prop';showTab(PART==='accum'?'tbl':TAB);$('tabs').hidden=PART==='accum';
+  $('grpA').hidden=PART!=='round';$('grpB').hidden=PART!=='accum';$('grpC').hidden=PART!=='prop';showTab(PART==='prop'?TAB:'tbl');$('tabs').hidden=PART!=='prop';
   $('tab-plot2').textContent=PART==='prop'?'Relative errors':'Error against n';
   /* Part 1: the status explains the number line and sits under it; Parts 2 and 3: beside the read-out */
   $(PART==='round'?'statusLeft':'statusRight').appendChild($('status'));
