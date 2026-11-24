@@ -117,14 +117,13 @@ body.dark .page-theme-toggle::before {
   background: var(--theme);
 }
 
-/* The demos break out of the 44rem text column and centre on the viewport, up
-   to the demos' own 1440px cap, keeping a 1.25rem gutter on each side. The
-   left offset is measured from the text column, which starts 1.25rem inside
-   the centred --wrap. */
-.prose .module-demos {
-  --demo-width: min(100vw - 2.5rem, 90rem);
-  width: var(--demo-width);
+/* On a page with demos the text column widens to the full central area, the
+   width of the header and footer, so the demos fill it. The paragraphs keep
+   the 44rem reading measure. */
+.prose:has(.module-demos) {
   max-width: none;
-  margin-left: calc((100vw - var(--demo-width)) / 2 - 1.25rem
-                    - max(0px, (100vw - var(--wrap)) / 2));
+}
+
+.prose:has(.module-demos) > p {
+  max-width: 44rem;
 }
