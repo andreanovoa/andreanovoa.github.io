@@ -116,3 +116,15 @@ body.dark .page-theme-toggle::before {
   border: 0;
   background: var(--theme);
 }
+
+/* The demos break out of the 44rem text column and centre on the viewport, up
+   to the demos' own 1440px cap, keeping a 1.25rem gutter on each side. The
+   left offset is measured from the text column, which starts 1.25rem inside
+   the centred --wrap. */
+.prose .module-demos {
+  --demo-width: min(100vw - 2.5rem, 90rem);
+  width: var(--demo-width);
+  max-width: none;
+  margin-left: calc((100vw - var(--demo-width)) / 2 - 1.25rem
+                    - max(0px, (100vw - var(--wrap)) / 2));
+}
