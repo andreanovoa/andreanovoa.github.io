@@ -21,15 +21,14 @@
 .bin .sg{color:var(--pink);font-weight:700}
 .bin .ex{color:var(--teal);font-weight:700}
 .k-t{color:var(--teal)}.k-o{color:var(--orange)}
-#stairLegend .chip{white-space:normal}
 #tbl td:nth-child(2){font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.8rem}
 #tbl td:first-child{text-align:left}
 #tbl td:last-child{text-align:left;white-space:normal;overflow-wrap:anywhere;min-width:11em}
 #tbl td:nth-child(2){white-space:normal;word-break:normal;min-width:6em;max-width:16em}
 #tblCmp td:nth-child(2),#tblCmp th:nth-child(2){text-align:left;white-space:normal;overflow-wrap:anywhere;min-width:7.5em}
 #tblCmp td:first-child{text-align:left}
+#tblCmp{font-size:.8rem}#tblCmp th,#tblCmp td{padding:5px 6px}#tblCmp td:last-child{white-space:normal;min-width:6.5em}
 #tblCmp small{opacity:.7;font-weight:500}
-.nbrs{margin:4px 0 0;font-size:.95rem;line-height:1.5;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 #status,.formula{overflow-wrap:anywhere}
 .results-card .panel-title{margin-top:14px}
 /* one-screen layout: the recipe, where students focus, takes the wider left
@@ -50,7 +49,6 @@
 .tabs{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 6px}
 .tabs button{min-height:32px;padding:4px 10px;font-size:.85rem;border-width:1.5px}
 .tabs button[aria-selected=true]{background:var(--navy);color:var(--bg)}
-.nbrs{font-size:.9rem;line-height:1.4}
 @media (max-width:760px){.layout{grid-template-areas:"side" "controls" "bits" "table" "plot"}.results-card{grid-row:auto}.formula{font-size:1.05rem}.formula .line2,.formula .line3{font-size:1rem}}
 </style>
 <link rel="stylesheet" href="../theme.css">
@@ -69,22 +67,8 @@
   </section>
   <section class="plotcard">
     <div class="status" id="status" style="margin:0 0 8px">&nbsp;</div>
-    <div class="tabs" role="tablist" aria-label="Plots and formats">
-      <button type="button" role="tab" id="tab-line" aria-controls="pane-line" aria-selected="true">Number line</button>
-      <button type="button" role="tab" id="tab-gap" aria-controls="pane-gap" aria-selected="false">Gap Δ</button>
-      <button type="button" role="tab" id="tab-cmp" aria-controls="pane-cmp" aria-selected="false">Formats</button>
-    </div>
-    <div role="tabpanel" id="pane-line" aria-labelledby="tab-line">
-      <svg class="plot" id="plot" role="img" aria-label="Neighbouring floating-point numbers around the stored value"></svg>
-      <p class="nbrs" id="nbrs"></p>
-      <p class="plot-hint">Grey ticks: neighbouring floats; shaded: every x stored as x̃. Drag to pan · scroll to zoom</p>
-    </div>
-    <div role="tabpanel" id="pane-gap" aria-labelledby="tab-gap" hidden>
-      <svg class="plot" id="plot2" role="img" aria-label="Gap between floats against the size of the number, log-log"></svg>
-      <p class="legend" id="stairLegend"></p>
-      <p class="plot-hint">Gap Δ between neighbouring floats against |x|, log–log axes. The gap doubles at every power of 2. Drag to pan · scroll to zoom</p>
-    </div>
-    <div role="tabpanel" id="pane-cmp" aria-labelledby="tab-cmp" hidden>
+    <p class="panel-title">The same x in half, single and double precision</p>
+    <div id="pane-cmp">
       <div class="tablewrap" style="margin-top:0"><table id="tblCmp"></table></div>
       <p class="hint" style="margin:6px 0 0;font-size:.85rem;opacity:.75">More mantissa bits: a smaller machine epsilon ε and a smaller relative error, |ε<sub>r</sub>| ≤ ε/2 when rounding to nearest.</p>
     </div>
@@ -102,7 +86,6 @@
     <button id="btnPlay" type="button" title="Play / pause (p)">Play</button>
     <button id="btnReset" type="button" title="Reset (r)">Reset</button>
     <button id="btnEnd" type="button" title="Show all (End)">Show all</button>
-    <button id="btnResetView" type="button" title="Restore the original graph view">Reset view</button>
     <p class="keys">Round to nearest uses ties to even (IEEE 754). Keys: &rarr; step, &larr; back, p play, r reset, End show all</p>
   </div>
   <section class="results-card">
@@ -210,8 +193,6 @@ const PRESETS=[
 
 const pink=()=>getComputedStyle(document.documentElement).getPropertyValue('--pink').trim();
 let F=FORMATS.single,X=null,A=null,V=null,STEPS=[],forced=null,CX=null;   /* CX: exact value of a clicked bit pattern */
-const view={xr:null,yr:null},view2={xr:null,yr:null};
-const plot=new Plot($('plot')),plot2=new Plot($('plot2'));
 const sup=e=>'<sup>'+String(e).replace('-','−')+'</sup>';
 const mono=s=>`<span class="bin">${s}</span>`;
 const sgn=s=>String(s).replace(/-/g,'−');
@@ -311,82 +292,12 @@ function drawBits(rev){
     if(first||r===0)out+=txt((a+c)/2,y-5,name,{size:ls+2,c:col,weight:750});}
   svgSize(svg,W,(rows-1)*rowH+top+bh+ls+8);svg.innerHTML=out;}
 
-/* number line in units of the gap Δ above x̃ */
-function drawLine(){
-  const p=plot,small=($('plot').parentElement.clientWidth||700)<600,H=small?130:140;
-  if(V.kind==='nan'||V.kind==='inf'){$('nbrs').innerHTML='';p.begin([-1,1],[0,1],{h:H,ml:16});p.L.back.push(`<rect x="${p.m.l}" y="${p.m.t}" width="${p.pw}" height="${p.ph}" fill="none" stroke="${COL.grey}" stroke-width="1.5"/>`);
-    p.ptext(p.m.l+p.pw/2,p.m.t+p.ph/2+6,V.kind==='nan'?'NaN is not on the number line':'x̃ = '+(V.s?'−':'')+'∞: not a finite number',{c:COL.orange});p.end();return;}
-  const mbB=BigInt(F.mb),mag0=(BigInt(V.c)<<mbB)|V.f,J0=V.s?-mag0:mag0,maxMag=(BigInt(F.cmax)<<mbB)-1n;
-  const kD=Math.max(V.c,1)-F.bias-F.mb,v0=valJ(F,J0),u=J=>rnum(rscale(rsub(valJ(F,J),v0),kD));
-  const ok=J=>(J<0n?-J:J)<=maxMag;
-  const er=errors();
-  let uxe=0;if(er&&!er.zero){uxe=rnum(rscale(rsub({n:(X.neg?-1n:1n)*X.N,d:X.D},v0),kD));}
-  const lo0=Math.min(-2.6,uxe-1),hi0=Math.max(2.6,uxe+1);
-  const xr=view.xr||[lo0,hi0];
-  p.begin(xr,[0,1],{h:H,ml:16});
-  /* frame and tick labels below it (no grid lines, so labels never sit on lines) */
-  const m=p.m,B=p.L.back,fs=p.fs;
-  B.push(`<rect x="${m.l}" y="${m.t}" width="${p.pw}" height="${p.ph}" fill="none" stroke="${COL.grey}" stroke-width="1.5"/>`);
-  for(const t of ticks(xr[0],xr[1],Math.max(2,Math.round(p.pw/(small?95:130))))){const X=p.X(t);if(X<m.l||X>m.l+p.pw)continue;
-    B.push(`<line x1="${X}" y1="${m.t+p.ph}" x2="${X}" y2="${m.t+p.ph-6}" stroke="${COL.grey}" stroke-width="1.5"/>`);
-    const lab=t===0?'x̃':(t>0?'x̃ + ':'x̃ − ')+fmt(Math.abs(t),4)+'Δ';
-    if(X-lab.length*fs*0.29-2<0||X+lab.length*fs*0.29+2>p.W)continue;
-    B.push(`<text x="${X}" y="${m.t+p.ph+fs+8}" fill="${COL.navy}" font-size="${fs-1}" text-anchor="middle">${lab}</text>`);}
-  /* neighbours: walk out from x̃ until the edge of the view (at most 300 each way) */
-  const pts=[[J0,0]];let dense=[false,false];
-  for(const dir of [-1n,1n]){let J=J0,cnt=0;
-    for(;;){J+=dir;if(!ok(J))break;const uu=u(J);if(dir<0n?uu<xr[0]:uu>xr[1])break;
-      if(++cnt>300){dense[dir<0n?0:1]=true;break;}pts.push([J,uu]);}}
-  /* every real number in the shaded band is stored as x̃ */
-  const has=d=>ok(J0+d),uP=has(-1n)?u(J0-1n):null,uN=has(1n)?u(J0+1n):null,chop=$('mode').value==='chop';
-  if(uP!==null&&uN!==null){const a=chop?(J0>0n?0:uP):uP/2,b=chop?(J0>0n?uN:0):uN/2;p.band(a,b,COL.orange,0.10);}
-  for(const [i,side] of [[0,-1],[1,1]])if(dense[i]){const edge=side<0?Math.min(...pts.map(q=>q[1])):Math.max(...pts.map(q=>q[1]));
-    p.band(side<0?xr[0]:edge,side<0?edge:xr[1],COL.grey,0.15);}
-  p.seg(xr[0],0.5,xr[1],0.5,{c:COL.navy,w:2},'under');
-  for(const [J,uu] of pts){if(J===J0)continue;p.seg(uu,0.37,uu,0.63,{c:COL.grey,w:2});}
-  p.seg(0,0.28,0,0.72,{c:COL.orange,w:4},'top');
-  if(er&&!er.zero)p.dot(uxe,0.5,7,COL.teal,'top');
-  /* gap bracket between x̃ and the next float, labelled above it */
-  if(uN!==null&&p.X(uN)-p.X(0)>24){const yb=0.8;p.seg(0,yb,uN,yb,{c:COL.grey,w:1.8});p.seg(0,yb-0.04,0,yb+0.04,{c:COL.grey,w:1.8});p.seg(uN,yb-0.04,uN,yb+0.04,{c:COL.grey,w:1.8});
-    const Xc=Math.max(m.l+30,Math.min(m.l+p.pw-30,(p.X(0)+p.X(uN))/2));p.ptext(Xc,p.Y(yb)-8,'Δ = 2'+`<tspan dy="-0.5em" font-size="72%">${sgn(kD)}</tspan>`,{c:COL.grey,weight:700,size:fs-1});}
-  /* labels below the line */
-  const labs=[[p.X(0),'x̃ stored',COL.orange]];if(er&&!er.zero)labs.push([p.X(uxe),'x typed',COL.teal]);
-  labs.sort((a,b)=>a[0]-b[0]);const XS=spread(labs.map(l=>l[0]),small?92:116,m.l+40,m.l+p.pw-40);
-  labs.forEach((l,i)=>p.ptext(XS[i],p.Y(0.14),er&&er.zero?'x = x̃ (exact)':l[1],{c:l[2],weight:800}));
-  p.end();
-  const dg=Math.min(17,F.digits+1),sh=J=>has(J-J0)?sgn(rnum(valJ(F,J)).toPrecision(dg)):'—';
-  $('nbrs').innerHTML=`Neighbours: previous float ${sh(J0-1n)}, &nbsp;<b style="color:var(--orange)">x̃ = ${V.M===undefined||sigDigits(decOfBin(V.M,V.k))<=dg?storedTxt():sgn(rnum(v0).toPrecision(dg))}</b>, &nbsp;next float ${sh(J0+1n)}. Gap above x̃: Δ = 2${sup(kD)} ≈ ${sciS(2**kD,3)}`+(V.f===0n&&V.c>1?' (below x̃ the gap is half as large: x̃ is a power of 2)':'')+'.';}
-
-/* gap between neighbouring floats against |x| (log–log) */
-function gapAt(x){const e=Math.max(F.emin,Math.floor(Math.log2(x)));return 2**(e-F.mb);}
-function drawStair(){
-  const p=plot2,eps=2**-F.mb,xminS=2**(F.emin-F.mb),xmin=2**F.emin,xmax=2**F.emax*(2-eps);
-  const c=V&&(V.kind==='normal'||V.kind==='sub')?Math.abs(rnum(rat(false,V.M,V.k))):1;
-  const clampL=v=>Math.min(1e307,Math.max(xminS,v));
-  let xr=view2.xr||[clampL(c/64),clampL(c*64)];xr=[clampL(xr[0]),clampL(xr[1])];if(xr[1]<=xr[0]*1.01)xr[1]=xr[0]*2;
-  let yr=view2.yr||[gapAt(xr[0])/4,gapAt(xr[1])*4];yr=[Math.max(1e-320,yr[0]),Math.min(1e307,yr[1])];if(yr[1]<=yr[0]*1.01)yr[1]=yr[0]*2;
-  p.begin(xr,yr,{logx:true,log:true,h:p.svg.parentElement.clientWidth>=600?260:160});p.axes();
-  if(xmin>xr[0])p.band(xr[0],Math.min(xmin,xr[1]),COL.grey,0.14);
-  p.curve(x=>eps*x,{c:COL.grey,w:1.8,dash:'7 6'});
-  const pts=[],e0=Math.max(F.emin-F.mb,Math.floor(Math.log2(xr[0]))-1),e1=Math.min(F.emax,Math.ceil(Math.log2(xr[1]))+1);
-  for(let e=e0;e<=e1&&pts.length<6000;e++){const g=2**(Math.max(e,F.emin)-F.mb),a=Math.max(xminS,2**e),b=e===F.emax?xmax:2**(e+1);pts.push([a,g],[b,g]);}
-  p.path(pts,{c:COL.curve,w:3});
-  p.dot(1,eps,6,COL.teal);
-  if(V&&(V.kind==='normal'||V.kind==='sub'))p.dot(c,2**(Math.max(V.c,1)-F.bias-F.mb),7,COL.orange);
-  /* legend below the plot (as HTML), so no text sits on the staircase or the guide */
-  const sp=e=>'2<sup>'+sgn(e)+'</sup>',L=[`<span class="chip"><span class="k-t">●</span> at x = 1: Δ = ε = ${sp(-F.mb)} ≈ ${sciS(eps,3)}</span>`];
-  if(V&&(V.kind==='normal'||V.kind==='sub'))L.push(`<span class="chip"><span class="k-o">●</span> x̃: Δ = ${sp(Math.max(V.c,1)-F.bias-F.mb)}</span>`);
-  L.push('<span class="chip">dashed: relative gap ε, Δ = ε|x|</span>');
-  if(xmin>xr[0])L.push('<span class="chip">shaded: subnormal (not examined)</span>');
-  $('stairLegend').innerHTML=L.join(' ');
-  p.end();}
-
 /* ---------- read-out ---------- */
 function render(k){
-  if(!A){drawBits(0);plot.begin([0,1],[0,1],{h:140,ml:16});plot.end();plot2.begin([1,10],[1,10],{logx:true,log:true,hfrac:.72});plot2.axes();plot2.end();
-    setFormula('');setStatus('bad',$('numErr').textContent);renderTable('tbl',[],[],-1);renderTable('tblCmp',[],[],-1);$('nbrs').innerHTML='';return;}
+  if(!A){drawBits(0);
+    setFormula('');setStatus('bad',$('numErr').textContent);renderTable('tbl',[],[],-1);renderTable('tblCmp',[],[],-1);return;}
   const s=STEPS[Math.min(k,STEPS.length-1)];
-  drawBits(s.rev);drawLine();drawStair();compareTable();
+  drawBits(s.rev);compareTable();
   setFormula(`<span class="line1">${s.l1}</span><span class="line2">${s.l2}</span><span class="line3">${s.l3}</span>`);
   /* status */
   const last=k>=S.last,fv=fieldVals(),er=errors();
@@ -439,7 +350,6 @@ function recompute(keepView){
   try{X=CX||parseDec($('num').value);}catch(e){X=null;A=null;$('numErr').textContent=e.message;S.last=0;S.pause();S.set(0);return;}
   if(!forced){A=analyse(F,X,$('mode').value);V=decode(F,A.bits);}
   else{V=decode(F,forced);A={bits:forced,s:V.s,kind:V.kind==='nan'?'nan':V.kind,c:V.c,f:V.f};}
-  if(!keepView){view.xr=view.yr=view2.xr=view2.yr=null;}
   STEPS=buildSteps();S.last=STEPS.length-1;S.pause();S.set(S.last);}
 /* clicking a bit: the typed number becomes the stored value of the new pattern */
 function shortest(d){const dec=decOfBin(d.M,d.k);
@@ -462,14 +372,6 @@ $('num').addEventListener('input',debounce(()=>{forced=null;CX=null;$('preset').
 $('num').addEventListener('keydown',e=>{if(e.key==='Enter')e.target.blur();});
 onSelectChange('fmt',()=>{forced=null;CX=null;recompute();});
 onSelectChange('mode',()=>{forced=null;CX=null;recompute();});
-enablePanZoom(plot,view,()=>S.show(),{lockY:true});
-enablePanZoom(plot2,view2,()=>S.show());
-bindViewControls([view,view2],()=>S.show());
-/* tabs: redraw on show, because a hidden plot has no width */
-const TABS=['line','gap','cmp'];
-function showTab(t){TABS.forEach(n=>{const on=n===t;$('tab-'+n).setAttribute('aria-selected',on);$('tab-'+n).tabIndex=on?0:-1;$('pane-'+n).hidden=!on;});
-  S.show();if(window.parent!==window)window.parent.postMessage({type:'module-demo-resize'},location.origin);}
-TABS.forEach(n=>$('tab-'+n).addEventListener('click',()=>showTab(n)));
 recompute();S.reset();
 </script>
 </body>
