@@ -127,3 +127,13 @@ body.dark .page-theme-toggle::before {
 .prose:has(.module-demos) > p {
   max-width: 44rem;
 }
+
+/* An open demo widens to the full screen, keeping a 1.25rem gutter on each
+   side; closed panels stay in the central column. The left offset is measured
+   from the column, which starts 1.25rem inside the centred --wrap. */
+.prose .module-demo[open] {
+  --demo-width: calc(100vw - 2.5rem);
+  width: var(--demo-width);
+  margin-left: calc((100vw - var(--demo-width)) / 2 - 1.25rem
+                    - max(0px, (100vw - var(--wrap)) / 2));
+}
